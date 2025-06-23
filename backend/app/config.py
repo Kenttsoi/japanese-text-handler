@@ -1,0 +1,26 @@
+class Config:
+    """Basic Setting"""
+    SECRET_KEY = 'your-secret-key' # not yet set
+    CORS_ORIGINS = ['http://localhost:5173']
+
+class DevelopmentConfig(Config):
+    DEBUG = True
+    HOST = '0.0.0.0'
+    PORT = 5000
+
+class TestingConfig(Config):
+    DEBUG = True
+    TESTING = True
+    HOST = '0.0.0.0'
+    PORT = 5001
+
+class ProductionConfig(Config):
+    DEBUG = False
+    HOST = '0.0.0.0'
+    PORT = 5000
+
+config_dict = {
+    'development': DevelopmentConfig,
+    'testing': TestingConfig,
+    'production': ProductionConfig
+}
