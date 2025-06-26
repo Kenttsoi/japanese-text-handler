@@ -2,7 +2,7 @@ import os
 
 class Config:
     """Basic Setting"""
-    SECRET_KEY = os.getenv('SECRET_KEY'', 'default-secret-key')
+    SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')
     CORS_ORIGINS = ['http://localhost:5173']
 
 class DevelopmentConfig(Config):
