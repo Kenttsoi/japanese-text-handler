@@ -17,6 +17,7 @@ def create_app(config_env='development'):
 
     # 初始化 MeCab
     app.tagger = MeCab.Tagger()
+    app.wakati_tagger = MeCab.Tagger("-Owakati")
 
     # 註冊 Blueprint
     app.register_blueprint(api, url_prefix='/api')
