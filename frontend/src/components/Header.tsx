@@ -1,5 +1,5 @@
 import React from 'react';
-import { Burger, Center, Container, Group, Menu, Drawer, Box, Modal, ScrollArea } from '@mantine/core';
+import { Anchor, Burger, Center, Container, Group, Drawer, Grid } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import classes from './Header.module.css';
 
@@ -9,8 +9,8 @@ const links = [
 ];
 
 export function Header() {
-  // const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const [opened, { toggle }] = useDisclosure(false);
+
   const items = links.map((link) => {
     return (
       <a
@@ -21,6 +21,22 @@ export function Header() {
       >
         {link.label}
       </a>
+    );
+  });
+
+  const mobileItems = links.map((link) => {
+    return (
+      <Grid.Col span={12} className={classes.mobileMenuCol}>
+        <Anchor
+          key={link.label}
+          href={link.link}
+          c="white"
+          underline='never'
+          onClick={(event) => event.preventDefault()}
+        >
+          {link.label}
+        </Anchor>
+      </Grid.Col>
     );
   });
 
@@ -40,10 +56,26 @@ export function Header() {
       <Drawer
         opened={opened}
         onClose={toggle}
-        title="Menu"
-        style={{ zIndex: 2000, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+        withCloseButton={false}
+        position="top"
+        size="100%"
+        styles={{
+          content: {
+            background: 'transparent',
+            zIndex: 1000,
+            position: 'fixed',
+            top: 56,
+            left: 0,
+            right: 0,
+            bottom: 0,
+          },
+        }}
       >
-        Menu Content Test
+        <Center>
+          <Grid justify="center" align="center">
+            {mobileItems}
+          </Grid>
+        </Center>
       </Drawer>
     </>
 
