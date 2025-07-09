@@ -1,5 +1,13 @@
+import jaconv
+
 def katakana_to_hiragana(text):
-    return ''.join(
-        chr(ord(char) - 0x60) if '\u30A1' <= char <= '\u30F6' else char
-        for char in text
-    )
+    """
+    Convert a string from Katakana to Hiragana.
+
+    Args:
+        text (str): A string in Katakana.
+
+    Returns:
+        str: The converted string in Hiragana.
+    """
+    return jaconv.kata2hira(text)

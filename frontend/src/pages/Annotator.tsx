@@ -1,18 +1,18 @@
 import React from 'react';
 import { Container, Textarea, Paper } from '@mantine/core';
-import { annotateText } from '../services/api';
+import { annotateTextSimple } from '../services/api';
 import { Header } from '../components/Header';
 import classes from './Annotator.module.css';
 
 const Annotator: React.FC = () => {
   const [text, setText] = React.useState<string>('');
-  const [result, setResult] = React.useState('');
+  const [result, setResult] = React.useState<string>('');
 
   const handleAnnotate = async () => {
     console.log(text)
     try {
-      const apiResult = await annotateText(text);
-      console.log(apiResult);
+      const apiResult: string[][] = await annotateTextSimple(text);
+      console.log('[FUNCTION: handleAnnotate]', apiResult);
     } catch (err) {
       console.error(err);
     }

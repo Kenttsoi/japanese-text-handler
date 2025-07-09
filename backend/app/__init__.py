@@ -16,8 +16,8 @@ def create_app(config_env='development'):
     CORS(app, resources={r"/api/*": {"origins": app.config['CORS_ORIGINS']}})
 
     # 初始化 MeCab
-    app.tagger = MeCab.Tagger()
-    app.wakati_tagger = MeCab.Tagger("-Owakati")
+    app.tagger = MeCab.Tagger() # default MeCab tagger
+    app.wakati_tagger = MeCab.Tagger("-Owakati") # simple one for word segmentation
 
     # 註冊 Blueprint
     app.register_blueprint(api, url_prefix='/api')

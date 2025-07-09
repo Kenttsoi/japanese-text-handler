@@ -1,6 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
-export const annotateText = async (text: any) => {
+export const annotateTextSimple = async (text: string) => {
     try {
         const response = await fetch(`${API_URL}/annotate`, {
             method: 'POST',

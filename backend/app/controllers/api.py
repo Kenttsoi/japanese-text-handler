@@ -1,3 +1,4 @@
+from app.utils.text_utils import katakana_to_hiragana
 from flask import Blueprint, request, jsonify, Response, current_app
 import json
 
@@ -24,21 +25,13 @@ def annotate():
     if not text:
         return jsonify({'error': 'No text provided'})
     parsed = current_app.tagger.parse(text).splitlines()[:-1]
-    result = []
+    result = {'original': [], 'hiragana': [], 'katakana': []}
     for line in parsed:
         parts = line.split('\t')
         if len(parts) < 2:
             continue
-        katakana = parts[1].split(',')
-        result.append(katakana)
-        
-    """ result = []
-    for line in parsed:
-        parts = line.split('\t')
-        if len(parts) < 2:
-            continue
-        features = parts[1].split(',')
-        if len(features) > 7 and features[7] and features[7] != '*':
-            result.append({'kanji': parts[0], 'reading': features[7]}) """
-    
+        hiragana = katakana_to_hiragana(parts[1])
+        result['original'].append(parts[0])
+        result['hiragana'].append(hiragana)
+        result['katakana'].append(parts[1])
     return jsonify(result)
