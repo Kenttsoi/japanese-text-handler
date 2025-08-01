@@ -8,7 +8,7 @@ const links = [
   { link: '/annotate', label: 'Annotator' }
 ];
 
-export function Header() {
+export const Header: React.FC = () => {
   const [opened, { toggle }] = useDisclosure(false);
 
   const items = links.map((link) => {

@@ -2,17 +2,29 @@ import React from 'react';
 import { Container, Textarea, Paper } from '@mantine/core';
 import { annotateTextSimple } from '../services/api';
 import { Header } from '../components/Header';
+import { RubyText } from '../components/RubyText';
 import classes from './Annotator.module.css';
+
+type AnnotatedText = {
+  original: string[];
+  result: string[];
+  hiragana?: string[];
+  katakana?: string[];
+};
 
 const Annotator: React.FC = () => {
   const [text, setText] = React.useState<string>('');
-  const [result, setResult] = React.useState<string>('');
+  const [result, setResult] = React.useState<AnnotatedText>({
+    original: [],
+    result: []
+  });
 
   const handleAnnotate = async () => {
     console.log(text)
     try {
-      const apiResult: string[][] = await annotateTextSimple(text);
+      const apiResult: AnnotatedText = await annotateTextSimple(text);
       console.log('[FUNCTION: handleAnnotate]', apiResult);
+      setResult(apiResult);
     } catch (err) {
       console.error(err);
     }
@@ -38,19 +50,22 @@ const Annotator: React.FC = () => {
           />
         </Paper>
       </Container>
-
-      {/* <textarea value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder='Pls Type your Japanese Text here'
-      /> */}
       <br />
       <button onClick={handleAnnotate}>SHOW</button>
       <Container className="mainContentWidth">
         <Paper shadow="xs" p="xl" className={classes.displayPaper}>
-          {text}
+          { result.result.length > 0 ?
+            result.result.map((item, index) => {
+              return (
+                <RubyText
+                  key={index}
+                  text={result.original[index] ? result.original[index] : '' }
+                  rubyText={result.result[index]}
+                />
+              )
+            }) : <></>}
         </Paper>
       </Container>
-      <div>{result}</div>
     </>
 
   )
