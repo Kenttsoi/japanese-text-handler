@@ -2,6 +2,8 @@ from unihan_etl.core import Packager, Options
 from pathlib import Path
 from flask import current_app
 
+UNIHAN_ZIP_URL = "http://www.unicode.org/Public/UNIDATA/Unihan.zip"
+
 def initiate_unihan():
     """
     Initiate the Unihan data packaging process.
@@ -12,25 +14,25 @@ def initiate_unihan():
     work_dir = Path(current_app.static_folder) / 'unihan' / 'work_dir'
     work_dir.mkdir(parents=True, exist_ok=True)
 
-    print('aaa')
-    print(destination)
-    print(zip_path)
-    print(work_dir)
-    pkgr = Packager(
-        options=Options(
-            source='http://www.unicode.org/Public/UNIDATA/Unihan.zip',
-            destination=destination,
-            zip_path=zip_path,
-            work_dir=work_dir,
-            fields=('kJapaneseKun', 'kJapaneseOn'),
-            format='json',
-            input_files=['Unihan_Readings.txt'],
-            download=True,
-            expand=True,
-            prune_empty=True,
-            cache=True,
-            log_level='INFO'
+    try:
+        pkgr = Packager(
+            options=Options(
+                source=UNIHAN_ZIP_URL,
+                destination=destination,
+                zip_path=zip_path,
+                work_dir=work_dir,
+                fields=('kJapaneseKun', 'kJapaneseOn'),
+                format='json',
+                input_files=['Unihan_Readings.txt'],
+                download=True,
+                expand=True,
+                prune_empty=True,
+                cache=True,
+                log_level='INFO'
+            )
         )
-    )
-    pkgr.download()
-    pkgr.export()
+        pkgr.download()
+        pkgr.export()
+    except Exception as e:
+        current_app.logger.error(f"Error during Unihan data packaging: {e}")
+        raise RuntimeError(f"initiate_unihan failed: {e}")

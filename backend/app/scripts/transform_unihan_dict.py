@@ -5,6 +5,9 @@ from flask import current_app
 
 def transform_unihan_dict():
     json_path = Path(current_app.static_folder) / 'unihan' / 'unihan_output.json'
+    if not json_path.exists():
+        raise FileNotFoundError(f"Unihan JSON file not found at {json_path}")
+    
     with open(json_path, 'r', encoding='utf-8') as f:
         raw_list = json.load(f)
     data_dict = {
