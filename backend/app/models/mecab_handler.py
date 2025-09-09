@@ -34,44 +34,39 @@ class MecabHandler:
         self.tagger = current_app.tagger
 
     def annotate(self, text):
-        """
-        Annotate the given text using MeCab.
-        separates text into characters, returns hiragana.
-        :param text: str, input Japanese text
-        """
-        """ kakasi = pykakasi.kakasi()
-        kakasi.setMode("J", "H")
-        kakasi.setMode("H", "a")
-        converter = kakasi.getConverter()
-        kanji_string = "擁する世界最大のメガシティ"
-        kanji_readings = {}
-        for character in kanji_string:
-            kana_reading = converter.do(character)
-            kanji_readings[character] = kana_reading
-
-        for character, reading in kanji_readings.items():
-            print(f"{character} is {reading}") """
-        
-        # Library 1: pykakasi: return list[dict], has orig, hira, kana and romaji, but no 詞性 and no english if kana
+        # Library 1: pykakasi: return list[dict], has orig, hira, kana and romaji, but no Part of speech and no english if kana
         print('--------------------------------------------------------------------------------')
         kakasi = pykakasi.kakasi()
         parsed1 = kakasi.convert(text)
         print('[001]: pykakasi', parsed1)
 
         # Library 2: MeCab: return all the morphological analysis results, but sometimes kanji readings are wrong
-        parsed2 = self.tagger.parse(text)
-        print('[002]: MeCab', parsed2)
+        parsed2 = self.tagger.parse(text).splitlines()[:-1]
+        lookup = {}
+        for word in parsed2:
+            token = word.split('\t')
+            print('[002A]', token)
+            word_dict = {
+                "original": token[0],
+                "reading_katakana": token[1],
+                "pronunciation": token[2],
+                "dict_form": token[3],
+                "pos": token[4],
+                "katsuyou1": token[5],
+                "katsuyou2": token[6],
+                "pitch_accent": token[7]
+            }
+            lookup[token[0]] = word_dict
+        print('[002]: MeCab', lookup)
 
         parsed = self.tagger.parse(text).splitlines()[:-1]
         print('[003]: MeCab Original code logic', parsed)
         result = {'result':[], 'word_type': [], 'original': [], 'hiragana': [], 'katakana': []}
+        
         resultList = []
-
         # test for pykakasi
         for line in parsed1:
             print('[004]: pykakasi', line)
-            if len(parsed1) < 2:
-                continue
             char_type = unicodedata.name(line['orig'][0], 'None') # only accept ONE char of this method
             print('[005]: pykakasi char_type', char_type)
             wordResult = WordEntry(
@@ -81,14 +76,32 @@ class MecabHandler:
                 char_type=char_type
             )
             print('[006]', wordResult.to_dict())
-            """ if 'CJK UNIFIED IDEOGRAPH' in char_type:
-            elif 'HIRAGANA' in char_type:
-            elif 'KATAKANA' in char_type:
-            else: """
+            if 'CJK UNIFIED IDEOGRAPH' in char_type:
+                single_kanjis = KanjiSeparator.separate_kanji(line['orig'], line['hira'])
+                print('[009] single kanji', single_kanjis)
+                for index, eachKanji in enumerate(single_kanjis[0]):
+                    wordResult = WordEntry(
+                        original=eachKanji,
+                        hiragana=single_kanjis[1][index],
+                        katakana=KanaConverter.hiragana_to_katakana(single_kanjis[1][index]),
+                        char_type=char_type
+                    )
+                    resultList.append(wordResult.to_dict())
+            else:
+                wordResult = WordEntry(
+                    original=line['orig'],
+                    hiragana=line['hira'],
+                    katakana=line['kana'],
+                    char_type=char_type
+                )
+                resultList.append(wordResult.to_dict())
 
-        print('[007 result list of dicts]', resultList)
+        print('[010 result list of dicts]', resultList)
+        return resultList
         
 
+        """ 
+        # Old logic for Meca only
         for line in parsed:
             parts = line.split('\t')
             if len(parts) < 2:
@@ -120,4 +133,4 @@ class MecabHandler:
                 result['word_type'].append('other')
                 result['original'].append(parts[0])
                 result['katakana'].append(parts[1])
-        return result
+        return result """

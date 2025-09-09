@@ -33,6 +33,7 @@ def initiate_unihan():
         )
         pkgr.download()
         pkgr.export()
+        print("Program started successfully")
     except Exception as e:
         current_app.logger.error(f"Error during Unihan data packaging: {e}")
         raise RuntimeError(f"initiate_unihan failed: {e}")

@@ -37,3 +37,11 @@ class KanaConverter:
         else:
             return jaconv.kata2hira(text)
         return result
+    
+    @staticmethod
+    def romaji_to_hiragana(romaji):
+        return jaconv.alphabet2kana(romaji)
+    
+    @staticmethod
+    def hiragana_to_katakana(text):
+        return jaconv.hira2kata(text)

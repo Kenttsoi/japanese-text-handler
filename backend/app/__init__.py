@@ -6,6 +6,7 @@ from .config import config_dict
 from .scripts.initiate_unihan import initiate_unihan
 from .scripts.transform_unihan_dict import transform_unihan_dict
 from .scripts.kanjidic_loader import load_kanjidic
+from .scripts.transform_kanjidic_dict import transform_kanjidic_dict
 
 def create_app(config_env='development'):
     app = Flask(__name__)
@@ -28,6 +29,7 @@ def create_app(config_env='development'):
             initiate_unihan()
             transform_unihan_dict()
             load_kanjidic()
+            transform_kanjidic_dict()
     except Exception as e:
         app.logger.error(f"Error during data processing: {e}")
         raise RuntimeError(f"Failed to initiate data: {e}")
