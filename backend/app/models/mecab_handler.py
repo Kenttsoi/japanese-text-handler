@@ -59,14 +59,23 @@ class MecabHandler:
             lookup[token[0]] = word_dict
         print('[002]: MeCab', lookup)
 
-        parsed = self.tagger.parse(text).splitlines()[:-1]
+        """ parsed = self.tagger.parse(text).splitlines()[:-1]
         print('[003]: MeCab Original code logic', parsed)
-        result = {'result':[], 'word_type': [], 'original': [], 'hiragana': [], 'katakana': []}
+        result = {'result':[], 'word_type': [], 'original': [], 'hiragana': [], 'katakana': []} """
         
         resultList = []
         # test for pykakasi
         for line in parsed1:
             print('[004]: pykakasi', line)
+            if line['orig'] == "\n":
+                wordResult = WordEntry(
+                    original=line['orig'],
+                    hiragana=line['orig'],
+                    katakana=line['orig'],
+                    char_type="NEWLINE"
+                )
+                resultList.append(wordResult.to_dict())
+                continue
             char_type = unicodedata.name(line['orig'][0], 'None') # only accept ONE char of this method
             print('[005]: pykakasi char_type', char_type)
             wordResult = WordEntry(

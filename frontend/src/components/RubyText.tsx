@@ -7,10 +7,10 @@ interface RubyTextProps {
     key: number
 }
 
-export const RubyText: React.FC<RubyTextProps> = ({ text, rubyText, key }) => {
+export const RubyText: React.FC<RubyTextProps> = ({ text, rubyText }) => {
     return (
         <>
-            <ruby key={key} className={classes.rubyText}>
+            <ruby className={classes.rubyText}>
                 {text}
                 <rp>(</rp><rt>{rubyText}</rt><rp>)</rp>
             </ruby>

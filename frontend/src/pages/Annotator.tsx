@@ -1,19 +1,20 @@
 import React from 'react';
-import { Container, Textarea, Paper, Group, Text, Button, SegmentedControl } from '@mantine/core';
+import { Container, Textarea, Paper, Group, Text, Button, SegmentedControl, Chip, Select } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { annotateTextSimple } from '../services/api';
 import { Header } from '../components/Header';
 import { RubyText } from '../components/RubyText';
 import classes from './Annotator.module.css';
 
-type displayMode = 'Original' | 'Furigana' | 'Hiragana' | 'Katakana' | 'Romaji' | 'Pitch Accent';
+type displayMode = 'original' | 'furigana' | 'hiragana' | 'katakana' | 'romaji' | 'pitch_accent';
 
-const displayModes: { value: displayMode; label: displayMode; disabled?: boolean }[] = [
-  { value: 'Original', label: 'Original', disabled: true },
-  { value: 'Furigana', label: 'Furigana' },
-  { value: 'Hiragana', label: 'Hiragana', disabled: true },
-  { value: 'Katakana', label: 'Katakana', disabled: true },
-  { value: 'Romaji', label: 'Romaji', disabled: true },
-  { value: 'Pitch Accent', label: 'Pitch Accent', disabled: true },
+const displayModes: { value: displayMode; label: string; disabled?: boolean }[] = [
+  { value: 'original', label: 'Original', disabled: false },
+  { value: 'furigana', label: 'Furigana' },
+  { value: 'hiragana', label: 'Hiragana', disabled: true },
+  { value: 'katakana', label: 'Katakana', disabled: true },
+  { value: 'romaji', label: 'Romaji', disabled: true },
+  { value: 'pitch_accent', label: 'Pitch Accent', disabled: true },
 ]
 interface WordDict {
   original: string;
@@ -27,6 +28,8 @@ type AnnotatedText = WordDict[];
 const Annotator: React.FC = () => {
   const [text, setText] = React.useState<string>('');
   const [result, setResult] = React.useState<AnnotatedText>([]);
+  const [displayMode, setDisplayMode] = React.useState<displayMode>('furigana');
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const handleAnnotate = async () => {
     console.log(text)
@@ -39,10 +42,24 @@ const Annotator: React.FC = () => {
     }
   }
 
+  React.useEffect(() => {
+    console.log('[USE EFFECT] Result updated:', displayMode);
+  }, [displayMode]);
+
   return (
     <>
       <Header />
       <h1>Annotator</h1>
+      <Container className="mainContentWidth">
+        <Chip.Group>
+          <Group justify="center">
+            <Chip value="漢字" color="yellow" variant="light" onChange={() => setText("漢字")}>漢字</Chip>
+            <Chip value="ひらがな" color="yellow" variant="light" onChange={() => setText("ひらがな")}>ひらがな</Chip>
+            <Chip value="カタカナ" color="yellow" variant="light" onChange={() => setText("カタカナ")}>カタカナ</Chip>
+            <Chip value="ローマ字" color="yellow" variant="light" onChange={() => setText("ローマ字")}>ローマ字</Chip>
+          </Group>
+        </Chip.Group>
+      </Container>
       <Container className="mainContentWidth">
         <Paper shadow="lg" radius="lg" p="xl">
           <Textarea
@@ -73,7 +90,26 @@ const Annotator: React.FC = () => {
           <Group align="center" justify="space-between" className={classes.outputToolsTop}>
             <Text size="lg">Output</Text>
             <Group align="center" justify="flex-end">
-              <SegmentedControl defaultValue="Furigana" radius="md" color="yellow" data={displayModes} />
+              {
+                isMobile ?
+                  <Select
+                    label=""
+                    placeholder="Pick value"
+                    checkIconPosition="right"
+                    data={displayModes}
+                    defaultValue="furigana"
+                    value={displayMode ? displayMode : null}
+                    onChange={(_value) => setDisplayMode(_value as displayMode)}
+                  /> :
+                  <SegmentedControl
+                    defaultValue="furigana"
+                    radius="md"
+                    color="yellow"
+                    data={displayModes}
+                    value={displayMode}
+                    onChange={(_value) => setDisplayMode(_value as displayMode)}
+                  />
+              }
             </Group>
           </Group>
           <Paper shadow="xs" radius="md" p="xl" className={classes.displayPaper}>

@@ -21,6 +21,7 @@ def sample2():
 @api.route('/annotate', methods=['POST'])
 def annotate():
     text = request.json.get('text', '')
+    print(text)
     if not text:
         return jsonify({'error': 'No text provided'})
     else:
