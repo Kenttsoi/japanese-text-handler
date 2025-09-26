@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, Response, current_app
-from app.models.mecab_handler import MecabHandler
+from app.models.japanese_text_handler import JapaneseTextHandler
+from app.utils.kuromoji_handler import KuromojiHandler
 
 api = Blueprint('api', __name__)
 
@@ -25,5 +26,26 @@ def annotate():
     if not text:
         return jsonify({'error': 'No text provided'})
     else:
-        result = MecabHandler().annotate(text)
+        result = JapaneseTextHandler().annotate(text)
         return jsonify(result)
+
+@api.route('/annotate2', methods=['POST'])
+def annotate2():
+    text = request.json.get('text', '')
+    print(text)
+    if not text:
+        return jsonify({'error': 'No text provided'})
+    else:
+        kuromoji_handler = KuromojiHandler().tokenize(text)
+        return ''
+    
+
+@api.route('/annotateSample', methods=['POST'])
+def annotateSample():
+    text = request.json.get('text', '')
+    print(text)
+    if not text:
+        return jsonify({'error': 'No text provided'})
+    else:
+        kuromoji_handler = KuromojiHandler().sample(text)
+        return ''

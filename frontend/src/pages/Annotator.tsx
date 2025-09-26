@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Textarea, Paper, Group, Text, Button, SegmentedControl, Chip, Select } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { annotateTextSimple } from '../services/api';
+import { annotateTextSimple, annotateText, annotateSample } from '../services/api';
 import { Header } from '../components/Header';
 import { RubyText } from '../components/RubyText';
 import classes from './Annotator.module.css';
@@ -11,8 +11,8 @@ type displayMode = 'original' | 'furigana' | 'hiragana' | 'katakana' | 'romaji' 
 const displayModes: { value: displayMode; label: string; disabled?: boolean }[] = [
   { value: 'original', label: 'Original', disabled: false },
   { value: 'furigana', label: 'Furigana' },
-  { value: 'hiragana', label: 'Hiragana', disabled: true },
-  { value: 'katakana', label: 'Katakana', disabled: true },
+  { value: 'hiragana', label: 'Hiragana', disabled: false },
+  { value: 'katakana', label: 'Katakana', disabled: false },
   { value: 'romaji', label: 'Romaji', disabled: true },
   { value: 'pitch_accent', label: 'Pitch Accent', disabled: true },
 ]
@@ -42,6 +42,28 @@ const Annotator: React.FC = () => {
     }
   }
 
+  const handleAnnotateTest = async () => {
+    console.log(text)
+    try {
+      const apiResult: AnnotatedText = await annotateText(text);
+      console.log('[FUNCTION: handleAnnotate]', apiResult);
+      setResult(apiResult);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+    const handleSample = async () => {
+    console.log(text)
+    try {
+      const apiResult: AnnotateSample = await annotateSample(text);
+      console.log('[FUNCTION: handleSample]', apiResult);
+      setResult(apiResult);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   React.useEffect(() => {
     console.log('[USE EFFECT] Result updated:', displayMode);
   }, [displayMode]);
@@ -57,6 +79,7 @@ const Annotator: React.FC = () => {
             <Chip value="ひらがな" color="yellow" variant="light" onChange={() => setText("ひらがな")}>ひらがな</Chip>
             <Chip value="カタカナ" color="yellow" variant="light" onChange={() => setText("カタカナ")}>カタカナ</Chip>
             <Chip value="ローマ字" color="yellow" variant="light" onChange={() => setText("ローマ字")}>ローマ字</Chip>
+            <Chip value="令和、誕生日、天上天下、お風呂に入る" color="yellow" variant="light" onChange={() => setText("令和、誕生日、天上天下、お風呂に入る")}>令和、誕生日、天上天下、お風呂に入る</Chip>
           </Group>
         </Chip.Group>
       </Container>
@@ -78,12 +101,26 @@ const Annotator: React.FC = () => {
       </Container>
       <br />
       <Container className="mainContentWidth">
-        <Button
-          variant="light" color="orange"
-          onClick={handleAnnotate}
-        >
-          SHOW
-        </Button>
+        <Group align="center" justify="center">
+          <Button
+            variant="light" color="orange"
+            onClick={handleAnnotate}
+          >
+            SHOW
+          </Button>
+          <Button
+            variant="light" color="orange"
+            onClick={handleAnnotateTest}
+          >
+            TEST
+          </Button>
+          <Button
+            variant="light" color="orange"
+            onClick={handleSample}
+          >
+            SAMPLE
+          </Button>
+        </Group>
       </Container>
       <Container className="mainContentWidth">
         <Paper shadow="lg" radius="lg" p="xl" >
@@ -115,13 +152,28 @@ const Annotator: React.FC = () => {
           <Paper shadow="xs" radius="md" p="xl" className={classes.displayPaper}>
             {result.length > 0 ?
               result.map((item, index) => {
-                return (
-                  <RubyText
-                    key={index}
-                    text={result[index]['original'] ? result[index]['original'] : ''}
-                    rubyText={result[index]['hiragana']}
-                  />
-                )
+                switch (displayMode) {
+                  case 'original':
+                    return (
+                      <span key={index}>{result[index]['original']}</span>
+                    );
+                  case 'furigana':
+                    return (
+                      <RubyText
+                        key={index}
+                        text={result[index]['original'] ? result[index]['original'] : ''}
+                        rubyText={result[index]['hiragana']}
+                      />
+                    );
+                  case 'hiragana':
+                    return (
+                      <span key={index}>{result[index]['hiragana']}</span>
+                    );
+                  case 'katakana':
+                    return (
+                      <span key={index}>{result[index]['katakana']}</span>
+                    );
+                }
               }) : <></>}
           </Paper>
           <Group align="center" justify="flex-end" className={classes.outputToolsBottom}>

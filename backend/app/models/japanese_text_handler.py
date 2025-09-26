@@ -29,7 +29,7 @@ class WordEntry:
         else:
             return 'other'
 
-class MecabHandler:
+class JapaneseTextHandler:
     def __init__(self):
         self.tagger = current_app.tagger
 
@@ -40,7 +40,7 @@ class MecabHandler:
         parsed1 = kakasi.convert(text)
         print('[001]: pykakasi', parsed1)
 
-        # Library 2: MeCab: return all the morphological analysis results, but sometimes kanji readings are wrong
+        # Library 2: MeCab: return all the morphological analysis results
         parsed2 = self.tagger.parse(text).splitlines()[:-1]
         lookup = {}
         for word in parsed2:
