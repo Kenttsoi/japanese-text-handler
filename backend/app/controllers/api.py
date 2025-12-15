@@ -1,12 +1,28 @@
 from flask import Blueprint, request, jsonify, Response, current_app
 from app.models.japanese_text_handler import JapaneseTextHandler
-from app.utils.kuromoji_handler import KuromojiHandler
+from app.models.japanese_text_handler import JapaneseTextConverter
+from app.handlers.kuromoji_handler import KuromojiHandler
+from app.utils.response import api_success, api_error
 
 api = Blueprint('api', __name__)
 
 @api.route('/')
 def hello():
     return "Hello, Japanese Annotator!"
+
+@api.route('/convert', methods=['POST'])
+def convert():
+    data = request.json
+    text = data.get('text') if data else None
+    if not text:
+        return api_error('You need to enter text')
+    try:
+        print(text)
+        converter = JapaneseTextConverter(text)
+        result = converter.convert()
+        return api_success(result)
+    except Exception as e:
+        return api_error('Conversion Error', status=500)
 
 @api.route('/sample1')
 def sample1():

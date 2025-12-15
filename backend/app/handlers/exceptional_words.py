@@ -1,0 +1,1 @@
+EXCEPTIONAL_WORDS = {"令和"}

@@ -1,8 +1,13 @@
 from flask import current_app
 from app.utils.text_utils import KanaConverter
 from app.utils.kanji_handler import KanjiSeparator
+from app.handlers.kuromoji_handler import KuromojiHandler
+from app.handlers.mecab_handler import MecabHandler
+from app.handlers.exceptional_words import EXCEPTIONAL_WORDS
 import unicodedata
+import re
 import pykakasi
+from typing import List, Dict
 
 class WordEntry:
     def __init__(self, original, hiragana, katakana, char_type=""):
@@ -28,6 +33,38 @@ class WordEntry:
             return 'katakana'
         else:
             return 'other'
+
+class JapaneseTextConverter:
+    def __init__(self, text):
+        self.text = text
+
+    def convert(self):
+        print('[Start converting]----------------------------------')
+        print(self.text)
+
+        """ Check the exceptional words """
+        pattern = "(" + "|".join(map(re.escape, EXCEPTIONAL_WORDS)) + ")"
+        parts = re.split(pattern, self.text)
+        print(parts)
+        results: list[dict] = []
+        for part in parts:
+            if part:
+                try:
+                    if part in EXCEPTIONAL_WORDS:
+                        mecab_tokens: list[dict] = MecabHandler().parse(part)
+                        results.extend(mecab_tokens)
+                    else:
+                        kuromoji_tokens: list[dict] = KuromojiHandler().tokenize(part)
+                        for kuromoji_token in kuromoji_tokens:
+                            mecab_from_kuromoji_token: list[dict] = MecabHandler().parse(kuromoji_token["original_text"], "single")
+                            print('what arrrrrr', mecab_from_kuromoji_token)
+                            print('what arrrrrr 2', kuromoji_token)
+                            mecab_from_kuromoji_token[0]["pronunciation"] = kuromoji_token["reading"]
+                            results.extend(mecab_from_kuromoji_token)
+                except Exception as e:
+                    print(f"Calling API occurred Error: {e}")
+        print('RESULT RESULT RESULT RESULT RESULT', results)
+        return results
 
 class JapaneseTextHandler:
     def __init__(self):
