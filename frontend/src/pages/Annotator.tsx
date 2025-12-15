@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Textarea, Paper, Group, Text, Button, SegmentedControl, Chip, Select } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { annotateTextSimple, annotateText, annotateSample } from '../services/api';
+import { convertJapaneseText, annotateTextSimple, annotateText, annotateSample } from '../services/api';
 import { Header } from '../components/Header';
 import { RubyText } from '../components/RubyText';
 import classes from './Annotator.module.css';
@@ -36,6 +36,17 @@ const Annotator: React.FC = () => {
     try {
       const apiResult: AnnotatedText = await annotateTextSimple(text);
       console.log('[FUNCTION: handleAnnotate]', apiResult);
+      setResult(apiResult);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  const handleConvert = async () => {
+    console.log('handleConvert', text);
+    try {
+      const apiResult: AnnotatedText = await convertJapaneseText(text);
+      console.log('[FUNCTION: handleConvert]', apiResult);
       setResult(apiResult);
     } catch (err) {
       console.error(err);
@@ -110,6 +121,12 @@ const Annotator: React.FC = () => {
           </Button>
           <Button
             variant="light" color="orange"
+            onClick={handleConvert}
+          >
+            CONVERT
+          </Button>
+          <Button
+            variant="light" color="orange"
             onClick={handleAnnotateTest}
           >
             TEST
@@ -117,6 +134,7 @@ const Annotator: React.FC = () => {
           <Button
             variant="light" color="orange"
             onClick={handleSample}
+            disabled={true}
           >
             SAMPLE
           </Button>

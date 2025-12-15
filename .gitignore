@@ -1,6 +1,7 @@
 v-env/\n__pycache__/\n*.pyc\nnode_modules/\nbuild/
 .env
 v-env/
+venv_3.8_backup/
 backend/.env
 backend/*.log
 backend/__pycache__/
