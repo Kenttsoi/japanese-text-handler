@@ -7,7 +7,6 @@ from app.handlers.exceptional_words import EXCEPTIONAL_WORDS
 import unicodedata
 import re
 import pykakasi
-from typing import List, Dict
 
 class WordEntry:
     def __init__(self, original, hiragana, katakana, char_type=""):
@@ -35,36 +34,93 @@ class WordEntry:
             return 'other'
 
 class JapaneseTextConverter:
-    def __init__(self, text):
+    def __init__(self, text: str):
         self.text = text
+        self._exceptional_words = EXCEPTIONAL_WORDS.copy()
+        self._mecab_handler = MecabHandler()
+        self._kuromoji_handler = KuromojiHandler()
+        self.results = []
 
-    def convert(self):
+    def convert(self) -> list:
         print('[Start converting]----------------------------------')
         print(self.text)
-
-        """ Check the exceptional words """
-        pattern = "(" + "|".join(map(re.escape, EXCEPTIONAL_WORDS)) + ")"
-        parts = re.split(pattern, self.text)
-        print(parts)
+        parts = self._split_text_by_exceptional_words()
         results: list[dict] = []
         for part in parts:
             if part:
                 try:
-                    if part in EXCEPTIONAL_WORDS:
-                        mecab_tokens: list[dict] = MecabHandler().parse(part)
-                        results.extend(mecab_tokens)
+                    if part in self._exceptional_words:
+                        """ mecab_tokens: list[dict] = MecabHandler().parse(part) """
+                        mecab_tokens: list[dict] = self._mecab_handler.parse(part, "single")
+                        fianlized_token = self._parse_token(mecab_tokens)
+                        results.extend(fianlized_token)
                     else:
-                        kuromoji_tokens: list[dict] = KuromojiHandler().tokenize(part)
+                        """ kuromoji_tokens: list[dict] = KuromojiHandler().tokenize(part) """
+                        kuromoji_tokens: list[dict] = self._kuromoji_handler.tokenize(part)
+                        print('[20251230]', kuromoji_tokens)
                         for kuromoji_token in kuromoji_tokens:
-                            mecab_from_kuromoji_token: list[dict] = MecabHandler().parse(kuromoji_token["original_text"], "single")
-                            print('what arrrrrr', mecab_from_kuromoji_token)
-                            print('what arrrrrr 2', kuromoji_token)
-                            mecab_from_kuromoji_token[0]["pronunciation"] = kuromoji_token["reading"]
-                            results.extend(mecab_from_kuromoji_token)
+                            mecab_from_kuromoji_token: list[dict] = self._mecab_handler.parse(kuromoji_token["original_text"], "sequence")
+                            # mecab_from_kuromoji_token[0]["pronunciation"] = kuromoji_token["reading"]
+                            print('[20251230], ALMOST OKAY', mecab_from_kuromoji_token)
+                            fianlized_token = self._parse_token(mecab_from_kuromoji_token, kuromoji_token["reading"])
+                            print('[2026]', fianlized_token)
+                            results.extend(fianlized_token)
                 except Exception as e:
                     print(f"Calling API occurred Error: {e}")
         print('RESULT RESULT RESULT RESULT RESULT', results)
         return results
+    
+    def _split_text_by_exceptional_words(self) -> list:
+        pattern = "(" + "|".join(map(re.escape, self._exceptional_words)) + ")"
+        return re.split(pattern, self.text)
+    
+    def _parse_token(self, tokens: list[dict], kuromoji_pronunciation: str) -> list[dict]:
+        print('TOKENS TO BE SEPARATE KANJI', tokens)
+        # 1. Separate kanji
+        separated_single_kanjis = self.parse_to_single_kanji(tokens, kuromoji_pronunciation)
+
+        return []
+        for token in tokens:
+            token["kanjiBreakdown"] = []
+            hiragana = KanaConverter.katakana_to_hiragana(matching_pronunciation)
+            print(hiragana)
+            print("where is my token", token)
+            single_kanjis = KanjiSeparator.separate_kanji(token["original"], hiragana)
+            token["kanjiBreakdown"].extend(single_kanjis["separated_kanjis"])
+            """ if not single_kanjis["separated_kanjis"]:
+                token["kanjiBreakdown"] = []
+                return tokens """
+            matching_pronunciation = matching_pronunciation[single_kanjis["part_length"]:]
+            print("[HIHIHIHIHI]", single_kanjis, matching_pronunciation)
+
+        # 2. format the token (generate hiragana, katakana etc.)
+        self._annotate_tokens()
+        return tokens
+
+    def parse_to_single_kanji(self, tokens: list[dict], kuromoji_pronunciation: str):
+        combined_kanjis = ""
+        words_log = []
+        for token in tokens:
+            temp_word = token.get("original", "")
+            combined_kanjis += temp_word
+            words_log.append(temp_word)
+        print(combined_kanjis, words_log)
+        hiragana_form = KanaConverter.katakana_to_hiragana(kuromoji_pronunciation)
+        single_kanjis = KanjiSeparator.separate_kanji(combined_kanjis, hiragana_form)
+        
+        """ if single_kanjis is None:
+            pass
+        
+        if len(single_kanjis) == len(combined_kanjis):
+            for token in tokens:
+                token["original"]
+        else:
+            pass """
+
+        pass
+
+    def _annotate_tokens():
+        pass
 
 class JapaneseTextHandler:
     def __init__(self):

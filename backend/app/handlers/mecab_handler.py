@@ -3,12 +3,33 @@ from flask import current_app
 class MecabHandler:
     def __init__(self):
         pass
-    
+
+    def parse(self, text: str, mode: str="sequence") -> list[dict]:
+        try:
+            parsed_words: list[str] = current_app.tagger.parse(text).splitlines()[:-1]
+            print('[20251230]1', parsed_words)
+        except Exception as e:
+            print(f"Mecab Parsing occurred Error: {e}")
+            return None
+
+        if not parsed_words:
+            return None
+        
+        if mode == "sequence":
+            return self._parse_sequence(parsed_words)
+        elif mode == "grouped":
+            return self._parse_grouped(parsed_words)
+        elif mode == "single":
+            return self._parse_single(parsed_words)
+        else:
+            print(f"[Warning] Unknown mode '{mode}', using default 'sequence'")
+
     def _generate_word_dict(self, token_list: list[str | list[str]]) -> dict[str | list[str]]:
+        print('[20251230]2: ', token_list)
         return {
             "original": token_list[0],
             "reading_katakana": token_list[1],
-            "pronunciation": token_list[2],
+            "pronunciation_mecab": token_list[2],
             "dict_form": token_list[3],
             "pos": token_list[4],
             "katsuyou1": token_list[5],
@@ -30,30 +51,11 @@ class MecabHandler:
     
     def _parse_single(self, parsed_words: list[str]) -> list[dict]:
         temp_list = [word.split('\t') for word in parsed_words]
+        print("temp_list", temp_list)
         final_list = [list(col) for col in zip(*temp_list)]
+        print("final_list", final_list)
         return [self._generate_word_dict(final_list)]
 
-    def parse(self, text: str, mode: str="sequence") -> list[dict]:
-        try:
-            parsed_words: list[str] = current_app.tagger.parse(text).splitlines()[:-1]
-        except Exception as e:
-            print(f"Mecab Parsing occurred Error: {e}")
-            return None
-
-        if not parsed_words:
-            return None
-        
-        if mode == "sequence":
-            return self._parse_sequence(parsed_words)
-        elif mode == "grouped":
-            return self._parse_grouped(parsed_words)
-        elif mode == "single":
-            if len(parsed_words) > 1:
-                return self._parse_single(parsed_words)
-            else:
-                return self._parse_sequence(parsed_words)
-        else:
-            print(f"[Warning] Unknown mode '{mode}', using default 'sequence'")
         
             
             

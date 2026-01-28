@@ -15,7 +15,7 @@ class KanaConverter:
     }
     
     @staticmethod
-    def katakana_to_hiragana(text):
+    def katakana_to_hiragana(text: str) -> str:
         """
         Convert a string from Katakana to Hiragana.
 

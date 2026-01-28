@@ -44,24 +44,3 @@ def annotate():
     else:
         result = JapaneseTextHandler().annotate(text)
         return jsonify(result)
-
-@api.route('/annotate2', methods=['POST'])
-def annotate2():
-    text = request.json.get('text', '')
-    print(text)
-    if not text:
-        return jsonify({'error': 'No text provided'})
-    else:
-        kuromoji_handler = KuromojiHandler().tokenize(text)
-        return ''
-    
-
-@api.route('/annotateSample', methods=['POST'])
-def annotateSample():
-    text = request.json.get('text', '')
-    print(text)
-    if not text:
-        return jsonify({'error': 'No text provided'})
-    else:
-        kuromoji_handler = KuromojiHandler().sample(text)
-        return ''

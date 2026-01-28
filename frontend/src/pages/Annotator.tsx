@@ -53,28 +53,6 @@ const Annotator: React.FC = () => {
     }
   }
 
-  const handleAnnotateTest = async () => {
-    console.log(text)
-    try {
-      const apiResult: AnnotatedText = await annotateText(text);
-      console.log('[FUNCTION: handleAnnotate]', apiResult);
-      setResult(apiResult);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-    const handleSample = async () => {
-    console.log(text)
-    try {
-      const apiResult: AnnotateSample = await annotateSample(text);
-      console.log('[FUNCTION: handleSample]', apiResult);
-      setResult(apiResult);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
   React.useEffect(() => {
     console.log('[USE EFFECT] Result updated:', displayMode);
   }, [displayMode]);
@@ -124,19 +102,6 @@ const Annotator: React.FC = () => {
             onClick={handleConvert}
           >
             CONVERT
-          </Button>
-          <Button
-            variant="light" color="orange"
-            onClick={handleAnnotateTest}
-          >
-            TEST
-          </Button>
-          <Button
-            variant="light" color="orange"
-            onClick={handleSample}
-            disabled={true}
-          >
-            SAMPLE
           </Button>
         </Group>
       </Container>
