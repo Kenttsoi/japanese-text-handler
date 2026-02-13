@@ -105,18 +105,22 @@ class JapaneseTextConverter:
             combined_kanjis += temp_word
             words_log.append(temp_word)
         print(combined_kanjis, words_log)
+        print('[TOKEN]', tokens)
         hiragana_form = KanaConverter.katakana_to_hiragana(kuromoji_pronunciation)
-        single_kanjis = KanjiSeparator.separate_kanji(combined_kanjis, hiragana_form)
-        
-        """ if single_kanjis is None:
+        single_kanjis: list[str] | None = KanjiSeparator.separate_kanji(combined_kanjis, hiragana_form)
+        print('[2026 Feb ...]', single_kanjis)
+        if single_kanjis is None:
             pass
         
         if len(single_kanjis) == len(combined_kanjis):
-            for token in tokens:
-                token["original"]
+            for i, token in enumerate(tokens):
+                times = len(token['original'])
+                this_time = single_kanjis[:times]
+                tokens[i]["kanji_breakdown"] = this_time
+                del single_kanjis[:times]
         else:
-            pass """
-
+            pass
+        print('[][][][][][][][tokens]', tokens)
         pass
 
     def _annotate_tokens():
