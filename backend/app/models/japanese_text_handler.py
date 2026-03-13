@@ -57,13 +57,10 @@ class JapaneseTextConverter:
                     else:
                         """ kuromoji_tokens: list[dict] = KuromojiHandler().tokenize(part) """
                         kuromoji_tokens: list[dict] = self._kuromoji_handler.tokenize(part)
-                        print('[20251230]', kuromoji_tokens)
                         for kuromoji_token in kuromoji_tokens:
                             mecab_from_kuromoji_token: list[dict] = self._mecab_handler.parse(kuromoji_token["original_text"], "sequence")
                             # mecab_from_kuromoji_token[0]["pronunciation"] = kuromoji_token["reading"]
-                            print('[20251230], ALMOST OKAY', mecab_from_kuromoji_token)
                             fianlized_token = self._parse_token(mecab_from_kuromoji_token, kuromoji_token["reading"])
-                            print('[2026]', fianlized_token)
                             results.extend(fianlized_token)
                 except Exception as e:
                     print(f"Calling API occurred Error: {e}")
@@ -75,11 +72,14 @@ class JapaneseTextConverter:
         return re.split(pattern, self.text)
     
     def _parse_token(self, tokens: list[dict], kuromoji_pronunciation: str) -> list[dict]:
-        print('TOKENS TO BE SEPARATE KANJI', tokens)
         # 1. Separate kanji
-        separated_single_kanjis = self.parse_to_single_kanji(tokens, kuromoji_pronunciation)
-
-        return []
+        separated_single_kanjis_tokens = self.parse_to_single_kanji(tokens, kuromoji_pronunciation)
+        print("kanji DONE", separated_single_kanjis_tokens)
+        
+        # 2. format the token (generate hiragana, katakana etc.)
+        formatted_tokens = self._annotate_tokens(separated_single_kanjis_tokens)
+        return formatted_tokens
+        
         for token in tokens:
             token["kanjiBreakdown"] = []
             hiragana = KanaConverter.katakana_to_hiragana(matching_pronunciation)
@@ -93,7 +93,7 @@ class JapaneseTextConverter:
             matching_pronunciation = matching_pronunciation[single_kanjis["part_length"]:]
             print("[HIHIHIHIHI]", single_kanjis, matching_pronunciation)
 
-        # 2. format the token (generate hiragana, katakana etc.)
+        
         self._annotate_tokens()
         return tokens
 
@@ -104,8 +104,9 @@ class JapaneseTextConverter:
             temp_word = token.get("original", "")
             combined_kanjis += temp_word
             words_log.append(temp_word)
-        print(combined_kanjis, words_log)
-        print('[TOKEN]', tokens)
+        print('[TOKENS]', tokens)
+        print('[KUROMOJI PRONUNCIATION]', tokens)
+        print('[TO BE SEPARATE]', combined_kanjis, words_log)
         hiragana_form = KanaConverter.katakana_to_hiragana(kuromoji_pronunciation)
         single_kanjis: list[str] | None = KanjiSeparator.separate_kanji(combined_kanjis, hiragana_form)
         print('[2026 Feb ...]', single_kanjis)
@@ -118,13 +119,20 @@ class JapaneseTextConverter:
                 this_time = single_kanjis[:times]
                 tokens[i]["kanji_breakdown"] = this_time
                 del single_kanjis[:times]
-        else:
-            pass
         print('[][][][][][][][tokens]', tokens)
-        pass
+        return tokens
 
-    def _annotate_tokens():
-        pass
+    def _annotate_tokens(self, tokens: dict) -> dict:
+        print(tokens)
+        annotated_tokens = []
+        for token in tokens:
+            annotated_tokens.append(WordEntry(
+                original = token['original'],
+                hiragana = '',
+                katakana = token['reading_katakana'],
+                char_type=""
+            ).to_dict())
+        return annotated_tokens
 
 class JapaneseTextHandler:
     def __init__(self):

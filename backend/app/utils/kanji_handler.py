@@ -6,15 +6,19 @@ from app.utils.text_utils import KanaConverter
 from app.data.kanjidic2.kanjidic2_dict import kanjidic2_dict
 class KanjiSeparator:
     def separate_kanji(kanjis: str, pronunciation: str) -> None | list[str]:
+        print('separate_kanji', kanjis,  pronunciation)
         n = len(pronunciation)
         dp = [-1] * (n + 1) # 0 represents empty string
         prev = [None] * (n + 1)
         dp[0] = 0
         source_lists = []
         for kanji in kanjis:
-            kanjiInfo = kanjidic2_dict.get(kanji, {})
-            kanjiOfficialPronunciations_list = kanjiInfo.get('all_readings', [])
-            source_lists.append(kanjiOfficialPronunciations_list)
+            if KanaConverter.is_kana(kanji) == True:
+                source_lists.append([kanji])
+            else:
+                kanjiInfo = kanjidic2_dict.get(kanji, {})
+                kanjiOfficialPronunciations_list = kanjiInfo.get('all_readings', [])
+                source_lists.append(kanjiOfficialPronunciations_list)
         for i in range(n + 1):
             stage = dp[i]
             if dp[i] == -1:
@@ -31,7 +35,7 @@ class KanjiSeparator:
                         prev[j] = (i, stage, word)
             
         print('[DP]', dp)
-        print('[PREV]', prev)    
+        print('[PREV]', prev)
 
         if dp[n] != len(source_lists):
             return None

@@ -7,7 +7,6 @@ class MecabHandler:
     def parse(self, text: str, mode: str="sequence") -> list[dict]:
         try:
             parsed_words: list[str] = current_app.tagger.parse(text).splitlines()[:-1]
-            print('[20251230]1', parsed_words)
         except Exception as e:
             print(f"Mecab Parsing occurred Error: {e}")
             return None
@@ -25,7 +24,6 @@ class MecabHandler:
             print(f"[Warning] Unknown mode '{mode}', using default 'sequence'")
 
     def _generate_word_dict(self, token_list: list[str | list[str]]) -> dict[str | list[str]]:
-        print('[20251230]2: ', token_list)
         return {
             "original": token_list[0],
             "reading_katakana": token_list[1],
@@ -51,9 +49,7 @@ class MecabHandler:
     
     def _parse_single(self, parsed_words: list[str]) -> list[dict]:
         temp_list = [word.split('\t') for word in parsed_words]
-        print("temp_list", temp_list)
         final_list = [list(col) for col in zip(*temp_list)]
-        print("final_list", final_list)
         return [self._generate_word_dict(final_list)]
 
         
