@@ -5,7 +5,7 @@ from app.scripts.initiate_unihan import initiate_unihan
 from app.utils.text_utils import KanaConverter
 from app.data.kanjidic2.kanjidic2_dict import kanjidic2_dict
 class KanjiSeparator:
-    def separate_kanji(kanjis: str, pronunciation: str) -> None | list[str]:
+    def separate_kanji(self, kanjis: str, pronunciation: str) -> None | list[str]:
         print('separate_kanji', kanjis,  pronunciation)
         n = len(pronunciation)
         dp = [-1] * (n + 1) # 0 represents empty string
@@ -19,6 +19,10 @@ class KanjiSeparator:
                 kanjiInfo = kanjidic2_dict.get(kanji, {})
                 kanjiOfficialPronunciations_list = kanjiInfo.get('all_readings', [])
                 source_lists.append(kanjiOfficialPronunciations_list)
+
+        print(source_lists)
+        return KanjiSeparator._segment_pronunciation_by_stages(source_lists, pronunciation)
+
         for i in range(n + 1):
             stage = dp[i]
             if dp[i] == -1:
@@ -53,6 +57,55 @@ class KanjiSeparator:
             return None
         print('result_string', result_string)
         print('[RESULT]', result)
+        return result
+    
+    @staticmethod
+    def _segment_pronunciation_by_stages(source_lists: list[list], pronunciation: str) -> None | list[str]:
+        n = len(pronunciation)
+        k = len(source_lists)
+
+        dp = [-1] * (n + 1)
+        prev = [None] * (n + 1)
+
+        dp[0] = 0
+
+        for i in range(n + 1):
+            if dp[i] == -1:
+                continue
+
+            current_stage = dp[i]
+            if current_stage >= k:
+                continue
+        
+            for word in source_lists[current_stage]:
+                word_len = len(word)
+                if i + word_len <= n and pronunciation[i : i + word_len] == word:
+                    j = i + word_len
+                    new_stage = current_stage + 1
+
+                    # update when they match at higher stage
+                    if dp[j] < new_stage:
+                        dp[j] = new_stage
+                        prev[j] = (i, current_stage, word)
+
+        if dp[n] != k:
+            return None
+        
+        # Backtracking
+        result = []
+        pos = n
+        while pos > 0:
+            prev_pos, stage, word = prev[pos]
+            result.append(word)
+            pos = prev_pos
+
+        result.reverse()
+        result_string = ''.join(result)
+
+        # verify if they are matched
+        if result_string != pronunciation:
+            return None
+
         return result
 
     @staticmethod

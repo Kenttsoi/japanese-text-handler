@@ -108,7 +108,8 @@ class JapaneseTextConverter:
         print('[KUROMOJI PRONUNCIATION]', tokens)
         print('[TO BE SEPARATE]', combined_kanjis, words_log)
         hiragana_form = KanaConverter.katakana_to_hiragana(kuromoji_pronunciation)
-        single_kanjis: list[str] | None = KanjiSeparator.separate_kanji(combined_kanjis, hiragana_form)
+        kanji_separator = KanjiSeparator()
+        single_kanjis: list[str] | None = kanji_separator.separate_kanji(combined_kanjis, hiragana_form)
         print('[2026 Feb ...]', single_kanjis)
         if single_kanjis is None:
             pass
