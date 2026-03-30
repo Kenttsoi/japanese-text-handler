@@ -8,18 +8,18 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     HOST = '0.0.0.0'
-    PORT = 5000
+    PORT = 5001
 
 class TestingConfig(Config):
     DEBUG = True
     TESTING = True
     HOST = '0.0.0.0'
-    PORT = 5001
+    PORT = 5002
 
 class ProductionConfig(Config):
     DEBUG = False
     HOST = '0.0.0.0'
-    PORT = 5000
+    PORT = 5001
 
 config_dict = {
     'development': DevelopmentConfig,

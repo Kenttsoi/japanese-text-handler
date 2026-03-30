@@ -3,9 +3,10 @@ from unihan_etl.core import Packager, Options
 from flask import current_app
 from app.scripts.initiate_unihan import initiate_unihan
 from app.utils.text_utils import KanaConverter
-from app.data.kanjidic2.kanjidic2_dict import kanjidic2_dict
+
 class KanjiSeparator:
     def separate_kanji(self, kanjis: str, pronunciation: str) -> None | list[str]:
+        from app.data.kanjidic2.kanjidic2_dict import kanjidic2_dict
         print('separate_kanji', kanjis,  pronunciation)
         n = len(pronunciation)
         dp = [-1] * (n + 1) # 0 represents empty string
