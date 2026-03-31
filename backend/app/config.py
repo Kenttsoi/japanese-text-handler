@@ -3,12 +3,14 @@ import os
 class Config:
     """Basic Setting"""
     SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')
-    CORS_ORIGINS = ['http://localhost:5173']
+    cors_raw = os.getenv('VITE_API_URL', 'http://localhost:5173')
+    CORS_ORIGINS = cors_raw.split(',')
+    DEBUG = False
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    HOST = '0.0.0.0'
-    PORT = 5001
+    HOST = os.getenv('FLASK_RUN_HOST', '0.0.0.0')
+    PORT = int(os.getenv('FLASK_RUN_PORT', 5001))
 
 class TestingConfig(Config):
     DEBUG = True
@@ -18,8 +20,7 @@ class TestingConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
-    HOST = '0.0.0.0'
-    PORT = 5001
+    PORT = int(os.getenv('PORT', 80))
 
 config_dict = {
     'development': DevelopmentConfig,
