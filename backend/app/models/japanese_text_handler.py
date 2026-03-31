@@ -9,30 +9,31 @@ import re
 import pykakasi
 
 class WordEntry:
-    def __init__(self, original, hiragana, katakana, char_type=""):
+    def __init__(self, original, hiragana, katakana):
         self.original = original
         self.hiragana = hiragana
         self.katakana = katakana
-        self.char_type = char_type
+        self.word_type = self._generate_char_type()
+
+    def _generate_char_type(self):
+        unicodedata_type = unicodedata.name(self.original[0], 'None') # only accept ONE char of this method
+        if 'CJK UNIFIED IDEOGRAPH' in unicodedata_type:
+            return 'kanji'
+        elif 'HIRAGANA' in unicodedata_type:
+            return 'hiragana'
+        elif 'KATAKANA' in unicodedata_type:
+            return 'katakana'
+        else:
+            return 'other'
 
     def to_dict(self):
         return {
             "original": self.original,
             "hiragana": self.hiragana,
             "katakana": self.katakana,
-            "word_type": self._generate_char_type()
+            "word_type": self.word_type
         }
     
-    def _generate_char_type(self):
-        if 'CJK UNIFIED IDEOGRAPH' in self.char_type:
-            return 'kanji'
-        elif 'HIRAGANA' in self.char_type:
-            return 'hiragana'
-        elif 'KATAKANA' in self.char_type:
-            return 'katakana'
-        else:
-            return 'other'
-
 class JapaneseTextConverter:
     def __init__(self, text: str):
         self.text = text
@@ -124,14 +125,13 @@ class JapaneseTextConverter:
         return tokens
 
     def _annotate_tokens(self, tokens: dict) -> dict:
-        print(tokens)
+        print('[WORD_TYPES]', tokens)
         annotated_tokens = []
         for token in tokens:
             annotated_tokens.append(WordEntry(
                 original = token['original'],
                 hiragana = '',
-                katakana = token['reading_katakana'],
-                char_type=""
+                katakana = token['reading_katakana']
             ).to_dict())
         return annotated_tokens
 
