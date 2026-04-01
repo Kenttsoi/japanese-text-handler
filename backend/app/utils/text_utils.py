@@ -80,3 +80,13 @@ class KanaConverter:
     @staticmethod
     def is_kanji(char: str) -> bool:
         pass
+
+class JapaneseUtils:
+    @staticmethod
+    def get_char_type(char: str) -> str:
+        return unicodedata.name(char, 'None')
+
+    @staticmethod
+    def is_kanji(char: str) -> bool:
+        char_type = JapaneseUtils.get_char_type(char)
+        return 'CJK UNIFIED IDEOGRAPH' in char_type
