@@ -2,26 +2,28 @@ import pykakasi
 from unihan_etl.core import Packager, Options
 from flask import current_app
 from app.scripts.initiate_unihan import initiate_unihan
-from app.utils.text_utils import KanaConverter
+from app.utils.text_utils import KanaConverter, JapaneseUtils
 
 class KanjiSeparator:
     def separate_kanji(self, kanjis: str, pronunciation: str) -> None | list[str]:
         from app.data.kanjidic2.kanjidic2_dict import kanjidic2_dict
-        print('separate_kanji', kanjis,  pronunciation)
+        print('separate_kanji', kanjis,  pronunciation, kanjis == pronunciation)
         n = len(pronunciation)
         dp = [-1] * (n + 1) # 0 represents empty string
         prev = [None] * (n + 1)
         dp[0] = 0
         source_lists = []
         for kanji in kanjis:
-            if KanaConverter.is_kana(kanji) == True:
-                source_lists.append([kanji])
-            else:
+            # if the char in this string is kanji, then check dict, if not, just append it
+            if JapaneseUtils.is_kanji(kanji):
                 kanjiInfo = kanjidic2_dict.get(kanji, {})
                 kanjiOfficialPronunciations_list = kanjiInfo.get('all_readings', [])
                 source_lists.append(kanjiOfficialPronunciations_list)
+            else:                
+                source_lists.append([kanji])
 
         print(source_lists)
+        print("[WHATS GOING ON]", KanjiSeparator._segment_pronunciation_by_stages(source_lists, pronunciation))
         return KanjiSeparator._segment_pronunciation_by_stages(source_lists, pronunciation)
 
         for i in range(n + 1):

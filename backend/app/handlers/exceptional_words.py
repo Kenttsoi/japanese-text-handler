@@ -1,1 +1,3 @@
-EXCEPTIONAL_WORDS = {"令和"}
+EXCEPTIONAL_WORDS = {
+    "令和": "レイワ"
+}

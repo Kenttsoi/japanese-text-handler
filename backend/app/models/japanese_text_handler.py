@@ -4,15 +4,17 @@ from app.utils.kanji_handler import KanjiSeparator
 from app.handlers.kuromoji_handler import KuromojiHandler
 from app.handlers.mecab_handler import MecabHandler
 from app.handlers.exceptional_words import EXCEPTIONAL_WORDS
+from app.utils.text_utils import JapaneseUtils
 import unicodedata
 import re
 import pykakasi
 
 class WordEntry:
-    def __init__(self, original, hiragana, katakana):
+    def __init__(self, original, hiragana, katakana, kanji_breakdown):
         self.original = original
         self.hiragana = hiragana
         self.katakana = katakana
+        self.kanji_breakdown = kanji_breakdown
         self.word_type = self._generate_char_type()
 
     def _generate_char_type(self):
@@ -31,6 +33,7 @@ class WordEntry:
             "original": self.original,
             "hiragana": self.hiragana,
             "katakana": self.katakana,
+            "kanji_breakdown": self.kanji_breakdown,
             "word_type": self.word_type
         }
     
@@ -52,8 +55,9 @@ class JapaneseTextConverter:
                 try:
                     if part in self._exceptional_words:
                         """ mecab_tokens: list[dict] = MecabHandler().parse(part) """
-                        mecab_tokens: list[dict] = self._mecab_handler.parse(part, "single")
-                        fianlized_token = self._parse_token(mecab_tokens)
+                        mecab_tokens: list[dict] = self._mecab_handler.parse(part, "sequence")
+                        print('[TOKEN_REIWA]', mecab_tokens)
+                        fianlized_token = self._parse_token(mecab_tokens, self._exceptional_words[part])
                         results.extend(fianlized_token)
                     else:
                         """ kuromoji_tokens: list[dict] = KuromojiHandler().tokenize(part) """
@@ -73,11 +77,19 @@ class JapaneseTextConverter:
         return re.split(pattern, self.text)
     
     def _parse_token(self, tokens: list[dict], kuromoji_pronunciation: str) -> list[dict]:
-        # 1. Separate kanji
+        print('[BEFORE SEPARATE]', tokens)
         separated_single_kanjis_tokens = self.parse_to_single_kanji(tokens, kuromoji_pronunciation)
-        print("kanji DONE", separated_single_kanjis_tokens)
         
-        # 2. format the token (generate hiragana, katakana etc.)
+        """ for token in tokens:
+            token.setdefault('kanji_breakdown', [])
+            print('[why list and list again!]', token)
+            
+            if self._is_kanji_inside(tokens):
+                token = self.parse_to_single_kanji(tokens, kuromoji_pronunciation)
+            separated_single_kanjis_tokens.extend(token)
+        print("kanji DONE", separated_single_kanjis_tokens) """
+        
+        # 3. format the token (generate hiragana, katakana etc.)
         formatted_tokens = self._annotate_tokens(separated_single_kanjis_tokens)
         return formatted_tokens
         
@@ -97,23 +109,34 @@ class JapaneseTextConverter:
         
         self._annotate_tokens()
         return tokens
+    
+    def _is_kanji_inside(self, token: dict) -> bool:
+        print(['loop loop'], token)
+        if not token['original']:
+            return False
+        for char in token['original']:
+            if JapaneseUtils.is_kanji(char):
+                return True
+        return False
 
     def parse_to_single_kanji(self, tokens: list[dict], kuromoji_pronunciation: str):
         combined_kanjis = ""
         words_log = []
+        print('[TOKENS]', tokens)
+        print('[[kuromoji_pronunciation]]', kuromoji_pronunciation)
         for token in tokens:
             temp_word = token.get("original", "")
             combined_kanjis += temp_word
             words_log.append(temp_word)
-        print('[TOKENS]', tokens)
-        print('[KUROMOJI PRONUNCIATION]', tokens)
+
         print('[TO BE SEPARATE]', combined_kanjis, words_log)
+        
         hiragana_form = KanaConverter.katakana_to_hiragana(kuromoji_pronunciation)
         kanji_separator = KanjiSeparator()
         single_kanjis: list[str] | None = kanji_separator.separate_kanji(combined_kanjis, hiragana_form)
         print('[2026 Feb ...]', single_kanjis)
         if single_kanjis is None:
-            pass
+            return tokens
         
         if len(single_kanjis) == len(combined_kanjis):
             for i, token in enumerate(tokens):
@@ -131,7 +154,8 @@ class JapaneseTextConverter:
             annotated_tokens.append(WordEntry(
                 original = token['original'],
                 hiragana = '',
-                katakana = token['reading_katakana']
+                katakana = token['reading_katakana'],
+                kanji_breakdown = token.get("kanji_breakdown", [])
             ).to_dict())
         return annotated_tokens
 
