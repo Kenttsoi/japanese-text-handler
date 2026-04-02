@@ -55,8 +55,9 @@ class JapaneseTextConverter:
                 try:
                     if part in self._exceptional_words:
                         """ mecab_tokens: list[dict] = MecabHandler().parse(part) """
-                        mecab_tokens: list[dict] = self._mecab_handler.parse(part, "single")
-                        fianlized_token = self._parse_token(mecab_tokens)
+                        mecab_tokens: list[dict] = self._mecab_handler.parse(part, "sequence")
+                        print('[TOKEN_REIWA]', mecab_tokens)
+                        fianlized_token = self._parse_token(mecab_tokens, self._exceptional_words[part])
                         results.extend(fianlized_token)
                     else:
                         """ kuromoji_tokens: list[dict] = KuromojiHandler().tokenize(part) """
@@ -121,20 +122,21 @@ class JapaneseTextConverter:
     def parse_to_single_kanji(self, tokens: list[dict], kuromoji_pronunciation: str):
         combined_kanjis = ""
         words_log = []
+        print('[TOKENS]', tokens)
+        print('[[kuromoji_pronunciation]]', kuromoji_pronunciation)
         for token in tokens:
             temp_word = token.get("original", "")
             combined_kanjis += temp_word
             words_log.append(temp_word)
-        print('[TOKENS]', tokens)
-        print('[KUROMOJI PRONUNCIATION]', tokens)
+
         print('[TO BE SEPARATE]', combined_kanjis, words_log)
-        print('[[kuromoji_pronunciation]]', kuromoji_pronunciation)
+        
         hiragana_form = KanaConverter.katakana_to_hiragana(kuromoji_pronunciation)
         kanji_separator = KanjiSeparator()
         single_kanjis: list[str] | None = kanji_separator.separate_kanji(combined_kanjis, hiragana_form)
         print('[2026 Feb ...]', single_kanjis)
         if single_kanjis is None:
-            pass
+            return tokens
         
         if len(single_kanjis) == len(combined_kanjis):
             for i, token in enumerate(tokens):
@@ -153,7 +155,7 @@ class JapaneseTextConverter:
                 original = token['original'],
                 hiragana = '',
                 katakana = token['reading_katakana'],
-                kanji_breakdown = token['kanji_breakdown']
+                kanji_breakdown = token.get("kanji_breakdown", [])
             ).to_dict())
         return annotated_tokens
 
