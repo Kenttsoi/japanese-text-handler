@@ -23,7 +23,7 @@ requests==2.33.1
 unicodecsv==0.14.1
 unidic-lite==1.0.8
 unihan-etl==0.36.0
-urllib3==2.6.1
+urllib3==2.6.3
 Werkzeug==3.1.7
 wrapt==1.17.2
 zhon==2.0.2
