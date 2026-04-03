@@ -5,17 +5,30 @@
 [<img src="https://img.shields.io/badge/React-19+-61DAFB?logo=react&logoColor=black" alt="React version">](https://react.dev/)
 [<img src="https://img.shields.io/badge/license-MIT-green" alt="License">](./LICENSE)
 
-**A simple web application built with Flask (🚧 Under construction 🚧).**
+**A simple web application built with Flask and React for processing Japanese text (🚧 Under construction 🚧).**
 
 ## What is this?
 - Japanese Text Handler
 - Furigana (振り仮名) generator
 - Broken down per kanji (各漢字の読み方 / 漢字ごとの音読み)
 
-## Quick start
+## 🛠 Prerequisites
+
+This project requires **Java Runtime** to handle specific Japanese text processing libraries.
+
+### Java Installation (macOS)
+Using Homebrew:
+```bash
+brew install openjdk@21
+# Link the JDK to system library
+sudo ln -sfn /opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-21.jdk
+```
+
+## 🚀 Quick start
 ```bash
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-pip install -e . # not ready yet
+# pip install -e . # Work in progress
 python app.py
+```
