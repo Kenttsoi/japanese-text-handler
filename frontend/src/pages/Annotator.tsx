@@ -11,7 +11,7 @@ type displayMode = 'original' | 'furigana' | 'hiragana' | 'katakana' | 'romaji' 
 const displayModes: { value: displayMode; label: string; disabled?: boolean }[] = [
   { value: 'original', label: 'Original', disabled: false },
   { value: 'furigana', label: 'Furigana' },
-  { value: 'hiragana', label: 'Hiragana', disabled: false },
+  { value: 'hiragana', label: 'Hiragana', disabled: true },
   { value: 'katakana', label: 'Katakana', disabled: false },
   { value: 'romaji', label: 'Romaji', disabled: true },
   { value: 'pitch_accent', label: 'Pitch Accent', disabled: true },
@@ -20,14 +20,18 @@ interface WordDict {
   original: string;
   hiragana: string;
   katakana: string;
+  kanji_breakdown: string[];
   word_type: string;
 }
 
-type AnnotatedText = WordDict[];
+interface AnnotatedText {
+  result: WordDict[],
+  success: boolean
+}
 
 const Annotator: React.FC = () => {
   const [text, setText] = React.useState<string>('');
-  const [result, setResult] = React.useState<AnnotatedText>([]);
+  const [result, setResult] = React.useState<WordDict[]>([]);
   const [displayMode, setDisplayMode] = React.useState<displayMode>('furigana');
   const isMobile = useMediaQuery('(max-width: 768px)');
 
@@ -36,7 +40,7 @@ const Annotator: React.FC = () => {
     try {
       const apiResult: AnnotatedText = await annotateTextSimple(text);
       console.log('[FUNCTION: handleAnnotate]', apiResult);
-      setResult(apiResult);
+      setResult(apiResult['result']);
     } catch (err) {
       console.error(err);
     }
@@ -47,7 +51,7 @@ const Annotator: React.FC = () => {
     try {
       const apiResult: AnnotatedText = await convertJapaneseText(text);
       console.log('[FUNCTION: handleConvert]', apiResult);
-      setResult(apiResult);
+      setResult(apiResult['result']);
     } catch (err) {
       console.error(err);
     }
@@ -135,19 +139,31 @@ const Annotator: React.FC = () => {
           <Paper shadow="xs" radius="md" p="xl" className={classes.displayPaper}>
             {result.length > 0 ?
               result.map((item, index) => {
+                console.log('20260404', item)
                 switch (displayMode) {
                   case 'original':
                     return (
                       <span key={index}>{result[index]['original']}</span>
                     );
                   case 'furigana':
-                    return (
-                      <RubyText
-                        key={index}
-                        text={result[index]['original'] ? result[index]['original'] : ''}
-                        rubyText={result[index]['hiragana']}
-                      />
-                    );
+                    console.log(item.kanji_breakdown)
+                    if (item.kanji_breakdown.length > 0 && item.word_type === 'kanji') {
+                      return item.kanji_breakdown.map((element, index) => (
+                        <RubyText
+                          key={index}
+                          text={item.original[index]}
+                          rubyText={element}
+                        />
+                      ))
+                    } else {
+                      return (
+                        <RubyText
+                          key={index}
+                          text={result[index]['original'] ? result[index]['original'] : ''}
+                          rubyText={''}
+                        />
+                      )
+                    }
                   case 'hiragana':
                     return (
                       <span key={index}>{result[index]['hiragana']}</span>
