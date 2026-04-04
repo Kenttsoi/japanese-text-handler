@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Textarea, Paper, Group, Text, Button, SegmentedControl, Chip, Select } from '@mantine/core';
+import { Container, Title, Stack, Badge, Textarea, Paper, Group, Text, Button, SegmentedControl, Chip, Select } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { convertJapaneseText, annotateTextSimple, annotateText, annotateSample } from '../services/api';
 import { Header } from '../components/Header';
@@ -63,11 +63,36 @@ const Annotator: React.FC = () => {
 
   return (
     <>
-      <Header />
       <main className={classes.contentWrapper}>
+        <Stack align="center" gap={0} mt="xl" mb="xl">
+          <Group gap="xs" align="flex-end">
+            <Title
+              order={1}
+              style={{
+                fontSize: '2.8rem',
+                fontWeight: 900,
+                letterSpacing: '-1.5px',
+                color: '#1A1B1E',
+                lineHeight: 1
+              }}
+            >
+              Annotator
+            </Title>
 
-
-        <h1>Annotator</h1>
+            <Badge
+              variant="dot"
+              color="blue"
+              size="lg"
+              mb={8} 
+              style={{ textTransform: 'none' }} 
+            >
+              v1.0 Beta
+            </Badge>
+          </Group>
+          <Text c="dimmed" size="sm" fw={500} mt="xs">
+            Precision Tool for Kanji Data Alignment
+          </Text>
+        </Stack>
         <Container className="mainContentWidth">
           <Chip.Group>
             <Group justify="center">
@@ -75,12 +100,16 @@ const Annotator: React.FC = () => {
               <Chip value="ひらがな" color="yellow" variant="light" onChange={() => setText("ひらがな")}>ひらがな</Chip>
               <Chip value="カタカナ" color="yellow" variant="light" onChange={() => setText("カタカナ")}>カタカナ</Chip>
               <Chip value="ローマ字" color="yellow" variant="light" onChange={() => setText("ローマ字")}>ローマ字</Chip>
-              <Chip value="令和、誕生日、天上天下、お風呂に入る" color="yellow" variant="light" onChange={() => setText("令和、誕生日、天上天下、お風呂に入る")}>令和、誕生日、天上天下、お風呂に入る</Chip>
+              {/* <Chip value="令和、誕生日、天上天下、お風呂に入る" color="yellow" variant="light" onChange={() => setText("令和、誕生日、天上天下、お風呂に入る")}>令和、誕生日、天上天下、お風呂に入る</Chip> */}
             </Group>
           </Chip.Group>
         </Container>
         <Container className="mainContentWidth">
-          <Paper shadow="lg" radius="lg" p="xl">
+          <Paper shadow="sm" radius="lg" p="xl" style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(10px)',
+            borderColor: '#e9ecef'
+          }}>
             <Textarea
               variant="unstyled"
               placeholder="Please type your text here"

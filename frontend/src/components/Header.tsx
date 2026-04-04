@@ -2,6 +2,7 @@ import React from 'react';
 import { Anchor, Burger, Center, Container, Group, Drawer, Grid } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import classes from './Header.module.css';
+import { useNavigate } from 'react-router-dom';
 
 const links = [
   { link: '/', label: 'Home' },
@@ -10,14 +11,18 @@ const links = [
 
 export const Header: React.FC = () => {
   const [opened, { toggle }] = useDisclosure(false);
-
+  const navigate = useNavigate();
+  
   const items = links.map((link) => {
     return (
       <a
         key={link.label}
         href={link.link}
         className={classes.link}
-        onClick={(event) => event.preventDefault()}
+        onClick={(event) => {
+          event.preventDefault();
+          navigate(link.link);
+        }}
       >
         {link.label}
       </a>
