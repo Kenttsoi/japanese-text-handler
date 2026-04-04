@@ -64,133 +64,137 @@ const Annotator: React.FC = () => {
   return (
     <>
       <Header />
-      <h1>Annotator</h1>
-      <Container className="mainContentWidth">
-        <Chip.Group>
-          <Group justify="center">
-            <Chip value="漢字" color="yellow" variant="light" onChange={() => setText("漢字")}>漢字</Chip>
-            <Chip value="ひらがな" color="yellow" variant="light" onChange={() => setText("ひらがな")}>ひらがな</Chip>
-            <Chip value="カタカナ" color="yellow" variant="light" onChange={() => setText("カタカナ")}>カタカナ</Chip>
-            <Chip value="ローマ字" color="yellow" variant="light" onChange={() => setText("ローマ字")}>ローマ字</Chip>
-            <Chip value="令和、誕生日、天上天下、お風呂に入る" color="yellow" variant="light" onChange={() => setText("令和、誕生日、天上天下、お風呂に入る")}>令和、誕生日、天上天下、お風呂に入る</Chip>
-          </Group>
-        </Chip.Group>
-      </Container>
-      <Container className="mainContentWidth">
-        <Paper shadow="lg" radius="lg" p="xl">
-          <Textarea
-            variant="unstyled"
-            placeholder="Please type your text here"
-            autosize
-            maxRows={10}
-            className={classes.fullWidth}
-            value={text}
-            onChange={(e) => {
-              console.log(e.target.value);
-              setText(e.target.value);
-            }}
-          />
-        </Paper>
-      </Container>
-      <br />
-      <Container className="mainContentWidth">
-        <Group align="center" justify="center">
-          <Button
-            variant="light" color="orange"
-            onClick={handleConvert}
-          >
-            CONVERT
-          </Button>
-        </Group>
-      </Container>
-      <Container className="mainContentWidth">
-        <Paper shadow="lg" radius="lg" p="xl" >
-          <Group align="center" justify="space-between" className={classes.outputToolsTop}>
-            <Text size="lg">Output</Text>
-            <Group align="center" justify="flex-end">
-              {
-                isMobile ?
-                  <Select
-                    label=""
-                    placeholder="Pick value"
-                    checkIconPosition="right"
-                    data={displayModes}
-                    defaultValue="furigana"
-                    value={displayMode ? displayMode : null}
-                    onChange={(_value) => setDisplayMode(_value as displayMode)}
-                  /> :
-                  <SegmentedControl
-                    defaultValue="furigana"
-                    radius="md"
-                    color="yellow"
-                    data={displayModes}
-                    value={displayMode}
-                    onChange={(_value) => setDisplayMode(_value as displayMode)}
-                  />
-              }
+      <main className={classes.contentWrapper}>
+
+
+        <h1>Annotator</h1>
+        <Container className="mainContentWidth">
+          <Chip.Group>
+            <Group justify="center">
+              <Chip value="漢字" color="yellow" variant="light" onChange={() => setText("漢字")}>漢字</Chip>
+              <Chip value="ひらがな" color="yellow" variant="light" onChange={() => setText("ひらがな")}>ひらがな</Chip>
+              <Chip value="カタカナ" color="yellow" variant="light" onChange={() => setText("カタカナ")}>カタカナ</Chip>
+              <Chip value="ローマ字" color="yellow" variant="light" onChange={() => setText("ローマ字")}>ローマ字</Chip>
+              <Chip value="令和、誕生日、天上天下、お風呂に入る" color="yellow" variant="light" onChange={() => setText("令和、誕生日、天上天下、お風呂に入る")}>令和、誕生日、天上天下、お風呂に入る</Chip>
             </Group>
-          </Group>
-          <Paper shadow="xs" radius="md" p="xl" className={classes.displayPaper}>
-            {result.length > 0 ?
-              result.map((item, index) => {
-                console.log('20260404', item)
-                if (item.original === '\\n') {
-                  return(
-                    <React.Fragment key={index}>
-                      <br />
-                      <br />
-                    </React.Fragment>
-                  )
-                }
-                switch (displayMode) {
-                  case 'original':
-                    return (
-                      <span key={index}>{result[index]['original']}</span>
-                    );
-                  case 'furigana':
-                    console.log(item.kanji_breakdown)
-                    if (item.kanji_breakdown.length > 0 && item.word_type === 'kanji') {
-                      return item.kanji_breakdown.map((element, index) => (
-                        <RubyText
-                          key={index}
-                          text={item.original[index]}
-                          rubyText={element === item.original[index] ? '' : element}
-                        />
-                      ))
-                    } else {
-                      return (
-                        <RubyText
-                          key={index}
-                          text={result[index]['original'] ? result[index]['original'] : ''}
-                          rubyText={''}
-                        />
-                      )
-                    }
-                  case 'hiragana':
-                    return (
-                      <span key={index}>{result[index]['hiragana']}</span>
-                    );
-                  case 'katakana':
-                    return (
-                      <span key={index}>{result[index]['katakana']}</span>
-                    );
-                }
-              }) : <></>}
+          </Chip.Group>
+        </Container>
+        <Container className="mainContentWidth">
+          <Paper shadow="lg" radius="lg" p="xl">
+            <Textarea
+              variant="unstyled"
+              placeholder="Please type your text here"
+              autosize
+              maxRows={10}
+              className={classes.fullWidth}
+              value={text}
+              onChange={(e) => {
+                console.log(e.target.value);
+                setText(e.target.value);
+              }}
+            />
           </Paper>
-          <Group align="center" justify="flex-end" className={classes.outputToolsBottom}>
+        </Container>
+        <br />
+        <Container className="mainContentWidth">
+          <Group align="center" justify="center">
             <Button
-              variant="light" color="yellow" disabled={true}
+              variant="light" color="orange"
+              onClick={handleConvert}
             >
-              Copy
-            </Button>
-            <Button
-              variant="light" color="yellow" disabled={true}
-            >
-              Download
+              CONVERT
             </Button>
           </Group>
-        </Paper>
-      </Container>
+        </Container>
+        <Container className="mainContentWidth">
+          <Paper shadow="lg" radius="lg" p="xl" >
+            <Group align="center" justify="space-between" className={classes.outputToolsTop}>
+              <Text size="lg">Output</Text>
+              <Group align="center" justify="flex-end">
+                {
+                  isMobile ?
+                    <Select
+                      label=""
+                      placeholder="Pick value"
+                      checkIconPosition="right"
+                      data={displayModes}
+                      defaultValue="furigana"
+                      value={displayMode ? displayMode : null}
+                      onChange={(_value) => setDisplayMode(_value as displayMode)}
+                    /> :
+                    <SegmentedControl
+                      defaultValue="furigana"
+                      radius="md"
+                      color="yellow"
+                      data={displayModes}
+                      value={displayMode}
+                      onChange={(_value) => setDisplayMode(_value as displayMode)}
+                    />
+                }
+              </Group>
+            </Group>
+            <Paper shadow="xs" radius="md" p="xl" className={classes.displayPaper}>
+              {result.length > 0 ?
+                result.map((item, index) => {
+                  console.log('20260404', item)
+                  if (item.original === '\\n') {
+                    return (
+                      <React.Fragment key={index}>
+                        <br />
+                        <br />
+                      </React.Fragment>
+                    )
+                  }
+                  switch (displayMode) {
+                    case 'original':
+                      return (
+                        <span key={index}>{result[index]['original']}</span>
+                      );
+                    case 'furigana':
+                      console.log(item.kanji_breakdown)
+                      if (item.kanji_breakdown.length > 0 && item.word_type === 'kanji') {
+                        return item.kanji_breakdown.map((element, index) => (
+                          <RubyText
+                            key={index}
+                            text={item.original[index]}
+                            rubyText={element === item.original[index] ? '' : element}
+                          />
+                        ))
+                      } else {
+                        return (
+                          <RubyText
+                            key={index}
+                            text={result[index]['original'] ? result[index]['original'] : ''}
+                            rubyText={''}
+                          />
+                        )
+                      }
+                    case 'hiragana':
+                      return (
+                        <span key={index}>{result[index]['hiragana']}</span>
+                      );
+                    case 'katakana':
+                      return (
+                        <span key={index}>{result[index]['katakana']}</span>
+                      );
+                  }
+                }) : <></>}
+            </Paper>
+            <Group align="center" justify="flex-end" className={classes.outputToolsBottom}>
+              <Button
+                variant="light" color="yellow" disabled={true}
+              >
+                Copy
+              </Button>
+              <Button
+                variant="light" color="yellow" disabled={true}
+              >
+                Download
+              </Button>
+            </Group>
+          </Paper>
+        </Container>
+      </main>
     </>
 
   )
