@@ -97,12 +97,6 @@ const Annotator: React.FC = () => {
         <Group align="center" justify="center">
           <Button
             variant="light" color="orange"
-            onClick={handleAnnotate}
-          >
-            SHOW
-          </Button>
-          <Button
-            variant="light" color="orange"
             onClick={handleConvert}
           >
             CONVERT
@@ -140,6 +134,9 @@ const Annotator: React.FC = () => {
             {result.length > 0 ?
               result.map((item, index) => {
                 console.log('20260404', item)
+                if (item.original === '\\n') {
+                  return(<><br /><br /></>)
+                }
                 switch (displayMode) {
                   case 'original':
                     return (
@@ -152,7 +149,7 @@ const Annotator: React.FC = () => {
                         <RubyText
                           key={index}
                           text={item.original[index]}
-                          rubyText={element}
+                          rubyText={element === item.original[index] ? '' : element}
                         />
                       ))
                     } else {
@@ -177,12 +174,12 @@ const Annotator: React.FC = () => {
           </Paper>
           <Group align="center" justify="flex-end" className={classes.outputToolsBottom}>
             <Button
-              variant="light" color="yellow"
+              variant="light" color="yellow" disabled={true}
             >
               Copy
             </Button>
             <Button
-              variant="light" color="yellow"
+              variant="light" color="yellow" disabled={true}
             >
               Download
             </Button>
