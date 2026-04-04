@@ -10,7 +10,7 @@ import re
 import pykakasi
 
 class WordEntry:
-    def __init__(self, original, hiragana, katakana, kanji_breakdown):
+    def __init__(self, original: str, hiragana: str, katakana: str, kanji_breakdown: list):
         self.original = original
         self.hiragana = hiragana
         self.katakana = katakana
@@ -49,24 +49,27 @@ class JapaneseTextConverter:
         print('[Start converting]----------------------------------')
         print(self.text)
         parts = self._split_text_by_exceptional_words()
+        print(parts)
         results: list[dict] = []
         for part in parts:
             if part:
                 try:
-                    if part in self._exceptional_words:
+                    if part == "\\n":
+                        results.append(WordEntry(part, part, part, []).to_dict())
+                        print(results, 'can you see me 222')
+                    elif part in self._exceptional_words:
                         """ mecab_tokens: list[dict] = MecabHandler().parse(part) """
                         mecab_tokens: list[dict] = self._mecab_handler.parse(part, "sequence")
                         print('[TOKEN_REIWA]', mecab_tokens)
-                        fianlized_token = self._parse_token(mecab_tokens, self._exceptional_words[part])
-                        results.extend(fianlized_token)
+                        finalized_token = self._parse_token(mecab_tokens, self._exceptional_words[part])
+                        results.extend(finalized_token)
                     else:
                         """ kuromoji_tokens: list[dict] = KuromojiHandler().tokenize(part) """
                         kuromoji_tokens: list[dict] = self._kuromoji_handler.tokenize(part)
                         for kuromoji_token in kuromoji_tokens:
                             mecab_from_kuromoji_token: list[dict] = self._mecab_handler.parse(kuromoji_token["original_text"], "sequence")
-                            # mecab_from_kuromoji_token[0]["pronunciation"] = kuromoji_token["reading"]
-                            fianlized_token = self._parse_token(mecab_from_kuromoji_token, kuromoji_token["reading"])
-                            results.extend(fianlized_token)
+                            finalized_token = self._parse_token(mecab_from_kuromoji_token, kuromoji_token["reading"])
+                            results.extend(finalized_token)
                 except Exception as e:
                     print(f"Calling API occurred Error: {e}")
         print('RESULT RESULT RESULT RESULT RESULT', results)

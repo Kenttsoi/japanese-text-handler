@@ -13,7 +13,8 @@ def hello():
 @api.route('/convert', methods=['POST'])
 def convert():
     data = request.json
-    text = data.get('text') if data else None
+    print(data)
+    text = data.get('text').replace('\n', '\\n') if data else None
     if not text:
         return api_error('You need to enter text')
     try:
