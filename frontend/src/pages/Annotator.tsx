@@ -135,7 +135,12 @@ const Annotator: React.FC = () => {
               result.map((item, index) => {
                 console.log('20260404', item)
                 if (item.original === '\\n') {
-                  return(<><br /><br /></>)
+                  return(
+                    <React.Fragment key={index}>
+                      <br />
+                      <br />
+                    </React.Fragment>
+                  )
                 }
                 switch (displayMode) {
                   case 'original':
