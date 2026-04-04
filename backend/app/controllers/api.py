@@ -3,6 +3,19 @@ from app.models.japanese_text_handler import JapaneseTextHandler
 from app.models.japanese_text_handler import JapaneseTextConverter
 from app.handlers.kuromoji_handler import KuromojiHandler
 from app.utils.response import api_success, api_error
+import html
+MAX_CHARS = 500
+FORBIDDEN_PATTERNS = [
+    "<script", "javascript:", "DROP TABLE", 
+    "INSERT INTO", "SELECT *", "--", "OR 1=1"
+]
+
+def is_suspicious(text):
+    """Check for common SQL injection or Script injection patterns."""
+    for pattern in FORBIDDEN_PATTERNS:
+        if pattern.upper() in text.upper():
+            return True
+    return False
 
 api = Blueprint('api', __name__)
 
@@ -12,14 +25,26 @@ def hello():
 
 @api.route('/convert', methods=['POST'])
 def convert():
+    # Extract data
     data = request.json
-    print(data)
-    text = data.get('text').replace('\n', '\\n') if data else None
-    if not text:
+    raw_text = data.get('text').replace('\n', '\\n') if data else None
+
+    # Length check (OOM Prevention)
+    if len(raw_text) > MAX_CHARS:
+        return api_error(f"Please limit to {MAX_CHARS} words", status=413)
+    
+    # Security check (Injection Prevention)
+    if is_suspicious(raw_text):
+        return api_error("Unsafe content detected.", status=400)
+    
+    # HTML Escape (XSS Prevention)
+    safe_text = html.escape(raw_text)
+
+    if not safe_text:
         return api_error('You need to enter text')
     try:
-        print(text)
-        converter = JapaneseTextConverter(text)
+        print(safe_text)
+        converter = JapaneseTextConverter(safe_text)
         result = converter.convert()
         return api_success(result)
     except Exception as e:
