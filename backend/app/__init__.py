@@ -26,8 +26,8 @@ def create_app(config_env='development'):
     # Initiate data packaging
     try:
         with app.app_context():
-            initiate_unihan()
-            transform_unihan_dict()
+            # initiate_unihan()
+            # transform_unihan_dict()
             load_kanjidic()
             transform_kanjidic_dict()
     except Exception as e:
