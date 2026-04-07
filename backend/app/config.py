@@ -4,8 +4,16 @@ class Config:
     """Basic Setting"""
     SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')
     HOST = '0.0.0.0'
-    cors_raw = os.getenv('VITE_API_URL', 'http://localhost:5173')
-    CORS_ORIGINS = cors_raw.split(',')
+    # cors_raw = os.getenv('VITE_API_URL', 'http://localhost:5173')
+    _default_origins = (
+        "http://localhost:3000,"
+        "http://localhost:5173,"
+        "http://127.0.0.1:3000,"
+        "http://127.0.0.1:5173"
+    )
+    _cors_raw= os.getenv('CORS_ALLOWED_ORIGINS', _default_origins)
+    # CORS_ORIGINS = cors_raw.split(',')
+    CORS_ORIGINS = [origin.strip() for origin in _cors_raw.split(',')]
     DEBUG = False
 
 class DevelopmentConfig(Config):

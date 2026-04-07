@@ -1,0 +1,42 @@
+# --- Python related ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+.env
+venv/
+.venv/
+v-env/
+.v-env/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.deprecated
+
+# --- Java related ---
+*.class
+*.log
+.metadata/
+bin/
+build/
+target/
+
+# --- Development tools and System related ---
+.git
+.gitignore
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.bak
+
+# --- Other ---
+.env
+Dockerfile
+docker-compose.yml
