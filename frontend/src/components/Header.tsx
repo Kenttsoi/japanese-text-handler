@@ -3,6 +3,7 @@ import { Anchor, Burger, Center, Container, Group, Drawer, Grid } from '@mantine
 import { useDisclosure } from '@mantine/hooks';
 import classes from './Header.module.css';
 import { useNavigate } from 'react-router-dom';
+import { useWindowScroll } from '@mantine/hooks';
 
 const links = [
   { link: '/', label: 'Home' },
@@ -12,6 +13,8 @@ const links = [
 export const Header: React.FC = () => {
   const [opened, { toggle }] = useDisclosure(false);
   const navigate = useNavigate();
+  const [scroll] = useWindowScroll();
+  const scrolled = scroll.y > 50;
   
   const items = links.map((link) => {
     return (
@@ -47,15 +50,15 @@ export const Header: React.FC = () => {
 
   return (
     <>
-      <header className={classes.header}>
-        <Container size="md">
+      <header className={classes.header} data-scrolled={scrolled || undefined}>
+        
           <div className={classes.inner}>
-            <Group className={classes.fullWidth} justify="flex-end" gap={5} visibleFrom="sm">
+            <Group justify="flex-end" gap={5} visibleFrom="sm" style={{ flex: 1 }}>
               {items}
             </Group>
             <Burger opened={opened} onClick={toggle} size="sm" hiddenFrom="sm" />
           </div>
-        </Container>
+        
       </header>
 
       <Drawer

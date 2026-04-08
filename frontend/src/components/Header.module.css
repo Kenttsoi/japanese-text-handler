@@ -1,5 +1,4 @@
 .header {
-    /*width: 100vw;*/
     position: fixed;
     top: 15px;
     left: 50%;
@@ -11,44 +10,59 @@
     margin-bottom: 0;
     background-color: var(--mantine-color-body);
     border-bottom: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
-
-    border-radius: 100px; /* 大圓角效果 */
+    border-radius: 100px;
     display: flex;
     align-items: center;
     padding: 0 30px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header[data-scrolled] {
+  background-color: light-dark(rgba(255, 255, 255, 0.3), rgba(26, 27, 30, 0.3));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-color: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.1));
+  transform: translateX(-50%) scale(0.98);
+  height: 50px;
+  top: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .inner {
   display: flex;
   justify-content: space-between;
-  align-items: left;
+  align-items: center;
   width: 100%;
 }
 
-.innerOld {
-    max-width: 1200px;
-    margin: 0 auto;
-    height: 56px;
-    display: flex;
-    /* justify-content: space-between; */
-    align-items: center;
-    width: 100%;
-}
-
 .link {
-    display: block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     line-height: 1;
-    padding: 8px 12px;
+    padding: 8px 16px;
     border-radius: var(--mantine-radius-sm);
     text-decoration: none;
+
     color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0));
     font-size: var(--mantine-font-size-sm);
     font-weight: 500;
+
+    transition: all 0.2s ease;
 }
 
 .link:hover {
-    background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
+    /* background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6)); */
+    background-color: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.1));
+    transform: translateY(-1px);
+    color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
+}
+
+.link:active {
+    transform: translateY(0);
+    scale: 0.96;
 }
 
 .linkLabel {
