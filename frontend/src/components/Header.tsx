@@ -1,5 +1,5 @@
 import React from 'react';
-import { Anchor, Burger, Center, Container, Group, Drawer, Grid } from '@mantine/core';
+import { Anchor, Burger, Center, Button, Group, Drawer, Grid, ActionIcon } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import classes from './Header.module.css';
 import { useNavigate } from 'react-router-dom';
@@ -53,9 +53,20 @@ export const Header: React.FC = () => {
       <header className={classes.header} data-scrolled={scrolled || undefined}>
         
           <div className={classes.inner}>
-            <Group justify="flex-end" gap={5} visibleFrom="sm" style={{ flex: 1 }}>
+            <div className={classes.section} style={{ justifyContent: 'flex-start' }}>
+              <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>KanjiTool</span>
+            </div>
+            <Group gap={5} visibleFrom="sm" style={{ flex: 1 }}>
               {items}
             </Group>
+            <div className={classes.section} style={{ justifyContent: 'flex-end' }}>
+              <Group gap={10} visibleFrom="sm">
+                <Button variant="subtle" size="xs">JP/EN</Button>
+                <ActionIcon variant="default" size="lg">
+
+                </ActionIcon>
+              </Group>
+            </div>
             <Burger opened={opened} onClick={toggle} size="sm" hiddenFrom="sm" />
           </div>
         
