@@ -4,6 +4,7 @@ import { useDisclosure } from '@mantine/hooks';
 import classes from './Header.module.css';
 import { useNavigate } from 'react-router-dom';
 import { useWindowScroll } from '@mantine/hooks';
+import { IconSun, IconMoon, IconLanguageHiragana } from '@tabler/icons-react';
 
 const links = [
   { link: '/', label: 'Home' },
@@ -15,7 +16,7 @@ export const Header: React.FC = () => {
   const navigate = useNavigate();
   const [scroll] = useWindowScroll();
   const scrolled = scroll.y > 50;
-  
+
   const items = links.map((link) => {
     return (
       <a
@@ -51,25 +52,27 @@ export const Header: React.FC = () => {
   return (
     <>
       <header className={classes.header} data-scrolled={scrolled || undefined}>
-        
-          <div className={classes.inner}>
-            <div className={classes.section} style={{ justifyContent: 'flex-start' }}>
-              <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>KanjiTool</span>
-            </div>
-            <Group gap={5} visibleFrom="sm" style={{ flex: 1 }}>
-              {items}
-            </Group>
-            <div className={classes.section} style={{ justifyContent: 'flex-end' }}>
-              <Group gap={10} visibleFrom="sm">
-                <Button variant="subtle" size="xs">JP/EN</Button>
-                <ActionIcon variant="default" size="lg">
 
-                </ActionIcon>
-              </Group>
-            </div>
-            <Burger opened={opened} onClick={toggle} size="sm" hiddenFrom="sm" />
+        <div className={classes.inner}>
+          <div className={classes.section} style={{ justifyContent: 'flex-start' }}>
+            <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>KanjiTool</span>
           </div>
-        
+          <Group gap={5} visibleFrom="sm" style={{ flex: 1 }}>
+            {items}
+          </Group>
+          <div className={classes.section} style={{ justifyContent: 'flex-end' }}>
+            <Group gap={10} visibleFrom="sm">
+              <ActionIcon variant="default" size="lg" bd={0}>
+                <IconLanguageHiragana stroke={2} />
+              </ActionIcon>
+              <ActionIcon variant="default" size="lg" bd={0}>
+                <IconSun stroke={2} />
+              </ActionIcon>
+            </Group>
+          </div>
+          <Burger opened={opened} onClick={toggle} size="sm" hiddenFrom="sm" />
+        </div>
+
       </header>
 
       <Drawer
