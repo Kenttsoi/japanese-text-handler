@@ -1,12 +1,26 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { createTheme, MantineProvider } from '@mantine/core';
+import { AnimatePresence } from 'framer-motion';
 import '@mantine/core/styles.css';
 import './App.css'
 import Annotator from './pages/Annotator';
 import Home from './pages/Home';
 import { Header } from './components/Header';
 import { NotFound } from './pages/NotFound';
+import PageLayout from './components/PageLayout';
 
+const AnimatedRoutes = () => {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<PageLayout><Home /></PageLayout>} />
+        <Route path="/annotate" element={<PageLayout><Annotator /></PageLayout>} />
+        <Route path="*" element={<PageLayout><NotFound /></PageLayout>} />
+      </Routes>
+    </AnimatePresence>
+  )
+}
 
 function App() {
   return (
@@ -14,11 +28,7 @@ function App() {
       <BrowserRouter>
         <Header />
         <main style={{ paddingTop: '30px', minHeight: '30vh' }}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/annotate" element={<Annotator />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AnimatedRoutes />
         </main>
       </BrowserRouter>
     </MantineProvider>

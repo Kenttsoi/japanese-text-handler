@@ -34,7 +34,7 @@ body {
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
 
-    border: 1px solid light-dark(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+    /* border: 1px solid light-dark(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1)); */
     border-color: light-dark(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
     transform: translateX(-50%);
 
@@ -94,4 +94,11 @@ body {
 .mobileMenuCol {
     display: flex;
     justify-content: center;
+}
+
+.tab {
+    &:hover:not([data-active]) {
+        /* background-color: var(--mantine-color-gray-1); */
+        background-color: #faeadc; /* temp */
+    }
 }

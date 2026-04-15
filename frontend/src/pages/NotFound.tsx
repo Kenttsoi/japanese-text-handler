@@ -12,7 +12,7 @@ export function NotFound() {
           fontSize: '12rem', 
           fontWeight: 900, 
           lineHeight: 1, 
-          color: '#f1f3f5',
+          color: '#d8dadc',
           position: 'absolute',
           zIndex: -1,
           userSelect: 'none'

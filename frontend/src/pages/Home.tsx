@@ -12,7 +12,7 @@ export default function Home() {
           Make Your Japanese <span style={{ color: '#228be6' }}>Readable.</span>
         </Title>
 
-        <Text size="lg" color="dimmed" style={{ maxWidth: '600px' }}>
+        <Text size="lg" c="dimmed" style={{ maxWidth: '600px' }}>
           A dedicated tool for Kanji alignment and data annotation. Zero setup, start labeling instantly.
         </Text>
 
@@ -36,7 +36,7 @@ export default function Home() {
           justifyContent: 'center',
           border: '2px dashed #ced4da'
         }}>
-          <Text color="dimmed">Drag and drop your dataset to begin (Feature in progress)</Text>
+          <Text c="dimmed">Drag and drop your dataset to begin (Feature in progress)</Text>
         </div>
       </Stack>
     </Container>

@@ -1,15 +1,19 @@
 import React from 'react';
-import { Anchor, Burger, Center, Button, Group, Drawer, Grid, ActionIcon } from '@mantine/core';
+import { Anchor, Burger, Center, Button, Group, Drawer, Grid, ActionIcon, Tabs, rem, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import classes from './Header.module.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useWindowScroll } from '@mantine/hooks';
 import { IconSun, IconMoon, IconLanguageHiragana } from '@tabler/icons-react';
+import { motion } from 'framer-motion';
 
 const links = [
   { link: '/', label: 'Home' },
-  { link: '/annotate', label: 'Annotator' }
+  { link: '/annotate', label: 'Annotator' },
+  { link: '/test', label: 'Testing' }
 ];
+
+const navItems = links;
 
 export const Header: React.FC = () => {
   const [opened, { toggle }] = useDisclosure(false);
@@ -57,9 +61,62 @@ export const Header: React.FC = () => {
           <div className={classes.section} style={{ justifyContent: 'flex-start' }}>
             <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>KanjiTool</span>
           </div>
-          <Group gap={5} visibleFrom="sm" style={{ flex: 1 }}>
-            {items}
-          </Group>
+          <Tabs
+            variant="unstyled"
+            visibleFrom="sm"
+            value={location.pathname}
+            onChange={(value) => navigate(value || '/')}
+          >
+            <Tabs.List style={{ display: 'flex', gap: rem(4), position: 'relative' }}>
+              {navItems.map((item) => {
+                const isActive = location.pathname === item.link;
+
+                return (
+                  <Tabs.Tab
+                    key={item.link}
+                    value={item.link}
+                    style={{
+                      position: 'relative',
+                      padding: `${rem(8)} ${rem(16)}`,
+                      borderRadius: '100px',
+                      cursor: 'pointer',
+                      border: 'none',
+                      /* background: 'transparent', */
+                      color: isActive ? 'var(--mantine-color-white)' : 'var(--mantine-color-text)',
+                      transition: 'color 300ms ease',
+                    }}
+                    className={classes.tab}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="active-pill"
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          backgroundColor: 'var(--mantine-primary-color-filled)',
+                          borderRadius: '100px',
+                          zIndex: 0,
+                        }}
+                        transition={{
+                          type: 'spring',
+                          stiffness: 380,
+                          damping: 30,
+                        }}
+                      />
+                    )}
+
+                    <Text
+                      size="sm"
+                      fw={500}
+                      style={{ position: 'relative', zIndex: 1 }}
+                    >
+                      {item.label}
+                    </Text>
+                  </Tabs.Tab>
+                );
+              })}
+            </Tabs.List>
+          </Tabs>
           <div className={classes.section} style={{ justifyContent: 'flex-end' }}>
             <Group gap={10} visibleFrom="sm">
               <ActionIcon variant="default" size="lg" bd={0}>
