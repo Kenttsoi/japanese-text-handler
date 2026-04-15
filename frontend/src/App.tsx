@@ -5,9 +5,9 @@ import '@mantine/core/styles.css';
 import './App.css'
 import Annotator from './pages/Annotator';
 import Home from './pages/Home';
-import { Header } from './components/Header';
+import { Header } from './components/layout/Header';
 import { NotFound } from './pages/NotFound';
-import PageLayout from './components/PageLayout';
+import PageLayout from './components/layout/PageLayout';
 
 const AnimatedRoutes = () => {
   const location = useLocation();

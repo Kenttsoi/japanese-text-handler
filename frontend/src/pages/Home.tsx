@@ -1,6 +1,7 @@
 import React from 'react';
 import { Container, Title, Text, Button, Group, Stack } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
+import FeaturesGrid from '@/components/home/features/FeaturesGrid';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -38,6 +39,8 @@ export default function Home() {
         }}>
           <Text c="dimmed">Drag and drop your dataset to begin (Feature in progress)</Text>
         </div>
+
+        <FeaturesGrid />
       </Stack>
     </Container>
 

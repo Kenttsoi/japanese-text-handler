@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, Title, Stack, Badge, Textarea, Paper, Group, Text, Button, SegmentedControl, Chip, Select } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { convertJapaneseText, annotateTextSimple, annotateText, annotateSample } from '../services/api';
-import { Header } from '../components/Header';
+import { Header } from '../components/layout/Header';
 import { RubyText } from '../components/RubyText';
 import classes from './Annotator.module.css';
 
