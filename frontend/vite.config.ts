@@ -24,6 +24,14 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': path.resolve(__dirname, './src')
       }
+    },
+    optimizeDeps: {
+      include: [
+        'react',
+        'react-dom',
+        '@mantine/core',
+      ],
+      exclude: ['@tabler/icons-react']
     }
   };
 });

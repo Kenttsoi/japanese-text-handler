@@ -4,7 +4,9 @@ import { useDisclosure } from '@mantine/hooks';
 import classes from './Header.module.css';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useWindowScroll } from '@mantine/hooks';
-import { IconSun, IconMoon, IconLanguageHiragana } from '@tabler/icons-react';
+import IconSun from '@tabler/icons-react/dist/esm/icons/IconSun.mjs';
+import IconMoon from '@tabler/icons-react/dist/esm/icons/IconMoon.mjs';
+import IconLanguageHiragana from '@tabler/icons-react/dist/esm/icons/IconLanguageHiragana.mjs';
 import { motion } from 'framer-motion';
 
 const links = [
