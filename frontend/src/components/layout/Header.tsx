@@ -1,5 +1,5 @@
 import React from 'react';
-import { Anchor, Burger, Center, Button, Group, Drawer, Grid, ActionIcon, Tabs, rem, Text } from '@mantine/core';
+import { Anchor, Burger, Center, Button, Group, Drawer, Grid, ActionIcon, Tabs, rem, Text, useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import classes from './Header.module.css';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { useWindowScroll } from '@mantine/hooks';
 import IconSun from '@tabler/icons-react/dist/esm/icons/IconSun.mjs';
 import IconMoon from '@tabler/icons-react/dist/esm/icons/IconMoon.mjs';
 import IconLanguageHiragana from '@tabler/icons-react/dist/esm/icons/IconLanguageHiragana.mjs';
+import cx from 'clsx';
 import { motion } from 'framer-motion';
 
 const links = [
@@ -22,6 +23,8 @@ export const Header: React.FC = () => {
   const navigate = useNavigate();
   const [scroll] = useWindowScroll();
   const scrolled = scroll.y > 50;
+  const { setColorScheme } = useMantineColorScheme();
+  const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
 
   const items = links.map((link) => {
     return (
@@ -124,8 +127,15 @@ export const Header: React.FC = () => {
               <ActionIcon variant="default" size="lg" bd={0}>
                 <IconLanguageHiragana stroke={2} />
               </ActionIcon>
-              <ActionIcon variant="default" size="lg" bd={0}>
-                <IconSun stroke={2} />
+              <ActionIcon
+                variant="default"
+                size="lg"
+                bd={0}
+                onClick={() => setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light')}
+                aria-label="Toggle color scheme"
+              >
+                <IconSun stroke={2} className={cx(classes.light)}/>
+                <IconMoon stroke={2} className={cx(classes.dark)}/>
               </ActionIcon>
             </Group>
           </div>
