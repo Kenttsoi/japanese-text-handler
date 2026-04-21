@@ -72,7 +72,6 @@ const Annotator: React.FC = () => {
                 fontSize: '2.8rem',
                 fontWeight: 900,
                 letterSpacing: '-1.5px',
-                color: '#1A1B1E',
                 lineHeight: 1
               }}
             >
@@ -105,21 +104,17 @@ const Annotator: React.FC = () => {
           </Chip.Group>
         </Container>
         <Container className="mainContentWidth">
-          <Paper shadow="sm" radius="lg" p="xl" style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            backdropFilter: 'blur(10px)',
-            borderColor: '#e9ecef'
-          }}>
+          <Paper shadow="sm" radius="lg" p="xl" withBorder className={classes.inputContainer}>
             <Textarea
               variant="unstyled"
               placeholder="Please type your text here"
               autosize
               maxRows={10}
-              className={classes.fullWidth}
+              className={classes.textareaInput}
               value={text}
               onChange={(e) => {
-                console.log(e.target.value);
-                setText(e.target.value);
+                console.log(e.currentTarget.value);
+                setText(e.currentTarget.value);
               }}
             />
           </Paper>
@@ -136,7 +131,7 @@ const Annotator: React.FC = () => {
           </Group>
         </Container>
         <Container className="mainContentWidth">
-          <Paper shadow="lg" radius="lg" p="xl" >
+          <Paper shadow="lg" radius="lg" p="xl" className={classes.resultContainer}>
             <Group align="center" justify="space-between" className={classes.outputToolsTop}>
               <Text size="lg">Output</Text>
               <Group align="center" justify="flex-end">

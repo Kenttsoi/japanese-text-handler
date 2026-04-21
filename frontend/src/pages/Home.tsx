@@ -1,7 +1,8 @@
 import React from 'react';
-import { Container, Title, Text, Button, Group, Stack } from '@mantine/core';
+import { Container, Title, Text, Button, Group, Stack, Box } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import FeaturesGrid from '@/components/home/features/FeaturesGrid';
+import classes from './Home.module.css';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ export default function Home() {
     <Container size="md" style={{ marginTop: '150px', textAlign: 'center' }}>
       <Stack align="center" gap="xl">
         <Title order={1} style={{ fontSize: '3rem', fontWeight: 900 }}>
-          Make Your Japanese <span style={{ color: '#228be6' }}>Readable.</span>
+          Make Your Japanese <Text span c="orange.6" inherit>Readable.</Text>
         </Title>
 
         <Text size="lg" c="dimmed" style={{ maxWidth: '600px' }}>
@@ -26,20 +27,10 @@ export default function Home() {
           </Button>
         </Group>
 
-        <div style={{
-          marginTop: '50px',
-          width: '100%',
-          height: '300px',
-          backgroundColor: '#f1f3f5',
-          borderRadius: '20px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '2px dashed #ced4da'
-        }}>
+        <Box className={classes.dropzone}>
           <Text c="dimmed">Drag and drop your dataset to begin (Feature in progress)</Text>
-        </div>
-
+        </Box>
+        
         <FeaturesGrid />
       </Stack>
     </Container>

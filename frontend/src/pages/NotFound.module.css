@@ -1,0 +1,24 @@
+.container {
+    position: relative;
+    overflow: hidden;
+}
+
+.bgText {
+    font-size: 12rem;
+    font-weight: 900;
+    line-height: 1;
+    position: absolute;
+    z-index: -1;
+    user-select: none;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -55%);
+
+    color: light-dark(#d8dadc, #2c2e33);
+    opacity: 0.8;
+}
+
+.title {
+  color: var(--mantine-color-text);
+  margin-top: 40px;
+}

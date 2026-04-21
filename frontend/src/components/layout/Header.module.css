@@ -95,7 +95,7 @@
 .tab {
     &:hover:not([data-active]) {
         /* background-color: var(--mantine-color-gray-1); */
-        background-color: #faeadc;
+        background-color: light-dark(#faeadc, rgba(251, 154, 31, 0.1))
         /* temp */
     }
 }
