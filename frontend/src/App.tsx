@@ -7,6 +7,7 @@ import './App.css'
 
 import Home from './pages/Home';
 import { Header } from './components/layout/Header';
+import  Footer  from './components/layout/Footer';
 import { NotFound } from './pages/NotFound';
 import PageLayout from './components/layout/PageLayout';
 // import Annotator from './pages/Annotator';
@@ -66,6 +67,7 @@ function App() {
         <main style={{ paddingTop: '30px', minHeight: '30vh' }}>
           <AnimatedRoutes />
         </main>
+        <Footer />
       </BrowserRouter>
     </MantineProvider>
   )

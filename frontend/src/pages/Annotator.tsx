@@ -1,10 +1,11 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Container, Title, Stack, Badge, Textarea, Paper, Group, Text, Button, SegmentedControl, Chip, Select } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { convertJapaneseText, annotateTextSimple, annotateText, annotateSample } from '../services/api';
-import { Header } from '../components/layout/Header';
 import { RubyText } from '../components/RubyText';
 import classes from './Annotator.module.css';
+import AnimatedConvertButton from '../components/annotator/AnimatedConvertButton';
 
 type displayMode = 'original' | 'furigana' | 'hiragana' | 'katakana' | 'romaji' | 'pitch_accent';
 
@@ -82,8 +83,8 @@ const Annotator: React.FC = () => {
               variant="dot"
               color="blue"
               size="lg"
-              mb={8} 
-              style={{ textTransform: 'none' }} 
+              mb={8}
+              style={{ textTransform: 'none' }}
             >
               v1.0 Beta
             </Badge>
@@ -122,12 +123,7 @@ const Annotator: React.FC = () => {
         <br />
         <Container className="mainContentWidth">
           <Group align="center" justify="center">
-            <Button
-              variant="light" color="orange"
-              onClick={handleConvert}
-            >
-              CONVERT
-            </Button>
+            <AnimatedConvertButton onClick={handleConvert} />
           </Group>
         </Container>
         <Container className="mainContentWidth">
