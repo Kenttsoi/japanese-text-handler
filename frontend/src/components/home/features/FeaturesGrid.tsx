@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion, Variants } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { SimpleGrid, Card, Text, Title, Container, ThemeIcon, rem } from '@mantine/core';
 
 const mockData = [
@@ -53,8 +54,9 @@ const itemVariants: Variants = {
 };
 
 export default function FeaturesGrid() {
+    const { t } = useTranslation();
 
-    const features = mockData.map((feature) => (
+    const features = mockData.map((feature, index) => (
         <motion.div key={feature.title} variants={itemVariants}>
             <Card key={feature.title} shadow="md" radius="md" padding="xl" style={{ borderBottom: `4px solid var(--mantine-color-${feature.color}-6)` }}>
                 <ThemeIcon
@@ -65,7 +67,7 @@ export default function FeaturesGrid() {
                 >
                 </ThemeIcon>
                 <Text fz="lg" fw={700} mt="md">
-                    {feature.title}
+                    {t(`features.card_${index + 1}`as const)}
                 </Text>
                 <Text fz="sm" c="dimmed" mt="sm" lh={1.6}>
                     {feature.description}
