@@ -9,11 +9,12 @@ import IconMoon from '@tabler/icons-react/dist/esm/icons/IconMoon.mjs';
 import IconLanguageHiragana from '@tabler/icons-react/dist/esm/icons/IconLanguageHiragana.mjs';
 import cx from 'clsx';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const links = [
-  { link: '/', label: 'Home' },
-  { link: '/annotate', label: 'Annotator' },
-  { link: '/test', label: 'Testing' }
+  { link: '', label: 'Home' },
+  { link: 'annotate', label: 'Annotator' },
+  { link: 'test', label: 'Testing' }
 ];
 
 const navItems = links;
@@ -25,8 +26,9 @@ export const Header: React.FC = () => {
   const scrolled = scroll.y > 50;
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
+  const { i18n } = useTranslation();
 
-  const items = links.map((link) => {
+  /* const items = links.map((link) => {
     return (
       <a
         key={link.label}
@@ -40,7 +42,7 @@ export const Header: React.FC = () => {
         {link.label}
       </a>
     );
-  });
+  }); */
 
   const mobileItems = links.map((link) => {
     return (
@@ -70,16 +72,17 @@ export const Header: React.FC = () => {
             variant="unstyled"
             visibleFrom="sm"
             value={location.pathname}
-            onChange={(value) => navigate(value || '/')}
+            onChange={(value) => navigate(value || `/${i18n.language}`)}
           >
             <Tabs.List style={{ display: 'flex', gap: rem(4), position: 'relative' }}>
               {navItems.map((item) => {
-                const isActive = location.pathname === item.link;
-
+                const localizedPath = item.link === '/' ? `/${i18n.language}` : `/${i18n.language}/${item.link}`;
+                const isActive = location.pathname === localizedPath;
+                
                 return (
                   <Tabs.Tab
-                    key={item.link}
-                    value={item.link}
+                    key={localizedPath}
+                    value={localizedPath}
                     style={{
                       position: 'relative',
                       padding: `${rem(8)} ${rem(16)}`,
