@@ -4,90 +4,113 @@ import { useTranslation } from 'react-i18next';
 import { SimpleGrid, Card, Text, Title, Container, ThemeIcon, rem } from '@mantine/core';
 
 const mockData = [
-    {
-        title: 'Auto Furigana Annotation',
-        title_tc: '自動標註振假名',
-        description: 'Automatically generate Furigana for complex Kanji and toggle entire passages between Hiragana, Katakana, and Romaji.',
-        description_tc: '利用的語法分析技術，一鍵為日文漢字標上正確的讀音，支援多種顯示模式。',
-        color: 'orange',
-    },
-    {
-        title: 'Study',
-        title_tc: '',
-        description: 'Comprehensive study materials for all levels',
-        description_tc: '',
-        color: 'orange',
-    },
-    {
-        title: 'Vocabulary',
-        title_tc: '',
-        description: 'Build your vocabulary with smart learning',
-        description_tc: '',
-        color: 'orange',
-    },
-    {
-        title: 'Flashcards',
-        title_tc: '',
-        description: 'Practice with interactive flashcards',
-        description_tc: '',
-        color: 'amber',
-    }
+  {
+    title: 'Auto Furigana Annotation',
+    title_tc: '自動標註振假名',
+    description: 'Automatically generate Furigana for complex Kanji and toggle entire passages between Hiragana, Katakana, and Romaji.',
+    description_tc: '利用的語法分析技術，一鍵為日文漢字標上正確的讀音，支援多種顯示模式。',
+    color: 'orange',
+  },
+  {
+    title: 'Study',
+    title_tc: '',
+    description: 'Comprehensive study materials for all levels',
+    description_tc: '',
+    color: 'orange',
+  },
+  {
+    title: 'Vocabulary',
+    title_tc: '',
+    description: 'Build your vocabulary with smart learning',
+    description_tc: '',
+    color: 'orange',
+  },
+  {
+    title: 'Flashcards',
+    title_tc: '',
+    description: 'Practice with interactive flashcards',
+    description_tc: '',
+    color: 'amber',
+  }
 ];
 
 const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.15,
-        },
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
     },
+  },
 };
 
 const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-        opacity: 1,
-        y: 0,
-        transition: { duration: 0.5, ease: 'easeOut' }
-    },
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: 'easeOut' }
+  },
 };
 
 export default function FeaturesGrid() {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
+  const featureList = t('features.cardList', { returnObjects: true }) as Array<{ title: string, description: string }>;
 
-    const features = mockData.map((feature, index) => (
-        <motion.div key={feature.title} variants={itemVariants}>
-            <Card key={feature.title} shadow="md" radius="md" padding="xl" style={{ borderBottom: `4px solid var(--mantine-color-${feature.color}-6)` }}>
-                <ThemeIcon
-                    size={44}
-                    radius="md"
-                    variant="light"
-                    color={feature.color}
-                >
-                </ThemeIcon>
-                <Text fz="lg" fw={700} mt="md">
-                    {t(`features.card_${index + 1}`as const)}
-                </Text>
-                <Text fz="sm" c="dimmed" mt="sm" lh={1.6}>
-                    {feature.description}
-                </Text>
-            </Card>
-        </motion.div>
-    ));
+  const features = featureList.map((item, index) => (
+    <motion.div key={index} variants={itemVariants}>
+      <Card key={index} shadow="md" radius="md" padding="xl" style={{ borderBottom: `4px solid var(--mantine-color-orange-6)` }}>
+        <ThemeIcon
+          size={44}
+          radius="md"
+          variant="light"
+          color={'orange'}
+        >
+        </ThemeIcon>
+        <Text fz="lg" fw={700} mt="md">
+            {item.title}
+          </Text>
+          <Text fz="sm" c="dimmed" mt="sm" lh={1.6}>
+            {item.description}
+          </Text>
+      </Card>
+    </motion.div>
+  ));
 
+  /* const features = mockData.map((feature, index) => {
+    const fieldTitle: string = "features.card." + String(index + 1);
     return (
-        <>
-            <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-100px" }}
-            >
-                <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl" mt={50}>
-                    {features}
-                </SimpleGrid>
-            </motion.div >
-        </>
-    )
+      <motion.div key={feature.title} variants={itemVariants}>
+        <Card key={feature.title} shadow="md" radius="md" padding="xl" style={{ borderBottom: `4px solid var(--mantine-color-${feature.color}-6)` }}>
+          <ThemeIcon
+            size={44}
+            radius="md"
+            variant="light"
+            color={feature.color}
+          >
+          </ThemeIcon>
+          <Text fz="lg" fw={700} mt="md">
+            {t(`${fieldTitle}` as any) as string}
+          </Text>
+          <Text fz="sm" c="dimmed" mt="sm" lh={1.6}>
+            {feature.description}
+          </Text>
+        </Card>
+      </motion.div>)
+  }); */
+
+  return (
+    <>
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+      >
+        <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl" mt={50}>
+          {features}
+        </SimpleGrid>
+      </motion.div >
+    </>
+  )
 }

@@ -1,5 +1,7 @@
 {
   "features": {
-    "card_1": "Auto Furigana Annotation(s)"
+    "cardList": [
+      { "title": "Auto Furigana Annotation(s)", "description": "Automatically generate Furigana for complex Kanji and toggle entire passages between Hiragana, Katakana, and Romaji." }
+    ]
   }
 }
