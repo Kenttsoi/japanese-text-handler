@@ -18,6 +18,11 @@ const Annotator = lazy(() => import('./pages/Annotator'));
 const LanguageWrapper = () => {
   const { lang } = useParams();
   const { i18n: i18nInstance } = useTranslation();
+  const SUPPORTED_LANGS = ['en', 'ja', 'zh-TW'];
+
+  if (lang && !SUPPORTED_LANGS.includes(lang)) {
+    return <Navigate to="/404" replace />;
+  }
 
   useEffect(() => {
     if (lang && i18nInstance.language !== lang) {
@@ -49,7 +54,8 @@ const AnimatedRoutes = () => {
             <Route path="annotate" element={<PageLayout><Annotator /></PageLayout>} />
             <Route path="*" element={<PageLayout><NotFound /></PageLayout>} />
           </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/404" element={<PageLayout><NotFound /></PageLayout>} />
+          <Route path="*" element={<Navigate to="/404" replace />} />
         </Routes>
       </Suspense>
     </AnimatePresence>
