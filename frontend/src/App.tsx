@@ -18,7 +18,7 @@ const Annotator = lazy(() => import('./pages/Annotator'));
 const LanguageWrapper = () => {
   const { lang } = useParams();
   const { i18n: i18nInstance } = useTranslation();
-  const SUPPORTED_LANGS = ['en', 'ja', 'zh-TW'];
+  const SUPPORTED_LANGS = ['en', 'ja', 'zh-TW', 'ko'];
 
   if (lang && !SUPPORTED_LANGS.includes(lang)) {
     return <Navigate to="/404" replace />;

@@ -1,8 +1,8 @@
 import React from 'react';
-import { Anchor, Burger, Center, Button, Group, Drawer, Grid, ActionIcon, Tabs, rem, Text, useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
+import { Anchor, Burger, Center, Menu, Group, Drawer, Grid, ActionIcon, Tabs, rem, Text, useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import classes from './Header.module.css';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useWindowScroll } from '@mantine/hooks';
 import IconSun from '@tabler/icons-react/dist/esm/icons/IconSun.mjs';
 import IconMoon from '@tabler/icons-react/dist/esm/icons/IconMoon.mjs';
@@ -17,6 +17,13 @@ const links = [
   { link: 'test', label: 'Testing' }
 ];
 
+const SUPPORTED_LANGS = [
+  { label: 'English', value: 'en' },
+  { label: '日本語', value: 'ja' },
+  { label: '繁體中文', value: 'zh-TW' },
+  { label: '한국어', value: 'ko' },
+];
+
 const navItems = links;
 
 export const Header: React.FC = () => {
@@ -27,6 +34,17 @@ export const Header: React.FC = () => {
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
   const { i18n } = useTranslation();
+  const { lang: currentLang } = useParams();
+  const { t } = useTranslation();
+
+  const handleLangChange = (newLang: string) => {
+    const pathSegments = location.pathname.split('/');
+    pathSegments[1] = newLang;
+    const newPath = pathSegments.join('/') || `/${newLang}`;
+
+    navigate(newPath);
+
+  }
 
   /* const items = links.map((link) => {
     return (
@@ -78,7 +96,7 @@ export const Header: React.FC = () => {
               {navItems.map((item) => {
                 const localizedPath = item.link === '/' ? `/${i18n.language}` : `/${i18n.language}/${item.link}`;
                 const isActive = location.pathname === localizedPath;
-                
+
                 return (
                   <Tabs.Tab
                     key={localizedPath}
@@ -127,9 +145,6 @@ export const Header: React.FC = () => {
           </Tabs>
           <div className={classes.section} style={{ justifyContent: 'flex-end' }}>
             <Group gap={10} visibleFrom="sm">
-              <ActionIcon variant="default" size="lg" bd={0}>
-                <IconLanguageHiragana stroke={2} />
-              </ActionIcon>
               <ActionIcon
                 variant="default"
                 size="lg"
@@ -137,9 +152,29 @@ export const Header: React.FC = () => {
                 onClick={() => setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light')}
                 aria-label="Toggle color scheme"
               >
-                <IconSun stroke={2} className={cx(classes.light)}/>
-                <IconMoon stroke={2} className={cx(classes.dark)}/>
+                <IconSun stroke={2} className={cx(classes.light)} />
+                <IconMoon stroke={2} className={cx(classes.dark)} />
               </ActionIcon>
+              <Menu shadow="md" width={150} position="bottom-end" withinPortal>
+                <Menu.Target>
+                  <ActionIcon variant="default" size="lg" bd={0}>
+                    <IconLanguageHiragana stroke={2} />
+                  </ActionIcon>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <Menu.Label>{t('header.selectLanguage')}</Menu.Label>
+                  {SUPPORTED_LANGS.map((lang) => (
+                    <Menu.Item
+                      key={lang.value}
+                      onClick={() => handleLangChange(lang.value)}
+                      // 如果是當前語言，可以加個勾勾圖示
+                      rightSection={currentLang === lang.value ? <IconSun size={14} /> : null}
+                    >
+                      {lang.label}
+                    </Menu.Item>
+                  ))}
+                </Menu.Dropdown>
+              </Menu>
             </Group>
           </div>
           <Burger opened={opened} onClick={toggle} size="sm" hiddenFrom="sm" />

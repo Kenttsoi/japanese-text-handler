@@ -1,0 +1,15 @@
+{
+  "header": {
+    "button": {
+      "home": "ホーム",
+      "annotator": "ふりがな付与",
+      "Test": "テスト"
+    },
+    "selectLanguage": "言語を選択"
+  },
+  "features": {
+    "cardList": [
+      { "title": "振假名（ふりがな）自動生成", "description": "構文解析技術により、漢字に読みを自動付与。平仮名、片仮名、ローマ字の表示切り替えにも対応。" }
+    ]
+  }
+}
