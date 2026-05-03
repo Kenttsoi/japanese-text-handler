@@ -58,9 +58,9 @@ const Annotator: React.FC = () => {
     }
   }
 
-  React.useEffect(() => {
+  /* React.useEffect(() => {
     console.log('[USE EFFECT] Result updated:', displayMode);
-  }, [displayMode]);
+  }, [displayMode]); */
 
   return (
     <>

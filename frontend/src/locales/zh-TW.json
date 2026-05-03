@@ -3,7 +3,7 @@
     "button": {
       "home": "首頁",
       "annotator": "自動標註振假名",
-      "Test": "測試"
+      "test": "測試"
     },
     "selectLanguage": "選擇語言"
   },

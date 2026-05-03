@@ -3,7 +3,7 @@
     "button": {
       "home": "ホーム",
       "annotator": "ふりがな付与",
-      "Test": "テスト"
+      "test": "テスト"
     },
     "selectLanguage": "言語を選択"
   },

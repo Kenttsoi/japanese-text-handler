@@ -33,6 +33,13 @@ const LanguageWrapper = () => {
   return <Outlet />;
 }
 
+const NavigateToLang = () => {
+  const location = useLocation();
+  const { language } = useTranslation().i18n;
+
+  return <Navigate to={`/${language}${location.pathname}`} replace />;
+}
+
 const AnimatedRoutes = () => {
   const location = useLocation();
   const { i18n } = useTranslation();
@@ -54,6 +61,10 @@ const AnimatedRoutes = () => {
             <Route path="annotate" element={<PageLayout><Annotator /></PageLayout>} />
             <Route path="*" element={<PageLayout><NotFound /></PageLayout>} />
           </Route>
+          <Route
+            path="/:path/*"
+            element={<NavigateToLang />}
+          />
           <Route path="/404" element={<PageLayout><NotFound /></PageLayout>} />
           <Route path="*" element={<Navigate to="/404" replace />} />
         </Routes>

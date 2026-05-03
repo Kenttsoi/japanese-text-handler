@@ -2,7 +2,7 @@ import React from 'react';
 import { Anchor, Burger, Center, Menu, Group, Drawer, Grid, ActionIcon, Tabs, rem, Text, useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import classes from './Header.module.css';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { useWindowScroll } from '@mantine/hooks';
 import IconSun from '@tabler/icons-react/dist/esm/icons/IconSun.mjs';
 import IconMoon from '@tabler/icons-react/dist/esm/icons/IconMoon.mjs';
@@ -12,9 +12,9 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
 const links = [
-  { link: '', label: 'Home' },
-  { link: 'annotate', label: 'Annotator' },
-  { link: 'test', label: 'Testing' }
+  { link: '', tLabel: 'home' },
+  { link: 'annotate', tLabel: 'annotator' },
+  { link: 'test', tLabel: 'test' }
 ];
 
 const SUPPORTED_LANGS = [
@@ -33,46 +33,30 @@ export const Header: React.FC = () => {
   const scrolled = scroll.y > 50;
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
-  const { i18n } = useTranslation();
-  const { lang: currentLang } = useParams();
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
+  const location = useLocation();
+
+  const pathParts = location.pathname.split('/');
+  const currentLang = pathParts[1] || 'en';
 
   const handleLangChange = (newLang: string) => {
     const pathSegments = location.pathname.split('/');
     pathSegments[1] = newLang;
     const newPath = pathSegments.join('/') || `/${newLang}`;
-
     navigate(newPath);
-
   }
-
-  /* const items = links.map((link) => {
-    return (
-      <a
-        key={link.label}
-        href={link.link}
-        className={classes.link}
-        onClick={(event) => {
-          event.preventDefault();
-          navigate(link.link);
-        }}
-      >
-        {link.label}
-      </a>
-    );
-  }); */
 
   const mobileItems = links.map((link) => {
     return (
       <Grid.Col span={12} className={classes.mobileMenuCol}>
         <Anchor
-          key={link.label}
+          key={link.tLabel}
           href={link.link}
           c="white"
           underline='never'
           onClick={(event) => event.preventDefault()}
         >
-          {link.label}
+          {link.tLabel}
         </Anchor>
       </Grid.Col>
     );
@@ -136,7 +120,7 @@ export const Header: React.FC = () => {
                       fw={500}
                       style={{ position: 'relative', zIndex: 1 }}
                     >
-                      {item.label}
+                      {t(`header.button.${item.tLabel}` as any)}
                     </Text>
                   </Tabs.Tab>
                 );
@@ -166,8 +150,8 @@ export const Header: React.FC = () => {
                   {SUPPORTED_LANGS.map((lang) => (
                     <Menu.Item
                       key={lang.value}
+                      color="orange"
                       onClick={() => handleLangChange(lang.value)}
-                      // 如果是當前語言，可以加個勾勾圖示
                       rightSection={currentLang === lang.value ? <IconSun size={14} /> : null}
                     >
                       {lang.label}

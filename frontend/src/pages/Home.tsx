@@ -1,11 +1,12 @@
 import React from 'react';
 import { Container, Title, Text, Button, Group, Stack, Box } from '@mantine/core';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import FeaturesGrid from '@/components/home/features/FeaturesGrid';
 import classes from './Home.module.css';
 
 export default function Home() {
   const navigate = useNavigate();
+  const { lang } = useParams();
 
   return (
     <Container size="md" style={{ marginTop: '150px', textAlign: 'center' }}>
@@ -19,7 +20,7 @@ export default function Home() {
         </Text>
 
         <Group>
-          <Button size="lg" radius="xl" color="dark" onClick={() => navigate('/annotate')}>
+          <Button size="lg" radius="xl" color="dark" onClick={() => navigate(`/${lang}/annotate`)}>
             Start Annotating
           </Button>
           <Button variant="outline" size="lg" radius="xl">

@@ -3,7 +3,7 @@
     "button": {
       "home": "홈",
       "annotator": "후리가나 표기",
-      "Test": "테스트"
+      "test": "테스트"
     },
     "selectLanguage": "언어 선택"
   },

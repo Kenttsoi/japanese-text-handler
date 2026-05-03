@@ -3,7 +3,7 @@
     "button": {
       "home": "Home",
       "annotator": "Annotator",
-      "Test": "test"
+      "test": "Test"
     },
     "selectLanguage": "Select Language"
   },
