@@ -1,0 +1,15 @@
+{
+  "header": {
+    "button": {
+      "home": "首頁",
+      "annotator": "自動標註振假名",
+      "test": "測試"
+    },
+    "selectLanguage": "選擇語言"
+  },
+  "features": {
+    "cardList": [
+      { "title": "自動標註振假名", "description": "利用的語法分析技術，一鍵為日文漢字標上正確的讀音，支援多種顯示模式。" }
+    ]
+  }
+}

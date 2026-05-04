@@ -1,0 +1,15 @@
+{
+  "header": {
+    "button": {
+      "home": "Home",
+      "annotator": "Annotator",
+      "test": "Test"
+    },
+    "selectLanguage": "Select Language"
+  },
+  "features": {
+    "cardList": [
+      { "title": "Auto Furigana Annotation", "description": "Automatically generate Furigana for complex Kanji and toggle entire passages between Hiragana, Katakana, and Romaji." }
+    ]
+  }
+}
