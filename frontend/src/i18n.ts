@@ -30,7 +30,7 @@ i18n
     fallbackLng: 'en',
     lng: "en",
     detection: {
-      order: ['path', 'querystring', 'cookie', 'localStorage', 'navigator', 'subdomain'],
+      order: ['path', 'cookie', 'localStorage', 'querystring', 'navigator', 'subdomain'],
       lookupFromPathIndex: 0,
       lookupQuerystring: 'lang',
       caches: ['localStorage', 'cookie'],

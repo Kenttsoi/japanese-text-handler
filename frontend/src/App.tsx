@@ -19,8 +19,12 @@ const LanguageWrapper = () => {
   const { lang } = useParams();
   const { i18n: i18nInstance } = useTranslation();
   const SUPPORTED_LANGS = ['en', 'ja', 'zh-TW', 'ko'];
+  const FUNCTIONAL_PATHS = ['annotate']
 
   if (lang && !SUPPORTED_LANGS.includes(lang)) {
+    if (FUNCTIONAL_PATHS.includes(lang)) {
+      return <Navigate to={`/${i18nInstance.language}/annotate`} replace />;
+    }
     return <Navigate to="/404" replace />;
   }
 

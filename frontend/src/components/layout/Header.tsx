@@ -13,8 +13,7 @@ import { useTranslation } from 'react-i18next';
 
 const links = [
   { link: '', tLabel: 'home' },
-  { link: 'annotate', tLabel: 'annotator' },
-  { link: 'test', tLabel: 'test' }
+  { link: 'annotate', tLabel: 'annotator' }
 ];
 
 const SUPPORTED_LANGS = [
