@@ -26,7 +26,7 @@ const SUPPORTED_LANGS = [
 const navItems = links;
 
 export const Header: React.FC = () => {
-  const [opened, { toggle }] = useDisclosure(false);
+  const [opened, { open, close, toggle }] = useDisclosure(false);
   const navigate = useNavigate();
   const [scroll] = useWindowScroll();
   const scrolled = scroll.y > 50;
@@ -51,7 +51,7 @@ export const Header: React.FC = () => {
         <Anchor
           key={link.tLabel}
           href={link.link}
-          c="white"
+          c="light-dark(#451a03, #e2e8f0)"
           underline='never'
           onClick={(event) => event.preventDefault()}
         >
@@ -167,19 +167,30 @@ export const Header: React.FC = () => {
 
       <Drawer
         opened={opened}
-        onClose={toggle}
+        onClose={close}
         withCloseButton={false}
         position="top"
+        offset={28}
+        radius="xl"
         size="100%"
+        padding="xl"
         styles={{
           content: {
-            background: 'transparent',
+            background: 'light-dark(rgba(255, 236, 209, 0.7), rgba(28, 28, 30, 0.95))',
+            border: '1px solid light-dark(rgba(251, 191, 36, 0.3), rgba(255, 255, 255, 0.08))',
+            color: 'light-dark(#451a03, #e2e8f0)',
+            backdropFilter: 'blur(15px)',
             zIndex: 1000,
             position: 'fixed',
-            top: 56,
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+            top: 0,
             left: 0,
             right: 0,
             bottom: 0,
+          },
+          overlay: {
+            backgroundColor: 'light-dark(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5))',
+            backdropFilter: 'blur(4px)',
           },
         }}
       >
