@@ -1,5 +1,5 @@
 import React from 'react';
-import { Anchor, Burger, Center, Menu, Group, Drawer, Grid, ActionIcon, Tabs, rem, Text, useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
+import { Anchor, Burger, Center, Box, Menu, Group, Drawer, Grid, ActionIcon, Tabs, rem, Text, Stack, Divider, UnstyledButton, useMantineColorScheme, useComputedColorScheme, ScrollArea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import classes from './Header.module.css';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
@@ -7,9 +7,13 @@ import { useWindowScroll } from '@mantine/hooks';
 import IconSun from '@tabler/icons-react/dist/esm/icons/IconSun.mjs';
 import IconMoon from '@tabler/icons-react/dist/esm/icons/IconMoon.mjs';
 import IconLanguageHiragana from '@tabler/icons-react/dist/esm/icons/IconLanguageHiragana.mjs';
+import IconX from '@tabler/icons-react/dist/esm/icons/IconX.mjs';
+import IconHome from '@tabler/icons-react/dist/esm/icons/IconHome.mjs';
+import IconEdit from '@tabler/icons-react/dist/esm/icons/IconEdit.mjs';
 import cx from 'clsx';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import NavButton from './NavButton';
 
 const links = [
   { link: '', tLabel: 'home' },
@@ -176,8 +180,8 @@ export const Header: React.FC = () => {
         padding="xl"
         styles={{
           content: {
-            background: 'light-dark(rgba(255, 236, 209, 0.7), rgba(28, 28, 30, 0.95))',
-            border: '1px solid light-dark(rgba(251, 191, 36, 0.3), rgba(255, 255, 255, 0.08))',
+            background: 'light-dark(rgba(255, 255, 255, 0.78), rgba(28, 28, 30, 0.65))',
+            border: '1px solid light-dark(rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.08))',
             color: 'light-dark(#451a03, #e2e8f0)',
             backdropFilter: 'blur(15px)',
             zIndex: 1000,
@@ -194,11 +198,62 @@ export const Header: React.FC = () => {
           },
         }}
       >
-        <Center>
+        {/* <Center>
           <Grid justify="center" align="center">
             {mobileItems}
           </Grid>
-        </Center>
+        </Center> */}
+        <Box style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <Group justify="flex-end" mb="xl">
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              size="xl"
+              radius="xl"
+              onClick={close}
+            >
+              <IconX size={28} />
+            </ActionIcon>
+          </Group>
+          <Group justify="center" gap="xl" mb="xl">
+            <UnstyledButton
+              className="setting-pill"
+              style={{
+                background: 'light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.1))',
+                padding: '8px 16px',
+                borderRadius: '20px'
+              }}
+            >
+              <Group gap={8}>
+                <IconLanguageHiragana size={20} />
+                <Text fw={600} size="sm">EN</Text>
+              </Group>
+            </UnstyledButton>
+            <ActionIcon
+              variant="outline"
+              color="orange.6"
+              radius="xl"
+              size="lg"
+              onClick={() => setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light')}
+            >
+              <IconSun size={20} className={cx(classes.light)} />
+              <IconMoon size={20} className={cx(classes.dark)} />
+            </ActionIcon>
+          </Group>
+          <ScrollArea style={{ flex: 1 }} mx="-md" px="md">
+            <Stack gap="xs">
+              <NavButton icon={<IconHome />} label="Home" active />
+              <NavButton icon={<IconEdit />} label="Annotator" active={false} />
+            </Stack>
+          </ScrollArea>
+          <Box pt="xl">
+            <Divider variant="dashed" mb="md" />
+            <Text size="xs" c="dimmed" ta="center" style={{ letterSpacing: '1px' }}>
+              © 2026 KANJITOOL
+            </Text>
+          </Box>
+
+        </Box>
       </Drawer>
     </>
 
