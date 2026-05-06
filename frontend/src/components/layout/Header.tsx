@@ -1,5 +1,5 @@
 import React from 'react';
-import { Anchor, Burger, Center, Box, Menu, Group, Drawer, Grid, ActionIcon, Tabs, rem, Text, Stack, Divider, UnstyledButton, useMantineColorScheme, useComputedColorScheme, ScrollArea } from '@mantine/core';
+import { Anchor, Burger, Center, Collapse, Button, Box, Menu, Group, Drawer, Grid, ActionIcon, Tabs, rem, Text, Stack, Divider, UnstyledButton, useMantineColorScheme, useComputedColorScheme, ScrollArea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import classes from './Header.module.css';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
@@ -38,6 +38,7 @@ export const Header: React.FC = () => {
   const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
   const { i18n, t } = useTranslation();
   const location = useLocation();
+  const [langMobileOpened, setLangMobileOpened] = React.useState(false);
 
   const pathParts = location.pathname.split('/');
   const currentLang = pathParts[1] || 'en';
@@ -216,21 +217,17 @@ export const Header: React.FC = () => {
             </ActionIcon>
           </Group>
           <Group justify="center" gap="xl" mb="xl">
-            <UnstyledButton
-              className="setting-pill"
-              style={{
-                background: 'light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.1))',
-                padding: '8px 16px',
-                borderRadius: '20px'
-              }}
+            <Button
+              leftSection={<IconLanguageHiragana size={20} />}
+              variant="light"
+              radius="xl"
+              color='gray'
+              onClick={() => setLangMobileOpened((o) => !o)}
             >
-              <Group gap={8}>
-                <IconLanguageHiragana size={20} />
-                <Text fw={600} size="sm">EN</Text>
-              </Group>
-            </UnstyledButton>
+              EN
+            </Button>
             <ActionIcon
-              variant="outline"
+              variant="light"
               color="orange.6"
               radius="xl"
               size="lg"
@@ -240,6 +237,19 @@ export const Header: React.FC = () => {
               <IconMoon size={20} className={cx(classes.dark)} />
             </ActionIcon>
           </Group>
+          <Collapse in={langMobileOpened}>
+            <Group justify="center" gap="xs">
+              {SUPPORTED_LANGS.map((lang) => (
+                <Button
+                  key={lang.value}
+                  variant="light"
+                  justify="flex-start"
+                >
+                  {lang.label}
+                </Button>
+              ))}
+            </Group>
+          </Collapse>
           <ScrollArea style={{ flex: 1 }} mx="-md" px="md">
             <Stack gap="xs">
               <NavButton icon={<IconHome />} label="Home" active />
