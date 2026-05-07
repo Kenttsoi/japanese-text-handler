@@ -1,5 +1,5 @@
 import React from 'react';
-import { Anchor, Burger, Center, Collapse, Button, Box, Menu, Group, Drawer, Grid, ActionIcon, Tabs, rem, Text, Stack, Divider, UnstyledButton, useMantineColorScheme, useComputedColorScheme, ScrollArea } from '@mantine/core';
+import { Anchor, Burger, Center, SimpleGrid, Collapse, Button, Box, Menu, Group, Drawer, Grid, ActionIcon, Tabs, rem, Text, Stack, Divider, UnstyledButton, useMantineColorScheme, useComputedColorScheme, ScrollArea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import classes from './Header.module.css';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
@@ -15,19 +15,30 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import NavButton from './NavButton';
 
-const links = [
+interface NavLink {
+  link: string;
+  tLabel: string;
+}
+
+interface LanguageOption {
+  label: string;
+  value: string;
+  alias: string;
+}
+
+const LINKS: NavLink[] = [
   { link: '', tLabel: 'home' },
   { link: 'annotate', tLabel: 'annotator' }
 ];
 
-const SUPPORTED_LANGS = [
-  { label: 'English', value: 'en' },
-  { label: '日本語', value: 'ja' },
-  { label: '繁體中文', value: 'zh-TW' },
-  { label: '한국어', value: 'ko' },
-];
+const SUPPORTED_LANGS: LanguageOption[] = [
+  { label: 'English', value: 'en', alias: 'EN' },
+  { label: '日本語', value: 'ja', alias: 'JA' },
+  { label: '繁體中文', value: 'zh-TW', alias: 'TC' },
+  { label: '한국어', value: 'ko', alias: 'KO' },
+] as const;
 
-const navItems = links;
+const navItems = LINKS;
 
 export const Header: React.FC = () => {
   const [opened, { open, close, toggle }] = useDisclosure(false);
@@ -42,6 +53,7 @@ export const Header: React.FC = () => {
 
   const pathParts = location.pathname.split('/');
   const currentLang = pathParts[1] || 'en';
+  const currentLangObject: LanguageOption = SUPPORTED_LANGS.find(l => l.value === currentLang) || SUPPORTED_LANGS[0];
 
   const handleLangChange = (newLang: string) => {
     const pathSegments = location.pathname.split('/');
@@ -50,7 +62,7 @@ export const Header: React.FC = () => {
     navigate(newPath);
   }
 
-  const mobileItems = links.map((link) => {
+  const mobileItems = LINKS.map((link) => {
     return (
       <Grid.Col span={12} className={classes.mobileMenuCol}>
         <Anchor
@@ -224,7 +236,7 @@ export const Header: React.FC = () => {
               color='gray'
               onClick={() => setLangMobileOpened((o) => !o)}
             >
-              EN
+              {currentLangObject.label}
             </Button>
             <ActionIcon
               variant="light"
@@ -238,17 +250,29 @@ export const Header: React.FC = () => {
             </ActionIcon>
           </Group>
           <Collapse in={langMobileOpened}>
-            <Group justify="center" gap="xs">
-              {SUPPORTED_LANGS.map((lang) => (
-                <Button
-                  key={lang.value}
-                  variant="light"
-                  justify="flex-start"
-                >
-                  {lang.label}
-                </Button>
-              ))}
-            </Group>
+            {langMobileOpened && (
+              <Box pt="xs" pb="md">
+                <SimpleGrid cols={2} spacing="xs" mb="md">
+                  {SUPPORTED_LANGS.map((lang) => (
+                    <Button
+                      key={lang.value}
+                      variant="light"
+                      justify="space-around"
+                      radius="xl"
+                      color="red.9"
+                      leftSection={lang.alias}
+                      disabled={false}
+                      onClick={() => {
+                        handleLangChange(lang.value);
+                        setLangMobileOpened(false);
+                      }}
+                    >
+                      {lang.label}
+                    </Button>
+                  ))}
+                </SimpleGrid>
+              </Box>
+            )}
           </Collapse>
           <ScrollArea style={{ flex: 1 }} mx="-md" px="md">
             <Stack gap="xs">
