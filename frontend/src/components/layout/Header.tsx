@@ -18,6 +18,7 @@ import NavButton from './NavButton';
 interface NavLink {
   link: string;
   tLabel: string;
+  icon?: React.ElementType;
 }
 
 interface LanguageOption {
@@ -27,8 +28,8 @@ interface LanguageOption {
 }
 
 const LINKS: NavLink[] = [
-  { link: '', tLabel: 'home' },
-  { link: 'annotate', tLabel: 'annotator' }
+  { link: '', tLabel: 'home', icon: IconHome },
+  { link: 'annotate', tLabel: 'annotator', icon: IconEdit }
 ];
 
 const SUPPORTED_LANGS: LanguageOption[] = [
@@ -211,11 +212,6 @@ export const Header: React.FC = () => {
           },
         }}
       >
-        {/* <Center>
-          <Grid justify="center" align="center">
-            {mobileItems}
-          </Grid>
-        </Center> */}
         <Box style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <Group justify="flex-end" mb="xl">
             <ActionIcon
@@ -278,6 +274,7 @@ export const Header: React.FC = () => {
             <Stack gap="xs">
               <NavButton icon={<IconHome />} label="Home" active />
               <NavButton icon={<IconEdit />} label="Annotator" active={false} />
+              
             </Stack>
           </ScrollArea>
           <Box pt="xl">

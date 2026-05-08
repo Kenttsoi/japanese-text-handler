@@ -65,8 +65,8 @@ const Annotator: React.FC = () => {
   return (
     <>
       <main className={classes.contentWrapper}>
-        <Stack align="center" gap={0} mt="xl" mb="xl">
-          <Group gap="xs" align="flex-end">
+        <Stack align="center" justify="center" gap={0} mt="xl" mb="xl">
+          <Group gap="xs" align="center" justify="center">
             <Title
               order={1}
               style={{
@@ -83,7 +83,6 @@ const Annotator: React.FC = () => {
               variant="dot"
               color="blue"
               size="lg"
-              mb={8}
               style={{ textTransform: 'none' }}
             >
               v1.0 Beta
