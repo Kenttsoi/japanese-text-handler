@@ -272,9 +272,22 @@ export const Header: React.FC = () => {
           </Collapse>
           <ScrollArea style={{ flex: 1 }} mx="-md" px="md">
             <Stack gap="xs">
-              <NavButton icon={<IconHome />} label="Home" active />
-              <NavButton icon={<IconEdit />} label="Annotator" active={false} />
-              
+              {navItems.map((linkItem) => {
+                const IconComponent = linkItem.icon;
+                const localizedPath = linkItem.link === '/' ? `/${i18n.language}` : `/${i18n.language}/${linkItem.link}`;
+                const isActive = location.pathname === localizedPath;
+                const clickEvents =  () => {
+                  close;
+                  navigate(linkItem.link);
+                };
+                return (
+                  <NavButton
+                    icon={IconComponent ? <IconComponent /> : <></>}
+                    label={t(`header.button.${linkItem.tLabel}` as any)}
+                    active={isActive}
+                    handleClick={clickEvents} />
+                );
+              })}
             </Stack>
           </ScrollArea>
           <Box pt="xl">

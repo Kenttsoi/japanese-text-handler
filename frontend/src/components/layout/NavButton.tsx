@@ -6,10 +6,10 @@ interface NavButtonProps {
   icon: ReactNode,
   label: string,
   active: boolean,
-  onClick?: () => void
+  handleClick?: () => void
 }
 
-export default function NavButton({ icon, label, active, onClick }: NavButtonProps) {
+export default function NavButton({ icon, label, active, handleClick }: NavButtonProps) {
   return (
     <UnstyledButton
       style={{
@@ -17,6 +17,10 @@ export default function NavButton({ icon, label, active, onClick }: NavButtonPro
         padding: '16px',
         borderRadius: '12px',
         background: active ? 'light-dark(rgba(245,158,11,0.1), rgba(255,255,255,0.05))' : 'transparent'
+      }}
+      onClick={(event) => {
+        event.preventDefault();
+        handleClick?.();
       }}
     >
       <Group justify="space-between">
