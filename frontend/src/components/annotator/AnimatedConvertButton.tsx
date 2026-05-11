@@ -1,6 +1,7 @@
 import { Button, Box } from '@mantine/core';
 import { motion, Variants } from 'framer-motion';
 import IconArrowDown from '@tabler/icons-react/dist/esm/icons/IconArrowDown.mjs';
+import { useTranslation } from 'react-i18next';
 
 const firstArrowVariants: Variants = {
   initial: { opacity: 1, y: 0 },
@@ -35,6 +36,8 @@ interface AnimatedButtonProps {
 }
 
 export default function AnimatedConvertButton({ onClick, loading }: AnimatedButtonProps) {
+  const { t } = useTranslation();
+
   return (
     <Button
       variant="light"
@@ -68,7 +71,7 @@ export default function AnimatedConvertButton({ onClick, loading }: AnimatedButt
         </Box>
       }
     >
-      CONVERT
+      {t('annotator.convertButton')}
     </Button>
   );
 }

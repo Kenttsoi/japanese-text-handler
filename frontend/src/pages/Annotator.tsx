@@ -6,17 +6,11 @@ import { convertJapaneseText, annotateTextSimple, annotateText, annotateSample }
 import { RubyText } from '../components/RubyText';
 import classes from './Annotator.module.css';
 import AnimatedConvertButton from '../components/annotator/AnimatedConvertButton';
+import { useTranslation } from 'react-i18next';
 
 type displayMode = 'original' | 'furigana' | 'hiragana' | 'katakana' | 'romaji' | 'pitch_accent';
 
-const displayModes: { value: displayMode; label: string; disabled?: boolean }[] = [
-  { value: 'original', label: 'Original', disabled: false },
-  { value: 'furigana', label: 'Furigana' },
-  { value: 'hiragana', label: 'Hiragana', disabled: true },
-  { value: 'katakana', label: 'Katakana', disabled: false },
-  { value: 'romaji', label: 'Romaji', disabled: true },
-  { value: 'pitch_accent', label: 'Pitch Accent', disabled: true },
-]
+
 interface WordDict {
   original: string;
   hiragana: string;
@@ -35,6 +29,16 @@ const Annotator: React.FC = () => {
   const [result, setResult] = React.useState<WordDict[]>([]);
   const [displayMode, setDisplayMode] = React.useState<displayMode>('furigana');
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const { t } = useTranslation();
+
+  const displayModes: { value: displayMode; label: string; disabled?: boolean }[] = [
+    { value: 'original', label: t('annotator.displayMode.original'), disabled: false },
+    { value: 'furigana', label: t('annotator.displayMode.furigana') },
+    { value: 'hiragana', label: t('annotator.displayMode.hiragana'), disabled: true },
+    { value: 'katakana', label: t('annotator.displayMode.katakana'), disabled: false },
+    { value: 'romaji', label: t('annotator.displayMode.romaji'), disabled: true },
+    { value: 'pitch_accent', label: t('annotator.displayMode.pitchAccent'), disabled: true },
+  ]
 
   const handleAnnotate = async () => {
     console.log(text)
@@ -58,10 +62,6 @@ const Annotator: React.FC = () => {
     }
   }
 
-  /* React.useEffect(() => {
-    console.log('[USE EFFECT] Result updated:', displayMode);
-  }, [displayMode]); */
-
   return (
     <>
       <main className={classes.contentWrapper}>
@@ -76,7 +76,7 @@ const Annotator: React.FC = () => {
                 lineHeight: 1
               }}
             >
-              Annotator
+              {t('annotator.title')}
             </Title>
 
             <Badge
@@ -89,7 +89,7 @@ const Annotator: React.FC = () => {
             </Badge>
           </Group>
           <Text c="dimmed" size="sm" fw={500} mt="xs">
-            Precision Tool for Kanji Data Alignment
+            {t('annotator.slogan')}
           </Text>
         </Stack>
         <Container className="mainContentWidth">
@@ -107,7 +107,7 @@ const Annotator: React.FC = () => {
           <Paper shadow="sm" radius="lg" p="xl" withBorder className={classes.inputContainer}>
             <Textarea
               variant="unstyled"
-              placeholder="Please type your text here"
+              placeholder={t('annotator.inputLabel')}
               autosize
               maxRows={10}
               className={classes.textareaInput}
@@ -128,7 +128,7 @@ const Annotator: React.FC = () => {
         <Container className="mainContentWidth">
           <Paper shadow="lg" radius="lg" p="xl" className={classes.resultContainer}>
             <Group align="center" justify="space-between" className={classes.outputToolsTop}>
-              <Text size="lg">Output</Text>
+              <Text size="lg">{t('annotator.outputLabel')}</Text>
               <Group align="center" justify="flex-end">
                 {
                   isMobile ?
@@ -203,12 +203,12 @@ const Annotator: React.FC = () => {
               <Button
                 variant="light" color="yellow" disabled={true}
               >
-                Copy
+                {t('annotator.copyButton')}
               </Button>
               <Button
                 variant="light" color="yellow" disabled={true}
               >
-                Download
+                {t('annotator.downloadButton')}
               </Button>
             </Group>
           </Paper>

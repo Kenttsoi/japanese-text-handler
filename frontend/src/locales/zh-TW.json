@@ -7,9 +7,34 @@
     },
     "selectLanguage": "選擇語言"
   },
+  "homePage": {
+    "mainSlogan1": "每一位日語閱讀者的",
+    "mainSlogan2": "學習輔助工具。",
+    "subSlogan": "專為漢字對齊與數據標註設計的工具。無需安裝設定，即刻開始標記。",
+    "button1": "開始標註",
+    "button2": "了解更多",
+    "dragAndDrop": "拖放檔案以開始（功能開發中）"
+  },
   "features": {
     "cardList": [
       { "title": "自動標註振假名", "description": "利用的語法分析技術，一鍵為日文漢字標上正確的讀音，支援多種顯示模式。" }
     ]
+  },
+  "annotator": {
+    "title": "標註器",
+    "slogan": "專為漢字數據對齊設計的工具",
+    "inputLabel": "請在此輸入文本",
+    "convertButton": "開始轉換",
+    "outputLabel": "輸出結果",
+    "copyButton": "複製",
+    "downloadButton": "下載",
+    "displayMode": {
+      "original": "原文",
+      "furigana": "振假名",
+      "hiragana": "平假名",
+      "katakana": "片假名",
+      "romaji": "羅馬拼音",
+      "pitchAccent": "音調標註"
+    }
   }
 }

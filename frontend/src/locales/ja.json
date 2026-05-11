@@ -7,9 +7,34 @@
     },
     "selectLanguage": "言語を選択"
   },
+  "homePage": {
+    "mainSlogan1": "すべての日本語読者に寄り添う、",
+    "mainSlogan2": "専属パートナー。",
+    "subSlogan": "漢字のアライメントとデータアノテーションに特化したツール。セットアップ不要で、すぐに振り仮名付けを開始できます。",
+    "button1": "ふりがな付与を始める",
+    "button2": "詳しく知る",
+    "dragAndDrop": "ファイルをドラッグ＆ドロップして開始（開発中の機能です）"
+  },
   "features": {
     "cardList": [
       { "title": "振假名（ふりがな）自動生成", "description": "構文解析技術により、漢字に読みを自動付与。平仮名、片仮名、ローマ字の表示切り替えにも対応。" }
     ]
+  },
+  "annotator": {
+    "title": "振り仮名付与",
+    "slogan": "漢字へのふりがな付与ツール",
+    "inputLabel": "ここに文章を入力してください",
+    "convertButton": "変換",
+    "outputLabel": "実行結果",
+    "copyButton": "コピー",
+    "downloadButton": "ダウンロード",
+    "displayMode": {
+      "original": "原文",
+      "furigana": "ふりがな",
+      "hiragana": "ひらがな",
+      "katakana": "カタカナ",
+      "romaji": "ローマ字",
+      "pitchAccent": "アクセント"
+    }
   }
 }
