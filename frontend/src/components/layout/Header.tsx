@@ -63,22 +63,6 @@ export const Header: React.FC = () => {
     navigate(newPath);
   }
 
-  const mobileItems = LINKS.map((link) => {
-    return (
-      <Grid.Col span={12} className={classes.mobileMenuCol}>
-        <Anchor
-          key={link.tLabel}
-          href={link.link}
-          c="light-dark(#451a03, #e2e8f0)"
-          underline='never'
-          onClick={(event) => event.preventDefault()}
-        >
-          {link.tLabel}
-        </Anchor>
-      </Grid.Col>
-    );
-  });
-
   return (
     <>
       <header className={classes.header} data-scrolled={scrolled || undefined}>
@@ -95,7 +79,7 @@ export const Header: React.FC = () => {
           >
             <Tabs.List style={{ display: 'flex', gap: rem(4), position: 'relative' }}>
               {navItems.map((item) => {
-                const localizedPath = item.link === '/' ? `/${i18n.language}` : `/${i18n.language}/${item.link}`;
+                const localizedPath = !item.link ? `/${i18n.language}` : `/${i18n.language}/${item.link}`;
                 const isActive = location.pathname === localizedPath;
 
                 return (
@@ -274,16 +258,17 @@ export const Header: React.FC = () => {
             <Stack gap="xs">
               {navItems.map((linkItem) => {
                 const IconComponent = linkItem.icon;
-                const localizedPath = linkItem.link === '/' ? `/${i18n.language}` : `/${i18n.language}/${linkItem.link}`;
+                const localizedPath = !linkItem.link ? `/${i18n.language}` : `/${i18n.language}/${linkItem.link}`;
                 const isActive = location.pathname === localizedPath;
-                const clickEvents =  () => {
-                  close;
+                const clickEvents = () => {
                   navigate(linkItem.link);
+                  close();
                 };
                 return (
                   <NavButton
                     icon={IconComponent ? <IconComponent /> : <></>}
                     label={t(`header.button.${linkItem.tLabel}` as any)}
+                    key={linkItem.tLabel}
                     active={isActive}
                     handleClick={clickEvents} />
                 );
