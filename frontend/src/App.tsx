@@ -14,16 +14,17 @@ import PageLayout from './components/layout/PageLayout';
 // import Annotator from './pages/Annotator';
 
 const Annotator = lazy(() => import('./pages/Annotator'));
+const Study = lazy(() => import('./pages/Study'));
 
 const LanguageWrapper = () => {
   const { lang } = useParams();
   const { i18n: i18nInstance } = useTranslation();
   const SUPPORTED_LANGS = ['en', 'ja', 'zh-TW', 'ko'];
-  const FUNCTIONAL_PATHS = ['annotate']
+  const FUNCTIONAL_PATHS = ['annotate', 'study']
 
   if (lang && !SUPPORTED_LANGS.includes(lang)) {
     if (FUNCTIONAL_PATHS.includes(lang)) {
-      return <Navigate to={`/${i18nInstance.language}/annotate`} replace />;
+      return <Navigate to={`/${i18nInstance.language}/${lang}`} replace />;
     }
     return <Navigate to="/404" replace />;
   }
@@ -63,6 +64,7 @@ const AnimatedRoutes = () => {
           <Route path="/:lang" element={<LanguageWrapper />}>
             <Route index element={<PageLayout><Home /></PageLayout>} />
             <Route path="annotate" element={<PageLayout><Annotator /></PageLayout>} />
+            <Route path="study" element={<PageLayout><Study /></PageLayout>} />
             <Route path="*" element={<PageLayout><NotFound /></PageLayout>} />
           </Route>
           <Route

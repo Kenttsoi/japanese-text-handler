@@ -3,6 +3,7 @@
     "button": {
       "home": "Home",
       "annotator": "Annotator",
+      "study": "Japanese Study",
       "test": "Test"
     },
     "selectLanguage": "Select Language"

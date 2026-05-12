@@ -3,6 +3,7 @@
     "button": {
       "home": "ホーム",
       "annotator": "ふりがな付与",
+      "study": "日本語の勉強",
       "test": "テスト"
     },
     "selectLanguage": "言語を選択"

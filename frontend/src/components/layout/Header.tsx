@@ -29,7 +29,8 @@ interface LanguageOption {
 
 const LINKS: NavLink[] = [
   { link: '', tLabel: 'home', icon: IconHome },
-  { link: 'annotate', tLabel: 'annotator', icon: IconEdit }
+  { link: 'annotate', tLabel: 'annotator', icon: IconEdit },
+  { link: 'study', tLabel: 'study', icon: IconEdit }
 ];
 
 const SUPPORTED_LANGS: LanguageOption[] = [
