@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
 import MeCab
 from .controllers.api import api
 from .config import config_dict
@@ -7,6 +8,8 @@ from .scripts.initiate_unihan import initiate_unihan
 from .scripts.transform_unihan_dict import transform_unihan_dict
 from .scripts.kanjidic_loader import load_kanjidic
 from .scripts.transform_kanjidic_dict import transform_kanjidic_dict
+
+db = SQLAlchemy()
 
 def create_app(config_env='development'):
     app = Flask(__name__)
@@ -19,6 +22,9 @@ def create_app(config_env='development'):
     # register CORS
     CORS(app, resources={r"/api/*": {"origins": app.config['CORS_ORIGINS']}})
 
+    # initiate database
+    db.init_app(app)
+
     # register MeCab taggers
     app.tagger = MeCab.Tagger() # default MeCab tagger
     app.wakati_tagger = MeCab.Tagger("-Owakati") # simple one for word segmentation
@@ -26,8 +32,9 @@ def create_app(config_env='development'):
     # Initiate data packaging
     try:
         with app.app_context():
-            # initiate_unihan()
-            # transform_unihan_dict()
+            db.create_all()
+            # initiate_unihan() # Deprecated
+            # transform_unihan_dict() # Deprecated
             load_kanjidic()
             transform_kanjidic_dict()
     except Exception as e:

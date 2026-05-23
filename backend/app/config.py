@@ -16,6 +16,12 @@ class Config:
     CORS_ORIGINS = [origin.strip() for origin in _cors_raw.split(',')]
     DEBUG = False
 
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        'DATABASE_URL', 
+        'postgresql://postgres:123456@localhost:5432'
+    )
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
 class DevelopmentConfig(Config):
     DEBUG = True
     HOST = os.getenv('FLASK_RUN_HOST', '0.0.0.0')
