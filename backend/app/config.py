@@ -17,8 +17,7 @@ class Config:
     DEBUG = False
 
     SQLALCHEMY_DATABASE_URI = os.environ.get(
-        'DATABASE_URL', 
-        'postgresql://postgres:123456@localhost:5432'
+        'DATABASE_URL'
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
