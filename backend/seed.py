@@ -5,12 +5,10 @@ from app.models.word import WordImport
 app = create_app('development')
 
 def seed_from_excel():
+    print('Import starts')
     excel_file_path = './app/data/jlpt_level/jlpt_levels_new.xlsx'
-
     df = pd.read_excel(excel_file_path, dtype=str, engine="openpyxl")
-
     word_dicts = df.to_dict(orient='records')
-
     words_to_insert = []
  
     for row in word_dicts:
@@ -38,15 +36,16 @@ def seed_from_excel():
         )
         words_to_insert.append(word_entry)
 
-        with app.app_context():
-            try:
-                db.create_all()
-
-                db.session.bulk_save_objects(words_to_insert)
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                print(f"Error Occurred: {e}")
+    with app.app_context():
+        try:
+            db.drop_all()
+            db.create_all()
+            db.session.bulk_save_objects(words_to_insert)
+            db.session.commit()
+            print('Finished Import Data')
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error Occurred: {e}")
                 
 if __name__ == '__main__':
     seed_from_excel()
