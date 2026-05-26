@@ -2,7 +2,7 @@ import pandas as pd
 from app import create_app, db
 from app.models.word import WordImport
 
-app = create_app()
+app = create_app('development')
 
 def seed_from_excel():
     excel_file_path = './app/data/jlpt_level/jlpt_levels_new.xlsx'
@@ -12,12 +12,12 @@ def seed_from_excel():
     word_dicts = df.to_dict(orient='records')
 
     words_to_insert = []
-
+ 
     for row in word_dicts:
         word_val = str(row['word']).strip() if pd.notna(row['word']) else ""
         reading_val = str(row['reading']).strip() if pd.notna(row['reading']) else ""
         meaning_ch_val = str(row['meaning_ch']).strip() if pd.notna(row['meaning_ch']) else ""
-        
+
         old_jlpt = str(row['old_jlpt_level']).strip() if pd.notna(row['old_jlpt_level']) else None
         jlpt_1 = str(row['jlpt_level_1']).strip() if pd.notna(row['jlpt_level_1']) else None
         jlpt_2 = str(row['jlpt_level_2']).strip() if pd.notna(row['jlpt_level_2']) else None

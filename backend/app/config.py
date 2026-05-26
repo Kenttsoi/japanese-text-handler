@@ -1,6 +1,14 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Config:
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        'DATABASE_URL'
+    )
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
     """Basic Setting"""
     SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')
     HOST = '0.0.0.0'
@@ -15,11 +23,6 @@ class Config:
     # CORS_ORIGINS = cors_raw.split(',')
     CORS_ORIGINS = [origin.strip() for origin in _cors_raw.split(',')]
     DEBUG = False
-
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        'DATABASE_URL'
-    )
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class DevelopmentConfig(Config):
     DEBUG = True
