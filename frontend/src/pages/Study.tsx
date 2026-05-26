@@ -1,5 +1,6 @@
 import React from 'react';
-import { Container, Title, Text, Button, Group, Stack, Box, SimpleGrid, Paper, Center } from '@mantine/core';
+import { Container, Title, Text, Button, Group, Stack, Box, SimpleGrid, Paper, Center, TextInput, Card, Badge } from '@mantine/core';
+import IconSearch from '@tabler/icons-react/dist/esm/icons/IconSearch.mjs';
 
 interface KanaItem {
   kana: string;
@@ -12,7 +13,7 @@ const hiraganaData: KanaItem[] = [
   { kana: 'う', romaji: 'u' },
   { kana: 'え', romaji: 'e' },
   { kana: 'お', romaji: 'o' },
-  { kana: 'か', romaji: 'ka' },
+ /*  { kana: 'か', romaji: 'ka' },
   { kana: 'き', romaji: 'ki' },
   { kana: 'く', romaji: 'ku' },
   { kana: 'け', romaji: 'ke' },
@@ -25,12 +26,12 @@ const hiraganaData: KanaItem[] = [
   { kana: 'や', romaji: 'ya' }, { kana: '', romaji: '' }, { kana: 'ゆ', romaji: 'yu' }, { kana: '', romaji: '' }, { kana: 'よ', romaji: 'yo' },
   { kana: 'ら', romaji: 'ra' }, { kana: 'り', romaji: 'ri' }, { kana: 'る', romaji: 'ru' }, { kana: 'れ', romaji: 're' }, { kana: 'ろ', romaji: 'ro' },
   { kana: 'わ', romaji: 'wa' }, { kana: '', romaji: '' }, { kana: '', romaji: '' }, { kana: '', romaji: '' }, { kana: 'を', romaji: 'wo' },
-  { kana: 'ん', romaji: 'n' },
+  { kana: 'ん', romaji: 'n' }, */
 ];
 
 const katakanaData: KanaItem[] = [
   { kana: 'ア', romaji: 'a' }, { kana: 'イ', romaji: 'i' }, { kana: 'ウ', romaji: 'u' }, { kana: 'エ', romaji: 'e' }, { kana: 'オ', romaji: 'o' },
-  { kana: 'カ', romaji: 'ka' }, { kana: 'キ', romaji: 'ki' }, { kana: 'ク', romaji: 'ku' }, { kana: 'ケ', romaji: 'ke' }, { kana: 'コ', romaji: 'ko' },
+  /* { kana: 'カ', romaji: 'ka' }, { kana: 'キ', romaji: 'ki' }, { kana: 'ク', romaji: 'ku' }, { kana: 'ケ', romaji: 'ke' }, { kana: 'コ', romaji: 'ko' },
   { kana: 'サ', romaji: 'sa' }, { kana: 'シ', romaji: 'shi' }, { kana: 'ス', romaji: 'su' }, { kana: 'セ', romaji: 'se' }, { kana: 'ソ', romaji: 'so' },
   { kana: 'タ', romaji: 'ta' }, { kana: 'チ', romaji: 'chi' }, { kana: 'ツ', romaji: 'tsu' }, { kana: 'テ', romaji: 'te' }, { kana: 'ト', romaji: 'to' },
   { kana: 'ナ', romaji: 'na' }, { kana: 'ニ', romaji: 'ni' }, { kana: 'ヌ', romaji: 'nu' }, { kana: 'ネ', romaji: 'ne' }, { kana: 'ノ', romaji: 'no' },
@@ -39,16 +40,35 @@ const katakanaData: KanaItem[] = [
   { kana: 'ヤ', romaji: 'ya' }, { kana: '', romaji: '' }, { kana: 'ユ', romaji: 'yu' }, { kana: '', romaji: '' }, { kana: 'ヨ', romaji: 'yo' },
   { kana: 'ラ', romaji: 'ra' }, { kana: 'リ', romaji: 'ri' }, { kana: 'ル', romaji: 'ru' }, { kana: 'レ', romaji: 're' }, { kana: 'ロ', romaji: 'ro' },
   { kana: 'ワ', romaji: 'wa' }, { kana: '', romaji: '' }, { kana: '', romaji: '' }, { kana: '', romaji: '' }, { kana: 'ヲ', romaji: 'wo' },
-  { kana: 'ン', romaji: 'n' },
+  { kana: 'ン', romaji: 'n' }, */
+];
+
+const mockVocab = [
+  { word: '日本語', reading: 'にほんご', meaning_ch: '日語', jlpt_level: 'N5', pos: '名詞' },
+  { word: '美味しい', reading: 'おいしい', meaning_ch: '好吃的、美味的', jlpt_level: 'N5', pos: '形容詞' },
 ];
 
 export default function Study() {
   return (
-    <Container size="md" mt="xl" py="md">
+    <Container size="md" py="xl" my="md">
+      <TextInput
+        placeholder="Search"
+        size="lg"
+        radius="xl"
+        value={""}
+        leftSection={<IconSearch size={18} stroke={1.5} />}
+        mb="xl"
+        styles={(theme) => ({
+          input: {
+            '&:focus': { borderColor: theme.colors.orange[4] }
+          }
+        })}
+      />
+
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ color: '#FF87B2' }}>✨</span> Hiragana
       </Text>
-      <Paper shadow="xs" p="lg" radius="lg" withBorder>
+      <Paper shadow="xs" p="lg" radius="lg" bg="white" withBorder>
         <SimpleGrid
           cols={5}
           spacing="xs"
@@ -79,7 +99,7 @@ export default function Study() {
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ color: '#FF87B2' }}>✨</span> Katakana
       </Text>
-      <Paper shadow="xs" p="lg" radius="lg" withBorder>
+      <Paper shadow="xs" p="lg" radius="lg" bg="white" withBorder>
         <SimpleGrid
           cols={5}
           spacing="xs"
@@ -107,6 +127,32 @@ export default function Study() {
           ))}
         </SimpleGrid>
       </Paper>
+
+      <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ color: '#FF87B2' }}>✨</span> Vocabulary
+      </Text>
+      <Box>
+        <Stack gap="md">
+            {mockVocab.map((item, index) => (
+              <Card key={index} shadow="sm" padding="xl" radius="xl" withBorder>
+                <Group justify="space-between" align="flex-start">
+                  <Stack gap="xs">
+                    <Text size="xl" fw={700}>
+                      <ruby>{item.word}<rt style={{ fontSize: '12px', color: '#868e96' }}>{item.reading}</rt></ruby>
+                    </Text>
+                    <Text size="sm" c="dimmed">{item.meaning_ch}</Text>
+                  </Stack>
+
+                  <Group gap="xs">
+                    <Badge color="orange" variant="light" size="lg">{item.jlpt_level}</Badge>
+                    <Badge color="gray" variant="dot" size="lg">{item.pos}</Badge>
+                  </Group>
+                </Group>
+              </Card>
+            ))}
+          </Stack>
+      </Box>
+
     </Container>
   )
 }
