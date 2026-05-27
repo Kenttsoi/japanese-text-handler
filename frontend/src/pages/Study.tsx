@@ -1,10 +1,17 @@
 import React from 'react';
 import { Container, Title, Text, Button, Group, Stack, Box, SimpleGrid, Paper, Center, TextInput, Card, Badge } from '@mantine/core';
+import DynamicKanaSlider from '@/components/study/DynamicKanaSlider';
+import VocabCard from '@/components/study/VocabCard';
+import { KanaItem } from '@/types';
 import IconSearch from '@tabler/icons-react/dist/esm/icons/IconSearch.mjs';
 
-interface KanaItem {
-  kana: string;
-  romaji: string;
+interface VocabItems {
+  id: number,
+  word: string,
+  reading: string,
+  meaning_ch: string,
+  jlpt_level?: string | null,
+  pos?: string | null
 }
 
 const hiraganaData: KanaItem[] = [
@@ -13,7 +20,7 @@ const hiraganaData: KanaItem[] = [
   { kana: 'う', romaji: 'u' },
   { kana: 'え', romaji: 'e' },
   { kana: 'お', romaji: 'o' },
- /*  { kana: 'か', romaji: 'ka' },
+  { kana: 'か', romaji: 'ka' },
   { kana: 'き', romaji: 'ki' },
   { kana: 'く', romaji: 'ku' },
   { kana: 'け', romaji: 'ke' },
@@ -26,7 +33,7 @@ const hiraganaData: KanaItem[] = [
   { kana: 'や', romaji: 'ya' }, { kana: '', romaji: '' }, { kana: 'ゆ', romaji: 'yu' }, { kana: '', romaji: '' }, { kana: 'よ', romaji: 'yo' },
   { kana: 'ら', romaji: 'ra' }, { kana: 'り', romaji: 'ri' }, { kana: 'る', romaji: 'ru' }, { kana: 'れ', romaji: 're' }, { kana: 'ろ', romaji: 'ro' },
   { kana: 'わ', romaji: 'wa' }, { kana: '', romaji: '' }, { kana: '', romaji: '' }, { kana: '', romaji: '' }, { kana: 'を', romaji: 'wo' },
-  { kana: 'ん', romaji: 'n' }, */
+  { kana: 'ん', romaji: 'n' },
 ];
 
 const katakanaData: KanaItem[] = [
@@ -43,12 +50,14 @@ const katakanaData: KanaItem[] = [
   { kana: 'ン', romaji: 'n' }, */
 ];
 
-const mockVocab = [
-  { word: '日本語', reading: 'にほんご', meaning_ch: '日語', jlpt_level: 'N5', pos: '名詞' },
-  { word: '美味しい', reading: 'おいしい', meaning_ch: '好吃的、美味的', jlpt_level: 'N5', pos: '形容詞' },
+const mockVocab: VocabItems[] = [
+  { id: 1, word: '日本語', reading: 'にほんご', meaning_ch: '日語', jlpt_level: 'N5', pos: '名詞' },
+  { id: 2, word: '美味しい', reading: 'おいしい', meaning_ch: '好吃的、美味的', pos: '形容詞' },
 ];
 
 export default function Study() {
+  const [searchQuery, setSearchQuery] = React.useState('');
+
   return (
     <Container size="md" py="xl" my="md">
       <TextInput
@@ -58,11 +67,18 @@ export default function Study() {
         value={""}
         leftSection={<IconSearch size={18} stroke={1.5} />}
         mb="xl"
+        onChange={(event) => setSearchQuery(event.currentTarget.value)}
         styles={(theme) => ({
           input: {
             '&:focus': { borderColor: theme.colors.orange[4] }
           }
         })}
+      />
+      <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ color: '#FF87B2' }}>✨</span> Hiragana
+      </Text>
+      <DynamicKanaSlider
+        kanaList={hiraganaData}
       />
 
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -79,6 +95,7 @@ export default function Study() {
               p="sm"
               radius="md"
               bg="#FFF0F0"
+              key={item.kana}
             /* sx={{
               transition: 'transform 0.2s ease',
               '&:hover': { transform: 'translateY(-5px)' },
@@ -110,6 +127,7 @@ export default function Study() {
               p="sm"
               radius="md"
               bg="#FFF0F0"
+              key={item.kana}
             /* sx={{
               transition: 'transform 0.2s ease',
               '&:hover': { transform: 'translateY(-5px)' },
@@ -132,25 +150,14 @@ export default function Study() {
         <span style={{ color: '#FF87B2' }}>✨</span> Vocabulary
       </Text>
       <Box>
-        <Stack gap="md">
-            {mockVocab.map((item, index) => (
-              <Card key={index} shadow="sm" padding="xl" radius="xl" withBorder>
-                <Group justify="space-between" align="flex-start">
-                  <Stack gap="xs">
-                    <Text size="xl" fw={700}>
-                      <ruby>{item.word}<rt style={{ fontSize: '12px', color: '#868e96' }}>{item.reading}</rt></ruby>
-                    </Text>
-                    <Text size="sm" c="dimmed">{item.meaning_ch}</Text>
-                  </Stack>
-
-                  <Group gap="xs">
-                    <Badge color="orange" variant="light" size="lg">{item.jlpt_level}</Badge>
-                    <Badge color="gray" variant="dot" size="lg">{item.pos}</Badge>
-                  </Group>
-                </Group>
-              </Card>
-            ))}
-          </Stack>
+        <Group gap="md" grow justify="space-between">
+          {mockVocab.map((item, index) => (
+            <VocabCard
+              key={item.id ? item.id : item.word}
+              {...item}
+            />
+          ))}
+        </Group>
       </Box>
 
     </Container>
