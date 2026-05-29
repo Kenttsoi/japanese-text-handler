@@ -8,13 +8,13 @@ interface VocabCardProps {
   word: string;
   reading: string;
   meaning_ch: string;
-  jlpt_level?: string | null;
+  jlpt_level_1?: string | null;
   pos?: string | null;
 }
 
-export default function VocabCard({ word, reading, meaning_ch, pos, jlpt_level }: VocabCardProps) {
+export default function VocabCard({ word, reading, meaning_ch, pos, jlpt_level_1 }: VocabCardProps) {
   const badges = [
-    jlpt_level ? { label: jlpt_level, color: 'orange' } : null,
+    jlpt_level_1 ? { label: jlpt_level_1, color: 'orange' } : null,
     pos ? { label: pos, color: 'gray' } : null,
   ].filter(Boolean)
   const [isStarred, setIsStarred] = React.useState(false);
