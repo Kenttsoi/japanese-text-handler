@@ -1,0 +1,41 @@
+{
+  "header": {
+    "button": {
+      "home": "Home",
+      "annotator": "Annotator",
+      "study": "Japanese Study",
+      "test": "Test"
+    },
+    "selectLanguage": "Select Language"
+  },
+  "homePage": {
+    "mainSlogan1": "A Dedicated Partner for",
+    "mainSlogan2": "Every Japanese Reader.",
+    "subSlogan": "A dedicated tool for Kanji alignment and data annotation. Zero setup, start labeling instantly.",
+    "button1": "Start Annotating",
+    "button2": "Find out more",
+    "dragAndDrop": "Drag and drop your dataset to begin (Feature in progress)"
+  },
+  "features": {
+    "cardList": [
+      { "title": "Auto Furigana Annotation", "description": "Automatically generate Furigana for complex Kanji and toggle entire passages between Hiragana, Katakana, and Romaji." }
+    ]
+  },
+  "annotator": {
+    "title": "Annotator",
+    "slogan": "Precision Tool for Kanji Data Alignment",
+    "inputLabel": "Please type your text here",
+    "convertButton": "convert",
+    "outputLabel": "Result",
+    "copyButton": "Copy",
+    "downloadButton": "Download",
+    "displayMode": {
+      "original": "Original",
+      "furigana": "Furigana",
+      "hiragana": "Hiragana",
+      "katakana": "Katakana",
+      "romaji": "Romaji",
+      "pitchAccent": "Pitch Accent"
+    }
+  }
+}

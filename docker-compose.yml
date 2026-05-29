@@ -1,0 +1,35 @@
+services:
+  backend:
+    build: ./backend
+    container_name: japanese-text-handler
+    volumes:
+      - ./backend:/app
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_ENV=development
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000
+      - PYTHONUNBUFFERED=1
+    stdin_open: true
+    tty: true
+
+  frontend:
+    build: ./frontend
+    container_name: japanese-text-handler-frontend
+    volumes:
+      - ./frontend:/app/
+      - /app/node_modules
+    ports:
+        - "3000:5173"
+    environment:
+      - VITE_API_URL=http://localhost:5001/api
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
+    networks:
+      - japanese-text-handler-network
+
+networks:
+  japanese-text-handler-network:
+    driver: bridge
