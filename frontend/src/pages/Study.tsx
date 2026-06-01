@@ -1,10 +1,11 @@
 import React from 'react';
-import { Container, Title, Text, Button, Group, Stack, Box, SimpleGrid, Paper, Center, TextInput, Card, Badge } from '@mantine/core';
+import { Container, Skeleton, Text, Button, Group, Stack, Box, SimpleGrid, Paper, Center, TextInput, Card, Alert } from '@mantine/core';
 import DynamicKanaSlider from '@/components/study/DynamicKanaSlider';
 import VocabCard from '@/components/study/VocabCard';
 import { KanaItem } from '@/types';
 import { vocabService } from '@/services/vocabService';
 import IconSearch from '@tabler/icons-react/dist/esm/icons/IconSearch.mjs';
+import VocabGrid from '@/components/study/VocabGrid';
 
 interface VocabItems {
   id: number,
@@ -43,23 +44,50 @@ const katakanaData: KanaItem[] = [
   { kana: 'ン', romaji: 'n' },
 ];
 
-const mockVocab: VocabItems[] = [
+/* const mockVocab: VocabItems[] = [
   { id: 1, word: '日本語', reading: 'にほんご', meaning_ch: '日語', jlpt_level: 'N5', pos: '名詞' },
   { id: 2, word: '美味しい', reading: 'おいしい', meaning_ch: '好吃的、美味的', pos: '形容詞' },
-];
+]; */
 
 export default function Study() {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [vocabResult, setVocabResult] = React.useState<VocabItems[]>([]);
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
+  const [error, setError] = React.useState<Error | null>(null);
 
   React.useEffect(() => {
+    let isMounted = true;
+
     async function fetchFirstVocab() {
-      const result = await vocabService.getAllVocab();
-      if (result) {
-        setVocabResult(result);
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const result = await vocabService.getAllVocab();
+
+        if (isMounted) {
+          if (result) {
+            setVocabResult(result);
+          } else {
+            console.warn("Vocab service returned no data.");
+          }
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.error("Failed to fetch vocab:", err);
+          setError(err instanceof Error ? err : new Error('Unknown error'));
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     }
     fetchFirstVocab();
+
+    return () => {
+      isMounted = false;
+    };
   }, [])
 
   return (
@@ -151,17 +179,16 @@ export default function Study() {
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ color: '#FF87B2' }}>✨</span> Vocabulary
       </Text>
-      <Box>
-        <Group gap="md" grow justify="space-between">
-          {vocabResult.map((item, index) => (
-            <VocabCard
-              key={item.id ? item.id : item.word}
-              {...item}
-            />
-          ))}
-        </Group>
-      </Box>
-
+      {/* <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
+        {vocabResult.map((item, index) => (
+          <VocabCard
+            key={item.id ? item.id : item.word}
+            isLoading={true}
+            {...item}
+          />
+        ))}
+      </SimpleGrid> */}
+      <VocabGrid isLoading={isLoading} data={vocabResult} />
     </Container>
   )
 }

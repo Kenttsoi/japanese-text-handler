@@ -1,23 +1,40 @@
 import React from 'react';
-import { Card, Text, Badge, Group, Stack, ActionIcon, Divider } from '@mantine/core';
+import { Card, Text, Badge, Group, Stack, ActionIcon, Divider, Skeleton } from '@mantine/core';
 import IconVolume from '@tabler/icons-react/dist/esm/icons/IconVolume.mjs';
 import IconStar from '@tabler/icons-react/dist/esm/icons/IconStar.mjs';
 import IconStarFilled from '@tabler/icons-react/dist/esm/icons/IconStarFilled.mjs';
 
 interface VocabCardProps {
-  word: string;
-  reading: string;
-  meaning_ch: string;
-  jlpt_level_1?: string | null;
-  pos?: string | null;
+  isLoading: boolean;
+  data?: {
+    word: string;
+    reading: string;
+    meaning_ch: string;
+    jlpt_level_1?: string | null;
+    pos?: string | null;
+  }
 }
 
-export default function VocabCard({ word, reading, meaning_ch, pos, jlpt_level_1 }: VocabCardProps) {
-  const badges = [
-    jlpt_level_1 ? { label: jlpt_level_1, color: 'orange' } : null,
-    pos ? { label: pos, color: 'gray' } : null,
-  ].filter(Boolean)
+export default function VocabCard({ isLoading, data }: VocabCardProps) {
   const [isStarred, setIsStarred] = React.useState(false);
+
+  if (isLoading) {
+    return (
+      <Card shadow="sm" padding="xl" radius="lg" withBorder>
+        <Skeleton height={26} radius="xl" mb="md" />
+        <Skeleton height={45} radius="md" mx="auto" mb="sm" />
+        <Divider my="md" opacity={0.6} />
+        <Skeleton height={20} radius="sm" mx="auto" />
+      </Card>
+    );
+  }
+
+  if (!data) return null;
+
+  const badges = [
+    data.jlpt_level_1 ? { label: data.jlpt_level_1, color: 'orange' } : null,
+    data.pos ? { label: data.pos, color: 'gray' } : null,
+  ].filter(Boolean)
 
   return (
     <Card
@@ -112,11 +129,11 @@ export default function VocabCard({ word, reading, meaning_ch, pos, jlpt_level_1
             }
           }}
         >
-          {word}
+          {data.word}
         </Text>
 
         <Text size="md" c="dimmed" fw={500} style={{ fontFamily: 'monospace' }}>
-          {reading}
+          {data.reading}
         </Text>
       </Stack>
       <Divider my="md" color="#f1f3f5" />
@@ -126,7 +143,7 @@ export default function VocabCard({ word, reading, meaning_ch, pos, jlpt_level_1
         c="gray.7"
         mt="sm"
       >
-        {meaning_ch}
+        {data.meaning_ch}
       </Text>
     </Card>
   )
