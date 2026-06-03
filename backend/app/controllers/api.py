@@ -50,7 +50,7 @@ def convert():
     except Exception as e:
         return api_error('Conversion Error', status=500)
 
-@api.route('/sample1')
+""" @api.route('/sample1')
 def sample1():
     answer = current_app.wakati_tagger.parse("pythonが大好きです").split()
     return answer
@@ -59,7 +59,7 @@ def sample1():
 def sample2():
     text = "今日、こんにちは"
     parsed = current_app.tagger.parse(text).splitlines()[:-1]
-    return jsonify({'result': parsed})  # 返回 JSON
+    return jsonify({'result': parsed})
 
 @api.route('/annotate', methods=['POST'])
 def annotate():
@@ -69,4 +69,4 @@ def annotate():
         return jsonify({'error': 'No text provided'})
     else:
         result = JapaneseTextHandler().annotate(text)
-        return jsonify(result)
+        return jsonify(result) """

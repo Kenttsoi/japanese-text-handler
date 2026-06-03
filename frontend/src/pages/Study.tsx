@@ -6,6 +6,7 @@ import { KanaItem } from '@/types';
 import { vocabService } from '@/services/vocabService';
 import IconSearch from '@tabler/icons-react/dist/esm/icons/IconSearch.mjs';
 import VocabGrid from '@/components/study/VocabGrid';
+import KanjiGrid from '@/components/study/KanjiGrid';
 
 interface VocabItems {
   id: number,
@@ -44,6 +45,49 @@ const katakanaData: KanaItem[] = [
   { kana: 'ン', romaji: 'n' },
 ];
 
+const MOCK_KANJI_DATA = [
+  {
+    literal: "生",
+    jlpt: "N5",
+    on_readings: "セイ, ショウ",
+    kun_readings: "い.きる, う.まれる, お.う, は.える, なま",
+    nanori_readings: "あさ, いき, いく, いけ, うぶ",
+    meaning: "life, genuine, birth, live, grow"
+  },
+  {
+    literal: "新",
+    jlpt: "N4",
+    on_readings: "シン",
+    kun_readings: "あたら.しい, あら.た, にい",
+    nanori_readings: "あら, にい, し",
+    meaning: "new, fresh"
+  },
+  {
+    literal: "情",
+    jlpt: "N3",
+    on_readings: "ジョウ, セイ",
+    kun_readings: "なさ.け",
+    nanori_readings: "こころ, もと",
+    meaning: "emotion, feeling, passion, sympathy, circumstances, facts"
+  },
+  {
+    literal: " 々", // 拿來測試常用外或特殊符號
+    jlpt: undefined, // 沒有 JLPT
+    on_readings: "---",
+    kun_readings: "---",
+    nanori_readings: "---",
+    meaning: "repetition mark, iteration mark"
+  },
+  {
+    literal: "鬱",
+    jlpt: "N1",
+    on_readings: "ウツ",
+    kun_readings: "ふさ.ぐ, しげ.る",
+    nanori_readings: "---",
+    meaning: "gloom, depression, melancholy, dense, mist"
+  }
+];
+
 /* const mockVocab: VocabItems[] = [
   { id: 1, word: '日本語', reading: 'にほんご', meaning_ch: '日語', jlpt_level: 'N5', pos: '名詞' },
   { id: 2, word: '美味しい', reading: 'おいしい', meaning_ch: '好吃的、美味的', pos: '形容詞' },
@@ -52,7 +96,8 @@ const katakanaData: KanaItem[] = [
 export default function Study() {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [vocabResult, setVocabResult] = React.useState<VocabItems[]>([]);
-  const [isLoading, setIsLoading] = React.useState<boolean>(true);
+  const [isVocabCardLoading, setIsVocabCardLoading] = React.useState<boolean>(true);
+  const [isKanjiCardLoading, setIsKanjiCardLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<Error | null>(null);
 
   React.useEffect(() => {
@@ -60,7 +105,7 @@ export default function Study() {
 
     async function fetchFirstVocab() {
       try {
-        setIsLoading(true);
+        setIsVocabCardLoading(true);
         setError(null);
 
         const result = await vocabService.getAllVocab();
@@ -79,7 +124,7 @@ export default function Study() {
         }
       } finally {
         if (isMounted) {
-          setIsLoading(false);
+          setIsVocabCardLoading(false);
         }
       }
     }
@@ -179,16 +224,12 @@ export default function Study() {
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ color: '#FF87B2' }}>✨</span> Vocabulary
       </Text>
-      {/* <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
-        {vocabResult.map((item, index) => (
-          <VocabCard
-            key={item.id ? item.id : item.word}
-            isLoading={true}
-            {...item}
-          />
-        ))}
-      </SimpleGrid> */}
-      <VocabGrid isLoading={isLoading} data={vocabResult} />
+      <VocabGrid isLoading={isVocabCardLoading} data={vocabResult} />
+
+      <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ color: '#FF87B2' }}>✨</span> Kanji
+      </Text>
+      <KanjiGrid isLoading={isKanjiCardLoading} data={MOCK_KANJI_DATA} />
     </Container>
   )
 }
