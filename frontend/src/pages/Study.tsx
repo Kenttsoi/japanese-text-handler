@@ -4,6 +4,7 @@ import DynamicKanaSlider from '@/components/study/DynamicKanaSlider';
 import VocabCard from '@/components/study/VocabCard';
 import { KanaItem } from '@/types';
 import { vocabService } from '@/services/vocabService';
+import { fetchFirstKanji } from '@/services/api';
 import IconSearch from '@tabler/icons-react/dist/esm/icons/IconSearch.mjs';
 import VocabGrid from '@/components/study/VocabGrid';
 import KanjiGrid from '@/components/study/KanjiGrid';
@@ -96,6 +97,7 @@ const MOCK_KANJI_DATA = [
 export default function Study() {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [vocabResult, setVocabResult] = React.useState<VocabItems[]>([]);
+  const [kanjiResult, setKanjiResult] = React.useState([]);
   const [isVocabCardLoading, setIsVocabCardLoading] = React.useState<boolean>(true);
   const [isKanjiCardLoading, setIsKanjiCardLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<Error | null>(null);
@@ -132,6 +134,31 @@ export default function Study() {
 
     return () => {
       isMounted = false;
+    };
+  }, [])
+
+  React.useEffect(() => {
+    const controller = new AbortController();
+    async function getFirstKanji() {
+      try {
+        setIsKanjiCardLoading(true);
+
+        const result = await fetchFirstKanji(controller.signal);
+        setKanjiResult(result);
+      } catch (err: any) {
+        if (err.name === 'AbortError') {
+          console.log('GET request has been cancelled');
+        } else {
+          console.error('Real API error:', error);
+        }
+      } finally {
+        setIsKanjiCardLoading(false);
+      }
+    }
+    getFirstKanji();
+
+    return () => {
+      controller.abort();
     };
   }, [])
 
@@ -229,7 +256,7 @@ export default function Study() {
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ color: '#FF87B2' }}>✨</span> Kanji
       </Text>
-      <KanjiGrid isLoading={isKanjiCardLoading} data={MOCK_KANJI_DATA} />
+      <KanjiGrid isLoading={isKanjiCardLoading} data={kanjiResult} />
     </Container>
   )
 }

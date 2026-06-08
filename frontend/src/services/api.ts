@@ -67,3 +67,20 @@ export const annotateSample = async (text: string) => {
         throw error;
     }
 }
+
+export const fetchFirstKanji = async (signal?: AbortSignal) => {
+    try {
+        const response = await fetch(`${API_URL}/kanji/first-six'`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            signal
+        });
+        if (!response.ok) {
+            throw new Error('API request failed');
+        }
+        return await response.json();
+    } catch (err) {
+        console.error("[FRONT ERROR] ", err);
+        throw err;
+    }
+}
