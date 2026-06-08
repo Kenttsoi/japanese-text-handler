@@ -22,6 +22,9 @@ def transform_kanjidic_dict():
         nanori_readings = []
         all_readings = []
 
+        # Meaning
+        meaning_en = []
+
         rmgroup = char.find("reading_meaning/rmgroup")
         if rmgroup is not None:
             # on and kun readings
@@ -43,6 +46,10 @@ def transform_kanjidic_dict():
                     kun_readings.append(reading.text)
                     all_readings.append(onlyText)
 
+            """ for meaning in rmgroup.findall("meaning"):
+                if meaning.get("m_lang") is None:
+                    meaning_en.append(meaning.text) """
+
             # nanori readings
             for nanori in char.findall("reading_meaning/nanori"):
                 nanori_readings.append(nanori.text)
@@ -54,7 +61,8 @@ def transform_kanjidic_dict():
             "on_readings": on_readings,
             "kun_readings": kun_readings,
             "nanori_readings": nanori_readings,
-            "all_readings": all_readings
+            "all_readings": all_readings,
+            "meaning_en": meaning_en
         }
 
     output_path = Path(current_app.root_path) / 'data' / 'kanjidic2' / 'kanjidic2_dict.py'

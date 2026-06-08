@@ -1,8 +1,11 @@
+
 from flask import Blueprint, request, jsonify, Response, current_app
+from app.services.kanji_card_service import KanjiCardService
 from app.models.japanese_text_handler import JapaneseTextHandler
 from app.models.japanese_text_handler import JapaneseTextConverter
-from app.handlers.kuromoji_handler import KuromojiHandler
 from app.utils.response import api_success, api_error
+from app.data.kanjidic2.kanjidic2_dict import kanjidic2_dict
+from itertools import islice
 import html
 MAX_CHARS = 500
 FORBIDDEN_PATTERNS = [
@@ -49,6 +52,14 @@ def convert():
         return api_success(result)
     except Exception as e:
         return api_error('Conversion Error', status=500)
+
+@api.route('/kanji/first-six', methods=['GET'])
+def get_first_six_kanji():
+    try:
+        cards_data = KanjiCardService.get_first_six_cards()
+        return api_success(cards_data)
+    except Exception as e:
+        return api_error('Data retrieve Error', status=500)
 
 """ @api.route('/sample1')
 def sample1():

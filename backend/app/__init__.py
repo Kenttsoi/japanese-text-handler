@@ -9,7 +9,7 @@ from .scripts.transform_unihan_dict import transform_unihan_dict
 from .scripts.kanjidic_loader import load_kanjidic
 from .scripts.transform_kanjidic_dict import transform_kanjidic_dict
 
-db = SQLAlchemy()
+# db = SQLAlchemy()
 
 def create_app(config_env='development'):
     app = Flask(__name__)
@@ -23,7 +23,7 @@ def create_app(config_env='development'):
     CORS(app, resources={r"/api/*": {"origins": app.config['CORS_ORIGINS']}})
 
     # initiate database
-    db.init_app(app)
+    # db.init_app(app)
 
     # register MeCab taggers
     app.tagger = MeCab.Tagger() # default MeCab tagger
@@ -32,7 +32,7 @@ def create_app(config_env='development'):
     # Initiate data packaging
     try:
         with app.app_context():
-            db.create_all()
+            # db.create_all()
             # initiate_unihan() # Deprecated
             # transform_unihan_dict() # Deprecated
             load_kanjidic()
