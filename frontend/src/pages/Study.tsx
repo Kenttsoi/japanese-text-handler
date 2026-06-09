@@ -2,21 +2,12 @@ import React from 'react';
 import { Container, Skeleton, Text, Button, Group, Stack, Box, SimpleGrid, Paper, Center, TextInput, Card, Alert } from '@mantine/core';
 import DynamicKanaSlider from '@/components/study/DynamicKanaSlider';
 import VocabCard from '@/components/study/VocabCard';
-import { KanaItem } from '@/types';
+import { KanaItem, VocabItems, KanjiItems } from '@/types';
 import { vocabService } from '@/services/vocabService';
 import { fetchFirstKanji } from '@/services/api';
 import IconSearch from '@tabler/icons-react/dist/esm/icons/IconSearch.mjs';
 import VocabGrid from '@/components/study/VocabGrid';
 import KanjiGrid from '@/components/study/KanjiGrid';
-
-interface VocabItems {
-  id: number,
-  word: string,
-  reading: string,
-  meaning_ch: string,
-  jlpt_level_1?: string | null,
-  pos?: string | null
-}
 
 const hiraganaData: KanaItem[] = [
   { kana: 'あ', romaji: 'a' }, { kana: 'い', romaji: 'i' }, { kana: 'う', romaji: 'u' }, { kana: 'え', romaji: 'e' }, { kana: 'お', romaji: 'o' },
@@ -97,7 +88,7 @@ const MOCK_KANJI_DATA = [
 export default function Study() {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [vocabResult, setVocabResult] = React.useState<VocabItems[]>([]);
-  const [kanjiResult, setKanjiResult] = React.useState([]);
+  const [kanjiResult, setKanjiResult] = React.useState<KanjiItems[]>([]);
   const [isVocabCardLoading, setIsVocabCardLoading] = React.useState<boolean>(true);
   const [isKanjiCardLoading, setIsKanjiCardLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<Error | null>(null);
@@ -143,16 +134,19 @@ export default function Study() {
       try {
         setIsKanjiCardLoading(true);
 
-        const result = await fetchFirstKanji(controller.signal);
-        setKanjiResult(result);
+        const response = await fetchFirstKanji(controller.signal);
+        const { result: kanjiCardList, success } = response;
+        if (success && kanjiCardList) {
+          setKanjiResult(kanjiCardList);
+        }
+        setIsKanjiCardLoading(false);
       } catch (err: any) {
         if (err.name === 'AbortError') {
           console.log('GET request has been cancelled');
         } else {
-          console.error('Real API error:', error);
+          console.error('Real API error:', err);
+          setIsKanjiCardLoading(false);
         }
-      } finally {
-        setIsKanjiCardLoading(false);
       }
     }
     getFirstKanji();

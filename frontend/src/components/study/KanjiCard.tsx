@@ -1,15 +1,9 @@
 import { Card, Text, Badge, Group, Stack, Skeleton } from '@mantine/core';
+import { KanjiItems } from '@/types';
 
 interface KanjiCardProps {
   isLoading: boolean;
-  data?: {
-    literal: string;
-    jlpt?: string;
-    on_readings: string;
-    kun_readings: string;
-    nanori_readings: string;
-    meaning: string;
-  }
+  data?: KanjiItems
 }
 
 export default function KanjiCard({ isLoading, data }: KanjiCardProps) {
@@ -59,7 +53,7 @@ export default function KanjiCard({ isLoading, data }: KanjiCardProps) {
         lineClamp={1}
         mt="xs"
       >
-        {data.meaning}
+        {data.meaning_en}
       </Text >
     </Card >
   );

@@ -70,7 +70,7 @@ export const annotateSample = async (text: string) => {
 
 export const fetchFirstKanji = async (signal?: AbortSignal) => {
     try {
-        const response = await fetch(`${API_URL}/kanji/first-six'`, {
+        const response = await fetch(`${API_URL}/kanji/first-six`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             signal

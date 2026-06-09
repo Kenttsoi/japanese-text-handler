@@ -4,7 +4,6 @@ from app.services.kanji_card_service import KanjiCardService
 from app.models.japanese_text_handler import JapaneseTextHandler
 from app.models.japanese_text_handler import JapaneseTextConverter
 from app.utils.response import api_success, api_error
-from app.data.kanjidic2.kanjidic2_dict import kanjidic2_dict
 from itertools import islice
 import html
 MAX_CHARS = 500

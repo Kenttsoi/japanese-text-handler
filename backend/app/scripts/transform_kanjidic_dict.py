@@ -46,9 +46,9 @@ def transform_kanjidic_dict():
                     kun_readings.append(reading.text)
                     all_readings.append(onlyText)
 
-            """ for meaning in rmgroup.findall("meaning"):
+            for meaning in rmgroup.findall("meaning"):
                 if meaning.get("m_lang") is None:
-                    meaning_en.append(meaning.text) """
+                    meaning_en.append(meaning.text)
 
             # nanori readings
             for nanori in char.findall("reading_meaning/nanori"):

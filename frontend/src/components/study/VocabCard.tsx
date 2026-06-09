@@ -1,18 +1,13 @@
 import React from 'react';
 import { Card, Text, Badge, Group, Stack, ActionIcon, Divider, Skeleton } from '@mantine/core';
+import { VocabItems } from '@/types';
 import IconVolume from '@tabler/icons-react/dist/esm/icons/IconVolume.mjs';
 import IconStar from '@tabler/icons-react/dist/esm/icons/IconStar.mjs';
 import IconStarFilled from '@tabler/icons-react/dist/esm/icons/IconStarFilled.mjs';
 
 interface VocabCardProps {
   isLoading: boolean;
-  data?: {
-    word: string;
-    reading: string;
-    meaning_ch: string;
-    jlpt_level_1?: string | null;
-    pos?: string | null;
-  }
+  data?: VocabItems
 }
 
 export default function VocabCard({ isLoading, data }: VocabCardProps) {

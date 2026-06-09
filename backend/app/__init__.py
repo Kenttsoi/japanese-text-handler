@@ -28,7 +28,10 @@ def create_app(config_env='development'):
     # register MeCab taggers
     app.tagger = MeCab.Tagger() # default MeCab tagger
     app.wakati_tagger = MeCab.Tagger("-Owakati") # simple one for word segmentation
-
+    
+    # register Blueprint
+    app.register_blueprint(api, url_prefix='/api')
+    
     # Initiate data packaging
     try:
         with app.app_context():
@@ -40,8 +43,5 @@ def create_app(config_env='development'):
     except Exception as e:
         app.logger.error(f"Error during data processing: {e}")
         raise RuntimeError(f"Failed to initiate data: {e}")
-
-    # register Blueprint
-    app.register_blueprint(api, url_prefix='/api')
     
     return app
