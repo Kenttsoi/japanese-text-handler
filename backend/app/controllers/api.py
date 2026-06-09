@@ -1,8 +1,8 @@
 
 from flask import Blueprint, request, jsonify, Response, current_app
 from app.services.kanji_card_service import KanjiCardService
-from app.models.japanese_text_handler import JapaneseTextHandler
-from app.models.japanese_text_handler import JapaneseTextConverter
+from app.services.japanese_text_service import JapaneseTextHandler
+from app.services.japanese_text_service import JapaneseTextConverter
 from app.utils.response import api_success, api_error
 from itertools import islice
 import html

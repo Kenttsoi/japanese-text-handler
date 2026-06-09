@@ -1,9 +1,9 @@
 from flask import current_app
 from app.utils.text_utils import KanaConverter
 from app.utils.kanji_handler import KanjiSeparator
-from app.handlers.kuromoji_handler import KuromojiHandler
-from app.handlers.mecab_handler import MecabHandler
-from app.handlers.exceptional_words import EXCEPTIONAL_WORDS
+from app.models.handlers.kuromoji_handler import KuromojiHandler
+from app.models.handlers.mecab_handler import MecabHandler
+from app.models.handlers.exceptional_words import EXCEPTIONAL_WORDS
 from app.utils.text_utils import JapaneseUtils
 import unicodedata
 import re
