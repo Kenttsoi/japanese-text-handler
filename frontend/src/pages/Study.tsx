@@ -93,7 +93,7 @@ export default function Study() {
   const [isKanjiCardLoading, setIsKanjiCardLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<Error | null>(null);
 
-  React.useEffect(() => {
+  /* React.useEffect(() => {
     let isMounted = true;
 
     async function fetchFirstVocab() {
@@ -126,6 +126,37 @@ export default function Study() {
     return () => {
       isMounted = false;
     };
+  }, []) */
+
+  React.useEffect(() => {
+    const controller = new AbortController();
+    async function fetchFirstVocab() {
+      try {
+        setIsVocabCardLoading(true);
+        setError(null);
+
+        const result = await vocabService.getAllVocab();
+        if (result) {
+          setVocabResult(result);
+        } else {
+          console.warn("Vocab service returned no data.");
+        }
+      } catch (err: any) {
+        if (err.name === 'AbortError') {
+          console.log("Vocab fetch was cancelled via AbortController");
+        } else {
+          console.error("Failed to fetch vocab:", err);
+          setError(err instanceof Error ? err : new Error('Unknown error'));
+        }
+      } finally {
+        setIsVocabCardLoading(false);
+      }
+    }
+    fetchFirstVocab();
+
+    return () => {
+      controller.abort();
+    }
   }, [])
 
   React.useEffect(() => {
@@ -139,22 +170,30 @@ export default function Study() {
         if (success && kanjiCardList) {
           setKanjiResult(kanjiCardList);
         }
-        setIsKanjiCardLoading(false);
       } catch (err: any) {
         if (err.name === 'AbortError') {
           console.log('GET request has been cancelled');
         } else {
           console.error('Real API error:', err);
-          setIsKanjiCardLoading(false);
         }
+      } finally {
+        setIsKanjiCardLoading(false);
       }
     }
     getFirstKanji();
 
     return () => {
       controller.abort();
-    };
+    }
   }, [])
+
+  const filteredHiragana = hiraganaData.filter(item =>
+    item.kana.includes(searchQuery) || item.romaji.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredKatakana = katakanaData.filter(item =>
+    item.kana.includes(searchQuery) || item.romaji.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <Container size="md" py="xl" my="md">
