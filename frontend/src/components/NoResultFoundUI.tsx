@@ -7,11 +7,11 @@ export default function NoResultFoundUI() {
         radius="lg"
         padding="xl"
         withBorder
+        mih={100}
         style={{
           borderStyle: 'dashed',
           borderColor: '#ced4da',
           backgroundColor: '#f8f9fa',
-          height: 250,
         }}
       >
         <Center style={{ height: '100%', flexDirection: 'column' }}>

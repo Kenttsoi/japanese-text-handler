@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Skeleton, Text, Button, Group, Stack, Box, SimpleGrid, Paper, Center, TextInput, Card, Alert } from '@mantine/core';
+import { useDebouncedValue } from '@mantine/hooks';
 import DynamicKanaSlider from '@/components/study/DynamicKanaSlider';
-import VocabCard from '@/components/study/VocabCard';
 import { KanaItem, VocabItems, KanjiItems } from '@/types';
 import { vocabService } from '@/services/vocabService';
 import { fetchFirstKanji } from '@/services/api';
@@ -85,48 +85,29 @@ const MOCK_KANJI_DATA = [
   { id: 2, word: '美味しい', reading: 'おいしい', meaning_ch: '好吃的、美味的', pos: '形容詞' },
 ]; */
 
+const filteredKana = (kanaData: KanaItem[], searchQuery: string) => {
+  console.log('1', searchQuery)
+  if (!searchQuery.trim()) return [];
+  return kanaData.filter(item =>
+    item.kana.includes(searchQuery) || item.romaji.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+}
+
 export default function Study() {
-  const [searchQuery, setSearchQuery] = React.useState('');
+  const [searchQuery, setSearchQuery] = React.useState<string>('');
+  const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 400);
+  const [hiraganaResult, setHiraganaResult] = React.useState<KanaItem[]>([]);
+  const [katakanaResult, setKatakaanaResult] = React.useState<KanaItem[]>([]);
   const [vocabResult, setVocabResult] = React.useState<VocabItems[]>([]);
   const [kanjiResult, setKanjiResult] = React.useState<KanjiItems[]>([]);
-  const [isVocabCardLoading, setIsVocabCardLoading] = React.useState<boolean>(true);
+  const [isKanaLoading, setIsKanaLoading] = React.useState(false);
+  const [isVocabCardLoading, setIsVocabCardLoading] = React.useState<boolean>(false);
   const [isKanjiCardLoading, setIsKanjiCardLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<Error | null>(null);
 
-  /* React.useEffect(() => {
-    let isMounted = true;
+  React.useEffect(() => {
 
-    async function fetchFirstVocab() {
-      try {
-        setIsVocabCardLoading(true);
-        setError(null);
-
-        const result = await vocabService.getAllVocab();
-
-        if (isMounted) {
-          if (result) {
-            setVocabResult(result);
-          } else {
-            console.warn("Vocab service returned no data.");
-          }
-        }
-      } catch (err) {
-        if (isMounted) {
-          console.error("Failed to fetch vocab:", err);
-          setError(err instanceof Error ? err : new Error('Unknown error'));
-        }
-      } finally {
-        if (isMounted) {
-          setIsVocabCardLoading(false);
-        }
-      }
-    }
-    fetchFirstVocab();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []) */
+  }, [])
 
   React.useEffect(() => {
     const controller = new AbortController();
@@ -187,13 +168,38 @@ export default function Study() {
     }
   }, [])
 
-  const filteredHiragana = hiraganaData.filter(item =>
-    item.kana.includes(searchQuery) || item.romaji.toLowerCase().includes(searchQuery.toLowerCase())
+
+
+  const searchVocab = async (searchQuery: string) => {
+    return await vocabService.searchVocab(searchQuery);
+  }
+
+  const filteredHiragana = React.useMemo(() =>
+    filteredKana(hiraganaData, searchQuery),
+    [searchQuery, hiraganaData]
   );
 
-  const filteredKatakana = katakanaData.filter(item =>
-    item.kana.includes(searchQuery) || item.romaji.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  React.useEffect(() => {
+    if (debouncedSearchQuery.trim() === '') {
+      setHiraganaResult(hiraganaData);
+      /* setKatakaanaResult(katakanaData); */
+      return;
+    }
+    const fetchAllData = async () => {
+      setIsKanaLoading(true);
+      try {
+        setHiraganaResult(filteredKana(hiraganaData, searchQuery));
+        setKatakaanaResult(filteredKana(katakanaData, searchQuery));
+      } catch (err: any) {
+        console.error("Failed to fetch vocab:", err);
+        setError(err instanceof Error ? err : new Error('Unknown error'));
+      } finally {
+        setIsKanaLoading(false);
+      }
+
+    }
+    fetchAllData();
+  }, [debouncedSearchQuery])
 
   return (
     <Container size="md" py="xl" my="md">
@@ -201,7 +207,7 @@ export default function Study() {
         placeholder="Search"
         size="lg"
         radius="xl"
-        value={""}
+        value={searchQuery}
         leftSection={<IconSearch size={18} stroke={1.5} />}
         mb="xl"
         onChange={(event) => setSearchQuery(event.currentTarget.value)}
@@ -215,13 +221,13 @@ export default function Study() {
         <span style={{ color: '#FF87B2' }}>✨</span> Hiragana
       </Text>
       <DynamicKanaSlider
-        kanaList={hiraganaData}
+        kanaList={hiraganaResult} isLoading={isKanaLoading}
       />
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ color: '#FF87B2' }}>✨</span> Katakana
       </Text>
       <DynamicKanaSlider
-        kanaList={katakanaData}
+        kanaList={katakanaResult} isLoading={isKanaLoading}
       />
 
       {/* <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
