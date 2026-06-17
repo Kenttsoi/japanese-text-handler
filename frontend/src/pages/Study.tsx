@@ -85,29 +85,52 @@ const MOCK_KANJI_DATA = [
   { id: 2, word: '美味しい', reading: 'おいしい', meaning_ch: '好吃的、美味的', pos: '形容詞' },
 ]; */
 
-const filteredKana = (kanaData: KanaItem[], searchQuery: string) => {
-  console.log('1', searchQuery)
-  if (!searchQuery.trim()) return [];
-  return kanaData.filter(item =>
-    item.kana.includes(searchQuery) || item.romaji.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+const splitRomaji = (input: string): string[] => {
+  const regex = /[bcdfghjklmnpqrstvwxyz]*[aeiou]|n(?![aeiou])/gi;
+  return input.match(regex) || [];
+};
+
+const generateSearchTokens = (query: string): string[] => {
+  const cleanQuery = query.trim().toLowerCase();
+
+  if (!cleanQuery) return [];
+  const hasNonEnglish = /[^\x00-\x7F]/.test(cleanQuery);
+  if (hasNonEnglish) {
+    return Array.from(cleanQuery);
+  } else {
+    return splitRomaji(cleanQuery);
+  }
+}
+
+const filteredKana = (kanaData: KanaItem[], searchQuery: string): KanaItem[] => {
+  console.log('filteredKana starts');
+  if (!searchQuery.trim()) return kanaData;
+
+  const tokens = generateSearchTokens(searchQuery);
+
+  if (tokens.length === 0) return [];
+
+  return kanaData.filter(item => {
+    const itemKana = item.kana;
+    const itemRomaji = item.romaji.toLowerCase();
+
+    return tokens.some(token =>
+      itemKana === token || itemRomaji === token
+    );
+  })
 }
 
 export default function Study() {
   const [searchQuery, setSearchQuery] = React.useState<string>('');
-  const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 400);
-  const [hiraganaResult, setHiraganaResult] = React.useState<KanaItem[]>([]);
-  const [katakanaResult, setKatakaanaResult] = React.useState<KanaItem[]>([]);
+  const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 800);
+  /* const [hiraganaResult, setHiraganaResult] = React.useState<KanaItem[]>([]);
+  const [katakanaResult, setKatakaanaResult] = React.useState<KanaItem[]>([]); */
   const [vocabResult, setVocabResult] = React.useState<VocabItems[]>([]);
   const [kanjiResult, setKanjiResult] = React.useState<KanjiItems[]>([]);
   const [isKanaLoading, setIsKanaLoading] = React.useState(false);
   const [isVocabCardLoading, setIsVocabCardLoading] = React.useState<boolean>(false);
   const [isKanjiCardLoading, setIsKanjiCardLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<Error | null>(null);
-
-  React.useEffect(() => {
-
-  }, [])
 
   React.useEffect(() => {
     const controller = new AbortController();
@@ -168,28 +191,29 @@ export default function Study() {
     }
   }, [])
 
-
-
   const searchVocab = async (searchQuery: string) => {
     return await vocabService.searchVocab(searchQuery);
   }
 
   const filteredHiragana = React.useMemo(() =>
-    filteredKana(hiraganaData, searchQuery),
-    [searchQuery, hiraganaData]
+    filteredKana(hiraganaData, debouncedSearchQuery),
+    [debouncedSearchQuery, hiraganaData]
   );
 
-  React.useEffect(() => {
+  const filteredKatakana = React.useMemo(() =>
+    filteredKana(katakanaData, debouncedSearchQuery),
+    [debouncedSearchQuery, katakanaData]
+  );
+
+  /* React.useEffect(() => {
     if (debouncedSearchQuery.trim() === '') {
-      setHiraganaResult(hiraganaData);
-      /* setKatakaanaResult(katakanaData); */
+      
       return;
     }
     const fetchAllData = async () => {
       setIsKanaLoading(true);
       try {
-        setHiraganaResult(filteredKana(hiraganaData, searchQuery));
-        setKatakaanaResult(filteredKana(katakanaData, searchQuery));
+        
       } catch (err: any) {
         console.error("Failed to fetch vocab:", err);
         setError(err instanceof Error ? err : new Error('Unknown error'));
@@ -199,7 +223,9 @@ export default function Study() {
 
     }
     fetchAllData();
-  }, [debouncedSearchQuery])
+  }, [debouncedSearchQuery]) */
+
+  console.log("=== Component re-render ===");
 
   return (
     <Container size="md" py="xl" my="md">
@@ -221,77 +247,18 @@ export default function Study() {
         <span style={{ color: '#FF87B2' }}>✨</span> Hiragana
       </Text>
       <DynamicKanaSlider
-        kanaList={hiraganaResult} isLoading={isKanaLoading}
+        kanaList={filteredHiragana} isLoading={isKanaLoading}
       />
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ color: '#FF87B2' }}>✨</span> Katakana
       </Text>
       <DynamicKanaSlider
-        kanaList={katakanaResult} isLoading={isKanaLoading}
+        kanaList={filteredKatakana} isLoading={isKanaLoading}
       />
-
-      {/* <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ color: '#FF87B2' }}>✨</span> Hiragana
-      </Text>
-      <Paper shadow="xs" p="lg" radius="lg" bg="white" withBorder>
-        <SimpleGrid
-          cols={5}
-          spacing="xs"
-          verticalSpacing="md"
-        >
-          {hiraganaData.map((item) => (
-            <Paper
-              p="sm"
-              radius="md"
-              bg="#FFF0F0"
-              key={item.kana}
-            >
-              <Stack align="center" gap={4}>
-                <Text size="32px" fw={500} c="#4A4A4A">
-                  {item.kana}
-                </Text>
-                <Text size="sm" c="dimmed">
-                  {item.romaji}
-                </Text>
-              </Stack>
-            </Paper>
-          ))}
-        </SimpleGrid>
-      </Paper>
-      <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ color: '#FF87B2' }}>✨</span> Katakana
-      </Text>
-      <Paper shadow="xs" p="lg" radius="lg" bg="white" withBorder>
-        <SimpleGrid
-          cols={5}
-          spacing="xs"
-          verticalSpacing="md"
-        >
-          {katakanaData.map((item) => (
-            <Paper
-              p="sm"
-              radius="md"
-              bg="#FFF0F0"
-              key={item.kana}
-            >
-              <Stack align="center" gap={4}>
-                <Text size="32px" fw={500} c="#4A4A4A">
-                  {item.kana}
-                </Text>
-                <Text size="sm" c="dimmed">
-                  {item.romaji}
-                </Text>
-              </Stack>
-            </Paper>
-          ))}
-        </SimpleGrid>
-      </Paper> */}
-
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ color: '#FF87B2' }}>✨</span> Vocabulary
       </Text>
       <VocabGrid isLoading={isVocabCardLoading} data={vocabResult} />
-
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ color: '#FF87B2' }}>✨</span> Kanji
       </Text>

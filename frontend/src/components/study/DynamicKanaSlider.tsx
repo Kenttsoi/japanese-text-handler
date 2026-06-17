@@ -51,7 +51,7 @@ export default function DynamicKanaSlider({ kanaList, isLoading }: DynamicKanaSl
       >
         <Group wrap="nowrap" gap="sm">
           {kanaList.map((item) => (
-            item.kana ? <KanaCard key={`kana_${item.kana}`} kanaData={item} /> : null
+            item.kana ? <KanaCard key={`kana_${item.kana}`} kanaData={item} isLoading={false}/> : null
           ))}
         </Group>
       </ScrollArea>
