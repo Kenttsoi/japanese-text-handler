@@ -132,7 +132,6 @@ export default function Study() {
   const [katakanaResult, setKatakaanaResult] = React.useState<KanaItem[]>([]); */
   const [vocabResult, setVocabResult] = React.useState<VocabItems[]>([]);
   const [kanjiResult, setKanjiResult] = React.useState<KanjiItems[]>([]);
-  const [isKanaLoading, setIsKanaLoading] = React.useState(false);
   const [isVocabCardLoading, setIsVocabCardLoading] = React.useState<boolean>(false);
   const [isKanjiCardLoading, setIsKanjiCardLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<Error | null>(null);
@@ -262,13 +261,13 @@ export default function Study() {
         <span style={{ color: '#FF87B2' }}>✨</span> Hiragana
       </Text>
       <DynamicKanaSlider
-        kanaList={filteredHiragana} isLoading={isKanaLoading}
+        kanaList={filteredHiragana} isLoading={isPending}
       />
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ color: '#FF87B2' }}>✨</span> Katakana
       </Text>
       <DynamicKanaSlider
-        kanaList={filteredKatakana} isLoading={isKanaLoading}
+        kanaList={filteredKatakana} isLoading={isPending}
       />
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ color: '#FF87B2' }}>✨</span> Vocabulary

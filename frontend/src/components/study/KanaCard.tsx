@@ -8,7 +8,7 @@ interface KanaCardProps {
 }
 
 export default function KanaCard({ kanaData, isLoading }: KanaCardProps) {
-  if (isLoading) {
+  /* if (isLoading) {
     return (
       <Paper
         p="sm"
@@ -27,7 +27,7 @@ export default function KanaCard({ kanaData, isLoading }: KanaCardProps) {
         </Stack>
       </Paper>
     )
-  }
+  } */
 
   if (!kanaData) return null;
 
@@ -41,7 +41,11 @@ export default function KanaCard({ kanaData, isLoading }: KanaCardProps) {
         root: {
           width: 90,
           flexShrink: 0,
-        }
+        },
+      }}
+      style={{
+        opacity: isLoading ? 0.6 : 1,
+        transition: 'opacity 0.15s ease-in-out',
       }}
     >
       <Stack align="center" gap={4}>

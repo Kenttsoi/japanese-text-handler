@@ -13,7 +13,7 @@ interface DynamicKanaSliderProps {
 export default function DynamicKanaSlider({ kanaList, isLoading }: DynamicKanaSliderProps) {
   const { viewportRef, isDragging, panProps } = usePanScroll();
 
-  if (isLoading) {
+  /* if (isLoading) {
     return (
       <Paper shadow="xs" p="lg" radius="lg" bg="white" withBorder>
         <ScrollArea
@@ -21,20 +21,20 @@ export default function DynamicKanaSlider({ kanaList, isLoading }: DynamicKanaSl
           <Group wrap="nowrap" gap="sm">
             {
               Array.from({ length: 3 }).map((_, i) => (
-                <KanaCard key={`skeleton-kanaCard-${i}`} isLoading={true} />
+                <KanaCard key={`skeleton-kanaCard-${i}`} isLoading={isLoading} />
               ))
             }
           </Group>
         </ScrollArea>
       </Paper>
     )
-  }
+  } */
 
   if (!kanaList || kanaList.length === 0) {
-      return (
-        <NoResultFoundUI />
-      );
-    }
+    return (
+      <NoResultFoundUI />
+    );
+  }
 
   return (
     <Paper shadow="xs" p="lg" radius="lg" bg="white" withBorder>
@@ -51,7 +51,7 @@ export default function DynamicKanaSlider({ kanaList, isLoading }: DynamicKanaSl
       >
         <Group wrap="nowrap" gap="sm">
           {kanaList.map((item) => (
-            item.kana ? <KanaCard key={`kana_${item.kana}`} kanaData={item} isLoading={false}/> : null
+            item.kana ? <KanaCard key={`kana_${item.kana}`} kanaData={item} isLoading={isLoading} /> : null
           ))}
         </Group>
       </ScrollArea>
