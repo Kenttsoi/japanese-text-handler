@@ -121,8 +121,13 @@ const filteredKana = (kanaData: KanaItem[], searchQuery: string): KanaItem[] => 
 }
 
 export default function Study() {
+  // 1. Higher Priority for search bar render
   const [searchQuery, setSearchQuery] = React.useState<string>('');
+  // 2. Lower Priority for display
+  const [displayQuery, setDisplayQuery] = React.useState<string>('');
+  // 3. For the sending request in useEffect
   const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 800);
+  const [isPending, startTransition] = React.useTransition();
   /* const [hiraganaResult, setHiraganaResult] = React.useState<KanaItem[]>([]);
   const [katakanaResult, setKatakaanaResult] = React.useState<KanaItem[]>([]); */
   const [vocabResult, setVocabResult] = React.useState<VocabItems[]>([]);
@@ -191,18 +196,28 @@ export default function Study() {
     }
   }, [])
 
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.currentTarget.value;
+
+    setSearchQuery(value);
+
+    startTransition(() => {
+      setDisplayQuery(value);
+    });
+  }
+
   const searchVocab = async (searchQuery: string) => {
     return await vocabService.searchVocab(searchQuery);
   }
 
   const filteredHiragana = React.useMemo(() =>
-    filteredKana(hiraganaData, debouncedSearchQuery),
-    [debouncedSearchQuery, hiraganaData]
+    filteredKana(hiraganaData, displayQuery),
+    [displayQuery, hiraganaData]
   );
 
   const filteredKatakana = React.useMemo(() =>
-    filteredKana(katakanaData, debouncedSearchQuery),
-    [debouncedSearchQuery, katakanaData]
+    filteredKana(katakanaData, displayQuery),
+    [displayQuery, katakanaData]
   );
 
   /* React.useEffect(() => {
@@ -236,7 +251,7 @@ export default function Study() {
         value={searchQuery}
         leftSection={<IconSearch size={18} stroke={1.5} />}
         mb="xl"
-        onChange={(event) => setSearchQuery(event.currentTarget.value)}
+        onChange={handleSearchChange}
         styles={(theme) => ({
           input: {
             '&:focus': { borderColor: theme.colors.orange[4] }
