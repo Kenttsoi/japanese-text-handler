@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
+# from flask_sqlalchemy import SQLAlchemy
 import MeCab
 from .controllers.api import api
 from .config import config_dict

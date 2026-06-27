@@ -1,6 +1,8 @@
 import pandas as pd
-from app import create_app, db
+from app import create_app
+from app.extensions import db
 from app.models.word import WordImport
+from sqlalchemy import text
 
 app = create_app('development')
 
@@ -37,9 +39,18 @@ def seed_from_excel():
         words_to_insert.append(word_entry)
 
     with app.app_context():
+        db.init_app(app)
         try:
             db.drop_all()
             db.create_all()
+            db.session.execute(text("ALTER TABLE word_entries ENABLE ROW LEVEL SECURITY;"))
+            db.session.execute(text("""
+                CREATE POLICY "Allow public read access" 
+                ON word_entries 
+                FOR SELECT 
+                TO anon 
+                USING (true);
+            """))
             db.session.bulk_save_objects(words_to_insert)
             db.session.commit()
             print('Finished Import Data')
