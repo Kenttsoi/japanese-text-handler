@@ -11,7 +11,9 @@ export const vocabService = {
     const { data, error } = await supabase
       .from('word_entries')
       .select('*')
-      .or(`word.ilike.%${query}%,reading.ilike.%${query}%,meaning.ilike.%${query}%`);
+      .textSearch('fts_vector', query.trim(), {
+        config: 'simple'
+      });
     if (error) throw error;
     return data || [];
   }

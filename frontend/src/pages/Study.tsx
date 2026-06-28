@@ -52,7 +52,7 @@ export default function Study() {
   // 2. Lower Priority for display
   const [displayQuery, setDisplayQuery] = React.useState<string>('');
   // 3. For the sending request in useEffect
-  const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 800);
+  const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 1000);
   const [isPending, startTransition] = React.useTransition();
   /* const [hiraganaResult, setHiraganaResult] = React.useState<KanaItem[]>([]);
   const [katakanaResult, setKatakaanaResult] = React.useState<KanaItem[]>([]); */
@@ -145,25 +145,27 @@ export default function Study() {
     [displayQuery, katakanaData]
   );
 
-  /* React.useEffect(() => {
-    if (debouncedSearchQuery.trim() === '') {
-      
+  React.useEffect(() => {
+    if (!debouncedSearchQuery.trim()) {
+      setVocabResult([]);
       return;
     }
+    
     const fetchAllData = async () => {
-      setIsKanaLoading(true);
+      setIsVocabCardLoading(true);
       try {
-        
+        const data = await vocabService.searchVocab(debouncedSearchQuery);
+        setVocabResult(data);
       } catch (err: any) {
         console.error("Failed to fetch vocab:", err);
         setError(err instanceof Error ? err : new Error('Unknown error'));
       } finally {
-        setIsKanaLoading(false);
+        setIsVocabCardLoading(false);
       }
 
     }
     fetchAllData();
-  }, [debouncedSearchQuery]) */
+  }, [debouncedSearchQuery])
 
   console.log("=== Component re-render ===");
 
