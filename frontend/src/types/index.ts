@@ -25,3 +25,8 @@ export interface VocabItems {
   jlpt_level_1?: string | null;
   pos?: string | null;
 }
+
+export interface KanjiApiResponse {
+  result: KanjiItems[];
+  success: boolean;
+}

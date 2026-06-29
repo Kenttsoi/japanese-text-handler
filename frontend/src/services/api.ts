@@ -1,3 +1,5 @@
+import { KanjiApiResponse } from "@/types";
+
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 export const convertJapaneseText = async (text: string) => {
@@ -68,7 +70,7 @@ export const annotateSample = async (text: string) => {
     }
 }
 
-export const fetchFirstKanji = async (signal?: AbortSignal) => {
+export const fetchFirstKanji = async (signal?: AbortSignal): Promise<KanjiApiResponse> => {
     try {
         const response = await fetch(`${API_URL}/kanji/first-six`, {
             method: 'GET',

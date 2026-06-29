@@ -60,6 +60,15 @@ def get_first_six_kanji():
     except Exception as e:
         return api_error('Data retrieve Error', status=500)
 
+@api.route('/kanji/search', methods=['GET'])
+def search_kanji():
+    try:
+        query = request.args.get('q', '').strip()
+        print(query)
+        return api_success([])
+    except Exception as e:
+        return api_error('Conversion Error', status=500)
+
 """ @api.route('/sample1')
 def sample1():
     answer = current_app.wakati_tagger.parse("pythonが大好きです").split()

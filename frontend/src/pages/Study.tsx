@@ -4,7 +4,7 @@ import { useDebouncedValue } from '@mantine/hooks';
 import DynamicKanaSlider from '@/components/study/DynamicKanaSlider';
 import { KanaItem, VocabItems, KanjiItems } from '@/types';
 import { vocabService } from '@/services/vocabService';
-import { fetchFirstKanji } from '@/services/api';
+import { fetchFirstKanji, searchKanji } from '@/services/api';
 import IconSearch from '@tabler/icons-react/dist/esm/icons/IconSearch.mjs';
 import VocabGrid from '@/components/study/VocabGrid';
 import KanjiGrid from '@/components/study/KanjiGrid';
@@ -76,9 +76,7 @@ export default function Study() {
           console.warn("Vocab service returned no data.");
         }
       } catch (err: any) {
-        if (err.name === 'AbortError') {
-          console.log("Vocab fetch was cancelled via AbortController");
-        } else {
+        if (err.name !== 'AbortError') {
           console.error("Failed to fetch vocab:", err);
           setError(err instanceof Error ? err : new Error('Unknown error'));
         }
@@ -105,10 +103,9 @@ export default function Study() {
           setKanjiResult(kanjiCardList);
         }
       } catch (err: any) {
-        if (err.name === 'AbortError') {
-          console.log('GET request has been cancelled');
-        } else {
-          console.error('Real API error:', err);
+        if (err.name !== 'AbortError') {
+          console.error("Failed to fetch vocab:", err);
+          setError(err instanceof Error ? err : new Error('Unknown error'));
         }
       } finally {
         setIsKanjiCardLoading(false);
@@ -131,10 +128,6 @@ export default function Study() {
     });
   }
 
-  const searchVocab = async (searchQuery: string) => {
-    return await vocabService.searchVocab(searchQuery);
-  }
-
   const filteredHiragana = React.useMemo(() =>
     filteredKana(hiraganaData, displayQuery),
     [displayQuery, hiraganaData]
@@ -148,23 +141,39 @@ export default function Study() {
   React.useEffect(() => {
     if (!debouncedSearchQuery.trim()) {
       setVocabResult([]);
+      setKanjiResult([]);
       return;
     }
-    
+
+    const controller = new AbortController();
+
     const fetchAllData = async () => {
       setIsVocabCardLoading(true);
+      setIsKanjiCardLoading(true);
       try {
-        const data = await vocabService.searchVocab(debouncedSearchQuery);
-        setVocabResult(data);
+        const [vocabData, kanjiData] = await Promise.all([
+          vocabService.searchVocab(debouncedSearchQuery, controller.signal),
+          searchKanji(debouncedSearchQuery, controller.signal)
+        ]);
+        setVocabResult(vocabData);
+        console.log('KanjiData', kanjiData);
       } catch (err: any) {
-        console.error("Failed to fetch vocab:", err);
-        setError(err instanceof Error ? err : new Error('Unknown error'));
+        if (err.name !== 'AbortError') {
+          console.error("[PARALLEL SEARCH ERROR] ", err);
+          setError(err instanceof Error ? err : new Error('Unknown error'));
+        }
       } finally {
-        setIsVocabCardLoading(false);
-      }
+        if (!controller.signal.aborted) {
+          setIsVocabCardLoading(false);
+          setIsKanjiCardLoading(false);
+        }
 
+      }
     }
     fetchAllData();
+    return () => {
+      controller.abort();
+    };
   }, [debouncedSearchQuery])
 
   console.log("=== Component re-render ===");

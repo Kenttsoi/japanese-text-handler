@@ -7,13 +7,14 @@ export const vocabService = {
     return data;
   },
 
-  async searchVocab(query: string) {
+  async searchVocab(query: string, signal?: AbortSignal) {
     const { data, error } = await supabase
       .from('word_entries')
       .select('*')
       .textSearch('fts_vector', query.trim(), {
         config: 'simple'
-      });
+      })
+      .abortSignal(signal || new AbortController().signal);
     if (error) throw error;
     return data || [];
   }
