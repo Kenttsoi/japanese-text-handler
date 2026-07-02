@@ -6,7 +6,11 @@ from app.services.japanese_text_service import JapaneseTextConverter
 from app.utils.response import api_success, api_error
 from itertools import islice
 import html
+
+api = Blueprint('api', __name__)
+
 MAX_CHARS = 500
+
 FORBIDDEN_PATTERNS = [
     "<script", "javascript:", "DROP TABLE", 
     "INSERT INTO", "SELECT *", "--", "OR 1=1"
@@ -19,7 +23,35 @@ def is_suspicious(text):
             return True
     return False
 
-api = Blueprint('api', __name__)
+@api.before_request
+def validate_and_sanitize_incoming_request():
+    if request.is_json and request.method in ['POST', 'PUT', 'PATCH']:
+        data = request.json or {}
+
+        for key, value in data.items():
+            if isinstance(value, str):
+
+                # Length check (OOM Prevention)
+                if len(value) > MAX_CHARS:
+                    return api_error(f"Please limit to {MAX_CHARS} characters", status=413)
+
+                # Security check (Injection Prevention)
+                if is_suspicious(value):
+                    return api_error("Unsafe content detected.", status=400)
+
+                # HTML Escape (XSS Prevention)
+                safe_text = html.escape(value)
+
+        if 'text' in data:
+            request.environ['CLEAN_TEXT'] = safe_text
+
+        print('passed')
+        
+    if request.method == 'GET':
+        for key, value in request.args.items():
+            if len(value) > 50:
+                return api_error("error": "Query too long", status=400)
+        print('passed')
 
 @api.route('/')
 def hello():
@@ -28,25 +60,16 @@ def hello():
 @api.route('/convert', methods=['POST'])
 def convert():
     # Extract data
-    data = request.json
-    raw_text = data.get('text').replace('\n', '\\n') if data else None
+    passage_text = request.environ.get('CLEAN_TEXT')
+    if not passage_text:
+        return api_success([])
+    handled_text = passage_text.replace('\n', '\\n') if passage_text else None
 
-    # Length check (OOM Prevention)
-    if len(raw_text) > MAX_CHARS:
-        return api_error(f"Please limit to {MAX_CHARS} words", status=413)
-    
-    # Security check (Injection Prevention)
-    if is_suspicious(raw_text):
-        return api_error("Unsafe content detected.", status=400)
-    
-    # HTML Escape (XSS Prevention)
-    safe_text = html.escape(raw_text)
-
-    if not safe_text:
+    if not handled_text:
         return api_error('You need to enter text')
     try:
-        print(safe_text)
-        converter = JapaneseTextConverter(safe_text)
+        print(handled_text)
+        converter = JapaneseTextConverter(handled_text)
         result = converter.convert()
         return api_success(result)
     except Exception as e:
