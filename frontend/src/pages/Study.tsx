@@ -156,6 +156,11 @@ export default function Study() {
           searchKanji(debouncedSearchQuery, controller.signal)
         ]);
         setVocabResult(vocabData);
+        if (kanjiData.success) {
+          setKanjiResult(kanjiData.result);
+        } else {
+          throw new Error('Error occurred');
+        }
         console.log('KanjiData', kanjiData);
       } catch (err: any) {
         if (err.name !== 'AbortError') {

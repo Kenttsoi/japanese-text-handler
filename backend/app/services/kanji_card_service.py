@@ -22,3 +22,30 @@ class KanjiCardService:
             })
         
         return formatted_results
+    
+    @staticmethod
+    def search_kanji(query: str):
+        raw_dict = KanjiModel.get_all_kanji_raw()
+        
+        if not raw_dict:
+            return []
+
+        results = []
+        for literal, info in raw_dict.items():
+            on_readings = " ".join(info.get("on_readings", []))
+            kun_readings = " ".join(info.get("kun_readings", []))
+            meanings = " ".join(info.get("meaning_en", []))
+
+            if (query.lower() in literal.lower() or 
+                query.lower() in on_readings.lower() or 
+                query.lower() in kun_readings.lower() or 
+                query.lower() in meanings.lower()):
+
+                results.append({
+                    "literal": literal,
+                    "on_readings": ", ".join(info.get("on_readings", [])),
+                    "kun_readings": ", ".join(info.get("kun_readings", [])),
+                    "meaning_en": ", ".join(info.get("meaning_en", [])),
+                })
+
+        return results

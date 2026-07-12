@@ -50,7 +50,7 @@ def validate_and_sanitize_incoming_request():
     if request.method == 'GET':
         for key, value in request.args.items():
             if len(value) > 50:
-                return api_error("error": "Query too long", status=400)
+                return api_error("error: Query too long", status=400)
         print('passed')
 
 @api.route('/')
@@ -87,10 +87,15 @@ def get_first_six_kanji():
 def search_kanji():
     try:
         query = request.args.get('q', '').strip()
-        print(query)
-        return api_success([])
+
+        if not query:
+            return api_error("Query parameter 'q' is required", status=400)
+        
+        results = KanjiCardService.search_kanji(query)
+
+        return api_success(results)
     except Exception as e:
-        return api_error('Conversion Error', status=500)
+        return api_error('Search operation failed', status=500)
 
 """ @api.route('/sample1')
 def sample1():
