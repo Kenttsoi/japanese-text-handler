@@ -3,9 +3,12 @@ from flask import Blueprint, request, jsonify, Response, current_app
 from app.services.kanji_card_service import KanjiCardService
 from app.services.japanese_text_service import JapaneseTextHandler
 from app.services.japanese_text_service import JapaneseTextConverter
-from app.utils.response import api_success, api_error
+from app.utils.response import api_success, api_error, api_media_success
 from itertools import islice
 import html
+import requests
+import os
+import hashlib
 
 api = Blueprint('api', __name__)
 
@@ -15,6 +18,11 @@ FORBIDDEN_PATTERNS = [
     "<script", "javascript:", "DROP TABLE", 
     "INSERT INTO", "SELECT *", "--", "OR 1=1"
 ]
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CACHE_DIR = os.path.join(BASE_DIR, 'audio_cache')
+os.makedirs(CACHE_DIR, exist_ok=True)
+VOICEVOX_URL = "http://127.0.0.1:50021"
 
 def is_suspicious(text):
     """Check for common SQL injection or Script injection patterns."""
@@ -96,6 +104,45 @@ def search_kanji():
         return api_success(results)
     except Exception as e:
         return api_error('Search operation failed', status=500)
+
+@api.route('/pronounce', methods=['GET'])
+def get_pronunciation():
+    text = request.args.get('text', 'こんにちは')
+    if not text:
+        return api_error('Text is required', status=400)
+
+    text_hash = hashlib.md5(text.encode('utf-8')).hexdigest()
+    cache_file_path = os.path.join(CACHE_DIR, f"{text_hash}.wav")
+
+    if os.path.exists(cache_file_path):
+        with open(cache_file_path, "rb") as f:
+            cached_audio = f.read()
+        return api_media_success(cached_audio, mimetype="audio/wav")
+
+    try:
+        speaker_id = 29 # 11 for otoko
+        query_payload = {"text": text, "speaker": speaker_id}
+        query_res = requests.post(f"{VOICEVOX_URL}/audio_query", params=query_payload, timeout=5)
+        
+        if query_res.status_code != 200:
+            return api_error('Failed to query VOICEVOX', status=500)
+
+        synth_res = requests.post(
+            f"{VOICEVOX_URL}/synthesis",
+            params={"speaker": speaker_id},
+            json=query_res.json()
+        )
+
+        if synth_res.status_code != 200:
+            return api_error('Failed to synthesize audio', status=500)
+
+        with open(cache_file_path, "wb") as f:
+            f.write(synth_res.content)
+
+        return api_media_success(synth_res.content, mimetype="audio/wav")
+
+    except Exception as e:
+        return api_error('Voice service unavailable', status=500)
 
 """ @api.route('/sample1')
 def sample1():

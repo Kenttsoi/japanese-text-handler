@@ -24,6 +24,10 @@ export default function VocabCard({ isLoading, data }: VocabCardProps) {
     );
   }
 
+  const speak = (text: string) => {
+    new Audio(`/api/pronounce?text=${encodeURIComponent(text)}`).play();
+  }
+
   if (!data) return null;
 
   const badges = [
@@ -94,7 +98,7 @@ export default function VocabCard({ isLoading, data }: VocabCardProps) {
             radius="xl"
             size="md"
           >
-            <IconVolume size={20} stroke={1.5} />
+            <IconVolume size={20} stroke={1.5} onClick={() => speak(data.word)}/>
           </ActionIcon>
 
           <ActionIcon
