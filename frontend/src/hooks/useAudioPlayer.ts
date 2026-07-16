@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { fetchPronunciation } from '@/services/api';
 
 const globalAudioCache: Record<string, string> = {};
 
@@ -42,11 +43,7 @@ export const useAudioPlayer = () => {
     }
 
     try {
-      const response = await fetch(`/api/pronounce?text=${encodeURIComponent(word)}`);
-
-      if (!response.ok) throw new Error("Backend failed");
-
-      const blob = await response.blob();
+      const blob = await fetchPronunciation(word);
       const audioUrl = URL.createObjectURL(blob);
 
       globalAudioCache[word] = audioUrl;
@@ -54,7 +51,7 @@ export const useAudioPlayer = () => {
       const audio = new Audio(audioUrl);
       audio.onended = () => setPlayingWord(null);
       await audio.play();
-      
+
     } catch (error) {
       playFallbackSpeech(word);
     }

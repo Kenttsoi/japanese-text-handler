@@ -19,8 +19,8 @@ FORBIDDEN_PATTERNS = [
     "INSERT INTO", "SELECT *", "--", "OR 1=1"
 ]
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CACHE_DIR = os.path.join(BASE_DIR, 'audio_cache')
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+CACHE_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "..", "data", "audio_cache"))
 os.makedirs(CACHE_DIR, exist_ok=True)
 VOICEVOX_URL = "http://127.0.0.1:50021"
 

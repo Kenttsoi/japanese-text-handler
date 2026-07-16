@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, Text, Badge, Group, Stack, ActionIcon, Divider, Skeleton } from '@mantine/core';
 import { VocabItems } from '@/types';
+import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import IconVolume from '@tabler/icons-react/dist/esm/icons/IconVolume.mjs';
 import IconStar from '@tabler/icons-react/dist/esm/icons/IconStar.mjs';
 import IconStarFilled from '@tabler/icons-react/dist/esm/icons/IconStarFilled.mjs';
@@ -11,8 +12,6 @@ interface VocabCardProps {
 }
 
 export default function VocabCard({ isLoading, data }: VocabCardProps) {
-  const [isStarred, setIsStarred] = React.useState(false);
-
   if (isLoading) {
     return (
       <Card shadow="sm" padding="xl" radius="lg" withBorder>
@@ -24,9 +23,14 @@ export default function VocabCard({ isLoading, data }: VocabCardProps) {
     );
   }
 
-  const speak = (text: string) => {
+  /* const speak = (text: string) => {
     new Audio(`/api/pronounce?text=${encodeURIComponent(text)}`).play();
-  }
+  } */
+
+  const [isStarred, setIsStarred] = React.useState(false);
+  const { speak, playingWord } = useAudioPlayer();
+  const isThisWordPlaying = playingWord === data?.word;
+  const isAnyWordPlaying = playingWord !== null;
 
   if (!data) return null;
 
@@ -97,8 +101,11 @@ export default function VocabCard({ isLoading, data }: VocabCardProps) {
             color="gray"
             radius="xl"
             size="md"
+            loading={isThisWordPlaying}
+            disabled={isAnyWordPlaying && !isThisWordPlaying}
+            onClick={() => speak(data.word)}
           >
-            <IconVolume size={20} stroke={1.5} onClick={() => speak(data.word)}/>
+            <IconVolume size={20} stroke={1.5} />
           </ActionIcon>
 
           <ActionIcon

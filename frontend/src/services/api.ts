@@ -103,3 +103,13 @@ export const searchKanji = async (kanjiQuery: string, signal?: AbortSignal) => {
         throw err;
     }
 }
+
+export const fetchPronunciation = async (word: string): Promise<Blob> => {
+    const response = await fetch(`${API_URL}/pronounce?text=${encodeURIComponent(word)}`);
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch pronunciation: ${response.statusText}`);
+    }
+
+    return await response.blob();
+} 
