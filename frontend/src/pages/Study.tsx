@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container, Skeleton, Text, Button, Group, Stack, Box, SimpleGrid, Paper, Center, TextInput, Card, Alert } from '@mantine/core';
-import { useDebouncedValue } from '@mantine/hooks';
+import { useDebouncedValue, useLocalStorage } from '@mantine/hooks';
 import DynamicKanaSlider from '@/components/study/DynamicKanaSlider';
 import { KanaItem, VocabItems, KanjiItems } from '@/types';
 import { vocabService } from '@/services/vocabService';
@@ -10,6 +10,7 @@ import VocabGrid from '@/components/study/VocabGrid';
 import KanjiGrid from '@/components/study/KanjiGrid';
 import { hiraganaData } from '@/data/kanaData';
 import { katakanaData } from '@/data/kanaData';
+import DataCards from '@/components/study/DataCards';
 
 const splitRomaji = (input: string): string[] => {
   const regex = /[bcdfghjklmnpqrstvwxyz]*[aeiou]|n(?![aeiou])/gi;
@@ -60,6 +61,10 @@ export default function Study() {
   const [kanjiResult, setKanjiResult] = React.useState<KanjiItems[]>([]);
   const [isVocabCardLoading, setIsVocabCardLoading] = React.useState<boolean>(false);
   const [isKanjiCardLoading, setIsKanjiCardLoading] = React.useState<boolean>(false);
+  const [starredIds, setStarredIds] = useLocalStorage<number[]>({
+    key: 'starred-vocabs',
+    defaultValue: [],
+  });
   const [error, setError] = React.useState<Error | null>(null);
 
   React.useEffect(() => {
@@ -127,6 +132,14 @@ export default function Study() {
       setDisplayQuery(value);
     });
   }
+
+  const handleToggleStar = (id: number) => {
+    setStarredIds((current) =>
+      current.includes(id)
+        ? current.filter((itemId) => itemId !== id)
+        : [...current, id]
+    );
+  };
 
   const filteredHiragana = React.useMemo(() =>
     filteredKana(hiraganaData, displayQuery),
@@ -199,6 +212,7 @@ export default function Study() {
           }
         })}
       />
+      <DataCards totalWords={1000} favorites={starredIds.length} />
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ color: '#FF87B2' }}>✨</span> Hiragana
       </Text>
@@ -214,7 +228,7 @@ export default function Study() {
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ color: '#FF87B2' }}>✨</span> Vocabulary
       </Text>
-      <VocabGrid isLoading={isVocabCardLoading} data={vocabResult} />
+      <VocabGrid isLoading={isVocabCardLoading} data={vocabResult} starredIds={starredIds} onToggleStar={handleToggleStar} />
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ color: '#FF87B2' }}>✨</span> Kanji
       </Text>

@@ -8,10 +8,12 @@ import IconStarFilled from '@tabler/icons-react/dist/esm/icons/IconStarFilled.mj
 
 interface VocabCardProps {
   isLoading: boolean;
-  data?: VocabItems
+  isStarred: boolean;
+  onToggle: (id: number) => void;
+  data?: VocabItems;
 }
 
-export default function VocabCard({ isLoading, data }: VocabCardProps) {
+export default function VocabCard({ isLoading, isStarred, data, onToggle }: VocabCardProps) {
   if (isLoading) {
     return (
       <Card shadow="sm" padding="xl" radius="lg" withBorder>
@@ -27,7 +29,6 @@ export default function VocabCard({ isLoading, data }: VocabCardProps) {
     new Audio(`/api/pronounce?text=${encodeURIComponent(text)}`).play();
   } */
 
-  const [isStarred, setIsStarred] = React.useState(false);
   const { speak, playingWord } = useAudioPlayer();
   const isThisWordPlaying = playingWord === data?.word;
   const isAnyWordPlaying = playingWord !== null;
@@ -113,7 +114,7 @@ export default function VocabCard({ isLoading, data }: VocabCardProps) {
             color={isStarred ? 'pink' : 'gray'}
             radius="xl"
             size="md"
-            onClick={() => setIsStarred(!isStarred)}
+            onClick={() => onToggle(data.id)}
           >
             {isStarred ? (
               <IconStarFilled size={20} color="#FF6B8B" />
