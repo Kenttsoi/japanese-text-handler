@@ -59,6 +59,7 @@ export default function Study() {
   const [katakanaResult, setKatakaanaResult] = React.useState<KanaItem[]>([]); */
   const [vocabResult, setVocabResult] = React.useState<VocabItems[]>([]);
   const [kanjiResult, setKanjiResult] = React.useState<KanjiItems[]>([]);
+  const [totalVocabCount, setTotalVocabCount] = React.useState<number>(0);
   const [isVocabCardLoading, setIsVocabCardLoading] = React.useState<boolean>(false);
   const [isKanjiCardLoading, setIsKanjiCardLoading] = React.useState<boolean>(false);
   const [starredIds, setStarredIds] = useLocalStorage<number[]>({
@@ -75,10 +76,13 @@ export default function Study() {
         setError(null);
 
         const result = await vocabService.getAllVocab();
-        if (result) {
-          setVocabResult(result);
+        if (result && result.data) {
+          setVocabResult(result.data);
         } else {
           console.warn("Vocab service returned no data.");
+        }
+        if (result && result.count) {
+          setTotalVocabCount(result.count);
         }
       } catch (err: any) {
         if (err.name !== 'AbortError') {
@@ -212,7 +216,7 @@ export default function Study() {
           }
         })}
       />
-      <DataCards totalWords={1000} favorites={starredIds.length} />
+      <DataCards totalWords={totalVocabCount} favorites={starredIds.length} />
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ color: '#FF87B2' }}>✨</span> Hiragana
       </Text>
