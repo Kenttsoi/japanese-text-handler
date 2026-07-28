@@ -8,10 +8,11 @@ export const vocabService = {
   },
 
   async searchVocab(query: string, signal?: AbortSignal) {
+    const queryTerm = `${query}:*`;
     const { data, error } = await supabase
       .from('word_entries')
       .select('*')
-      .textSearch('fts_vector', query.trim(), {
+      .textSearch('fts_vector', queryTerm.trim(), {
         config: 'simple'
       })
       .abortSignal(signal || new AbortController().signal);

@@ -30,7 +30,6 @@ const generateSearchTokens = (query: string): string[] => {
 }
 
 const filteredKana = (kanaData: KanaItem[], searchQuery: string): KanaItem[] => {
-  console.log('filteredKana starts');
   if (!searchQuery.trim()) return kanaData;
 
   const tokens = generateSearchTokens(searchQuery);
@@ -197,8 +196,6 @@ export default function Study() {
       controller.abort();
     };
   }, [debouncedSearchQuery])
-
-  console.log("=== Component re-render ===");
 
   return (
     <Container size="md" py="xl" my="md">
