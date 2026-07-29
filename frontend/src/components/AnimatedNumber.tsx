@@ -15,6 +15,7 @@ export default function AnimatedNumber({ value, variant = "pop" }: AnimatedNumbe
       const controls = animate(count, value, {
         duration: 2,
         ease: 'easeOut',
+        delay: 0.2,
       });
 
       return () => controls.stop();
@@ -33,7 +34,8 @@ export default function AnimatedNumber({ value, variant = "pop" }: AnimatedNumbe
             transition={{
               duration: 0.5,
               type: 'spring',
-              bounce: 0.3
+              bounce: 0.3,
+              delay: 0.1
             }}
             style={{ display: 'inline-block' }}
           >
