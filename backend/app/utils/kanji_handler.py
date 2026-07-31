@@ -5,20 +5,58 @@ from app.scripts.initiate_unihan import initiate_unihan
 from app.utils.text_utils import KanaConverter, JapaneseUtils
 
 class KanjiSeparator:
-    def separate_kanji(self, kanjis: str, pronunciation: str) -> None | list[str]:
+    # Class Attribute
+    _VOICING_MAP = {
+        'か': ['が'], 'き': ['ぎ'], 'く': ['ぐ'], 'け': ['げ'], 'こ': ['ご'],
+        'さ': ['ざ'], 'し': ['じ'], 'す': ['ず'], 'せ': ['ぜ'], 'そ': ['ぞ'],
+        'た': ['だ'], 'ち': ['ぢ'], 'つ': ['づ'], 'て': ['で'], 'と': ['ど'],
+        'は': ['ば', 'ぱ'], 'ひ': ['び', 'ぴ'], 'ふ': ['ぶ', 'ぷ'], 'へ': ['べ', 'ぺ'], 'ほ': ['ぼ', 'ぽ'],
+    } # 連濁
+    _SOKUON_ENDINGS = {'く', 'き', 'つ', 'ち'} # 促音化
+    _VOICED_CHARS = set("がぎぐげござじずぜぞだぢづでどばびぶべぼ")
+
+    def __init__(self):
         from app.data.kanjidic2.kanjidic2_dict import kanjidic2_dict
+        self.dict = kanjidic2_dict
+
+    def _enrich_readings(self, readings: list[str], idx: int) -> list[str]:
+        enriched = set(readings)
+
+        for word in readings:
+            # 促音化
+            if len(word) >= 2 and word[-1] in self._SOKUON_ENDINGS:
+                enriched.add(word[:-1] + 'っ')
+
+            # 連濁
+            if idx > 0 and len(word) >= 1 and not any(c in self._VOICED_CHARS for c in word):
+                first_char = word[0]
+                if first_char in self._VOICING_MAP:
+                    for voiced in self._VOICING_MAP[first_char]:
+                        enriched.add(voiced + word[1:])
+                        if word[-1] in self._SOKUON_ENDINGS:
+                            enriched.add(voiced + word[1:-1] + 'っ')
+        return list(enriched)
+
+    def separate_kanji(self, kanjis: str, pronunciation: str) -> None | list[str]:
+        """ from app.data.kanjidic2.kanjidic2_dict import kanjidic2_dict """
         print('separate_kanji', kanjis,  pronunciation, kanjis == pronunciation)
-        n = len(pronunciation)
+        """ n = len(pronunciation)
         dp = [-1] * (n + 1) # 0 represents empty string
         prev = [None] * (n + 1)
-        dp[0] = 0
+        dp[0] = 0 """
         source_lists = []
-        for kanji in kanjis:
+        for idx, kanji in enumerate(kanjis):
+            # 踊り字
+            if kanji == '々' and len(source_lists) > 0:
+                prev_candidates = source_lists[-1]
+                odoriji_candidates = self._enrich_readings(prev_candidates, idx)
+                source_lists.append(odoriji_candidates)
             # if the char in this string is kanji, then check dict, if not, just append it
-            if JapaneseUtils.is_kanji(kanji):
-                kanjiInfo = kanjidic2_dict.get(kanji, {})
+            elif JapaneseUtils.is_kanji(kanji):
+                kanjiInfo = self.dict.get(kanji, {})
                 kanjiOfficialPronunciations_list = kanjiInfo.get('all_readings', [])
-                source_lists.append(kanjiOfficialPronunciations_list)
+                enriched_list = self._enrich_readings(kanjiOfficialPronunciations_list, idx)
+                source_lists.append(enriched_list)
             else:                
                 source_lists.append([kanji])
 
@@ -26,7 +64,7 @@ class KanjiSeparator:
         print("[WHATS GOING ON]", KanjiSeparator._segment_pronunciation_by_stages(source_lists, pronunciation))
         return KanjiSeparator._segment_pronunciation_by_stages(source_lists, pronunciation)
 
-        for i in range(n + 1):
+        """ for i in range(n + 1):
             stage = dp[i]
             if dp[i] == -1:
                 continue
@@ -60,7 +98,7 @@ class KanjiSeparator:
             return None
         print('result_string', result_string)
         print('[RESULT]', result)
-        return result
+        return result """
     
     @staticmethod
     def _segment_pronunciation_by_stages(source_lists: list[list], pronunciation: str) -> None | list[str]:
