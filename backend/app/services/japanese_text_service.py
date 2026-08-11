@@ -48,7 +48,7 @@ class JapaneseTextConverter:
     def convert(self) -> list:
         print('[Start converting]----------------------------------')
         print(self.text)
-        parts = self._split_text_by_exceptional_words()
+        parts: list[str] = self._split_text_by_exceptional_words()
         print(parts)
         results: list[dict] = []
         for part in parts:
@@ -58,10 +58,10 @@ class JapaneseTextConverter:
                         results.append(WordEntry(part, part, part, []).to_dict())
                         print(results, 'can you see me 222')
                     elif part in self._exceptional_words:
-                        """ mecab_tokens: list[dict] = MecabHandler().parse(part) """
-                        mecab_tokens: list[dict] = self._mecab_handler.parse(part, "sequence")
+                        mecab_tokens: list[dict] = self._mecab_handler.parse(part, "single")
                         print('[TOKEN_REIWA]', mecab_tokens)
-                        finalized_token = self._parse_token(mecab_tokens, self._exceptional_words[part])
+                        finalized_token = self._parse_token(mecab_tokens, self._exceptional_words[part], True)
+                        print('after tokenize', finalized_token)
                         results.extend(finalized_token)
                     else:
                         """ kuromoji_tokens: list[dict] = KuromojiHandler().tokenize(part) """
@@ -79,8 +79,8 @@ class JapaneseTextConverter:
         pattern = "(" + "|".join(map(re.escape, self._exceptional_words)) + ")"
         return re.split(pattern, self.text)
     
-    def _parse_token(self, tokens: list[dict], kuromoji_pronunciation: str) -> list[dict]:
-        print('[BEFORE SEPARATE]', tokens)
+    def _parse_token(self, tokens: list[dict], kuromoji_pronunciation: str, is_exceptional: bool = False) -> list[dict]:
+        print('[BEFORE SEPARATE]', tokens, kuromoji_pronunciation)
         separated_single_kanjis_tokens = self.parse_to_single_kanji(tokens, kuromoji_pronunciation)
         
         """ for token in tokens:
@@ -94,6 +94,13 @@ class JapaneseTextConverter:
         
         # 3. format the token (generate hiragana, katakana etc.)
         formatted_tokens = self._annotate_tokens(separated_single_kanjis_tokens)
+        print('20260810 formatted_tokens', formatted_tokens)
+        if is_exceptional:
+            exceptional_token_dict = formatted_tokens[0]
+            if not exceptional_token_dict.get("kanji_breakdown"):
+                exceptional_token_dict["kanji_breakdown"] = [kuromoji_pronunciation]
+                formatted_tokens = [exceptional_token_dict]
+
         return formatted_tokens
         
         for token in tokens:
@@ -150,7 +157,7 @@ class JapaneseTextConverter:
         print('[][][][][][][][tokens]', tokens)
         return tokens
 
-    def _annotate_tokens(self, tokens: dict) -> dict:
+    def _annotate_tokens(self, tokens: list[dict]) -> list[dict]:
         print('[WORD_TYPES]', tokens)
         annotated_tokens = []
         for token in tokens:

@@ -99,9 +99,43 @@ class KanjiSeparator:
         print('result_string', result_string)
         print('[RESULT]', result)
         return result """
-    
+
     @staticmethod
     def _segment_pronunciation_by_stages(source_lists: list[list], pronunciation: str) -> None | list[str]:
+        n = len(pronunciation)
+        k = len(source_lists)
+    
+        # 2D DP array: dp[stage][pos] stores prev_pos for backtracking
+        dp = [[-1] * (n + 1) for _ in range(k + 1)]
+        dp[0][0] = 0
+    
+        for stage in range(k):
+            for i in range(n + 1):
+                if dp[stage][i] == -1:
+                    continue
+                
+                for word in source_lists[stage]:
+                    word_len = len(word)
+                    if i + word_len <= n and pronunciation[i : i + word_len] == word:
+                        # State transition: record the next stage and its corresponding character boundary position
+                        dp[stage + 1][i + word_len] = i
+    
+        if dp[k][n] == -1:
+            return None
+        
+        # Backtracking
+        result = []
+        pos = n
+        for stage in range(k, 0, -1):
+            prev_pos = dp[stage][pos]
+            result.append(pronunciation[prev_pos : pos])
+            pos = prev_pos
+            
+        result.reverse()
+        return result
+    
+    @staticmethod
+    def _old_segment_pronunciation_by_stages(source_lists: list[list], pronunciation: str) -> None | list[str]:
         n = len(pronunciation)
         k = len(source_lists)
 

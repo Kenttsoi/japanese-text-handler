@@ -49,8 +49,18 @@ class MecabHandler:
     
     def _parse_single(self, parsed_words: list[str]) -> list[dict]:
         temp_list = [word.split('\t') for word in parsed_words]
+        print('fgdfgdf', temp_list)
         final_list = [list(col) for col in zip(*temp_list)]
-        return [self._generate_word_dict(final_list)]
+
+        if final_list:
+            processed_final_list = [
+            "".join(final_list[0]) if i == 0 else final_list[i]
+            for i in range(len(final_list))
+        ]
+        else:
+            processed_final_list = final_list
+
+        return [self._generate_word_dict(processed_final_list)]
 
         
             

@@ -170,24 +170,36 @@ const Annotator: React.FC = () => {
                         <span key={index}>{result[index]['original']}</span>
                       );
                     case 'furigana':
-                      console.log(item.kanji_breakdown)
-                      if (item.kanji_breakdown.length > 0 && item.word_type === 'kanji') {
-                        return item.kanji_breakdown.map((element, index) => (
-                          <RubyText
-                            key={index}
-                            text={item.original[index]}
-                            rubyText={element === item.original[index] ? '' : element}
-                          />
-                        ))
-                      } else {
-                        return (
-                          <RubyText
-                            key={index}
-                            text={result[index]['original'] ? result[index]['original'] : ''}
-                            rubyText={''}
-                          />
-                        )
+                      console.log(item)
+                      if (item.word_type === 'kanji' && item.kanji_breakdown.length > 0) {
+                        const isOneToOne = item.kanji_breakdown.length === item.original.length;
+                        const isBlockRuby = item.kanji_breakdown.length === 1 && item.original.length > 1;
+                        if (isOneToOne) {
+                          return item.kanji_breakdown.map((kanji_reading, kanji_index) => (
+                            <RubyText
+                              key={`${index}-${kanji_index}`}
+                              text={item.original[kanji_index]}
+                              rubyText={kanji_reading === item.original[kanji_index] ? '' : kanji_reading}
+                            />
+                          ))
+                        }
+                        if (isBlockRuby) {
+                          return (
+                            <RubyText
+                              key={index}
+                              text={item.original}
+                              rubyText={item.kanji_breakdown[0]}
+                            />
+                          )
+                        }
                       }
+                      return (
+                        <RubyText
+                          key={index}
+                          text={result[index]['original'] ? result[index]['original'] : ''}
+                          rubyText={''}
+                        />
+                      )
                     case 'hiragana':
                       return (
                         <span key={index}>{result[index]['hiragana']}</span>
