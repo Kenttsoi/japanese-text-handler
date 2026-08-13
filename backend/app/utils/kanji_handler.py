@@ -20,9 +20,12 @@ class KanjiSeparator:
         self.dict = kanjidic2_dict
 
     def _enrich_readings(self, readings: list[str], idx: int) -> list[str]:
-        enriched = set(readings)
+        # deal with the kanji with verb
+        clean_readings = [r.split('.')[0] for r in readings]
 
-        for word in readings:
+        enriched = set(clean_readings)
+
+        for word in clean_readings:
             # 促音化
             if len(word) >= 2 and word[-1] in self._SOKUON_ENDINGS:
                 enriched.add(word[:-1] + 'っ')

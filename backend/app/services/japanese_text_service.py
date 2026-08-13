@@ -141,11 +141,16 @@ class JapaneseTextConverter:
 
         print('[TO BE SEPARATE]', combined_kanjis, words_log)
         
-        hiragana_form = KanaConverter.katakana_to_hiragana(kuromoji_pronunciation)
+        kuromoji_pronunciation_hiragana_form = KanaConverter.katakana_to_hiragana(kuromoji_pronunciation)
         kanji_separator = KanjiSeparator()
-        single_kanjis: list[str] | None = kanji_separator.separate_kanji(combined_kanjis, hiragana_form)
+        single_kanjis: list[str] | None = kanji_separator.separate_kanji(combined_kanjis, kuromoji_pronunciation_hiragana_form)
         print('[2026 Feb ...]', single_kanjis)
+        # deal with all kanji cannot be matched, including exceptional ones
         if single_kanjis is None:
+            print("[NOT matched token]", tokens, kuromoji_pronunciation_hiragana_form, kuromoji_pronunciation)
+            if len(tokens) == 1:
+                tokens[0]['kanji_breakdown'] = [kuromoji_pronunciation_hiragana_form]
+                tokens[0]['reading_katakana'] = [kuromoji_pronunciation]
             return tokens
         
         if len(single_kanjis) == len(combined_kanjis):

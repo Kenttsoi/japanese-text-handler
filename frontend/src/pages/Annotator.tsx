@@ -99,7 +99,6 @@ const Annotator: React.FC = () => {
               <Chip value="ひらがな" color="yellow" variant="light" onChange={() => setText("ひらがな")}>ひらがな</Chip>
               <Chip value="カタカナ" color="yellow" variant="light" onChange={() => setText("カタカナ")}>カタカナ</Chip>
               <Chip value="ローマ字" color="yellow" variant="light" onChange={() => setText("ローマ字")}>ローマ字</Chip>
-              {/* <Chip value="令和、誕生日、天上天下、お風呂に入る" color="yellow" variant="light" onChange={() => setText("令和、誕生日、天上天下、お風呂に入る")}>令和、誕生日、天上天下、お風呂に入る</Chip> */}
             </Group>
           </Chip.Group>
         </Container>
@@ -113,7 +112,6 @@ const Annotator: React.FC = () => {
               className={classes.textareaInput}
               value={text}
               onChange={(e) => {
-                console.log(e.currentTarget.value);
                 setText(e.currentTarget.value);
               }}
             />
@@ -155,7 +153,6 @@ const Annotator: React.FC = () => {
             <Paper shadow="xs" radius="md" p="xl" className={classes.displayPaper}>
               {result.length > 0 ?
                 result.map((item, index) => {
-                  console.log('20260404', item)
                   if (item.original === '\\n') {
                     return (
                       <React.Fragment key={index}>
@@ -170,7 +167,6 @@ const Annotator: React.FC = () => {
                         <span key={index}>{result[index]['original']}</span>
                       );
                     case 'furigana':
-                      console.log(item)
                       if (item.word_type === 'kanji' && item.kanji_breakdown.length > 0) {
                         const isOneToOne = item.kanji_breakdown.length === item.original.length;
                         const isBlockRuby = item.kanji_breakdown.length === 1 && item.original.length > 1;
