@@ -48,19 +48,21 @@ class JapaneseTextConverter:
     def convert(self) -> list:
         print('[Start converting]----------------------------------')
         print(self.text)
-        parts: list[str] = self._split_text_by_exceptional_words()
-        print(parts)
+        try:
+            text_parts, is_exc_flags, override_readings = self._split_text_by_exceptional_words()
+        except Exception as e:
+            print(f"_split_text_by_exceptional_words: {e}")
+        print(text_parts, is_exc_flags, override_readings)
         results: list[dict] = []
-        for part in parts:
+        for part, is_exceptional, override_reading in zip(text_parts, is_exc_flags, override_readings):
             if part:
                 try:
                     if part == "\\n":
                         results.append(WordEntry(part, part, part, []).to_dict())
-                        print(results, 'can you see me 222')
-                    elif part in self._exceptional_words:
+                    elif is_exceptional:
                         mecab_tokens: list[dict] = self._mecab_handler.parse(part, "single")
                         print('[TOKEN_REIWA]', mecab_tokens)
-                        finalized_token = self._parse_token(mecab_tokens, self._exceptional_words[part], True)
+                        finalized_token = self._parse_token(mecab_tokens, override_reading, True)
                         print('after tokenize', finalized_token)
                         results.extend(finalized_token)
                     else:
@@ -75,9 +77,76 @@ class JapaneseTextConverter:
         print('RESULT RESULT RESULT RESULT RESULT', results)
         return results
     
-    def _split_text_by_exceptional_words(self) -> list:
+    """ def _split_text_by_exceptional_words(self) -> list:
         pattern = "(" + "|".join(map(re.escape, self._exceptional_words)) + ")"
-        return re.split(pattern, self.text)
+        return re.split(pattern, self.text) """
+
+    def _split_text_by_exceptional_words(self) -> tuple[list[str], list[bool], list[str | None]]:
+        kanji_nums = "一二三四五六七八九十"
+        safe_lookbehind = rf'(?<![0-9{kanji_nums}])'
+
+        day_one = rf'{safe_lookbehind}(?:1日|一日)'
+        prefix_month = rf'(?:[0-9]+|[{kanji_nums}]+|毎|今|来|先)月'
+        pattern_day_one_month = rf'{prefix_month}{day_one}' 
+
+        suffix_particles = r'(?=(?:に|から|までに?|は|頃|ごろ|過ぎ|直前))'
+        pattern_day_one_particles = rf'{day_one}{suffix_particles}'
+        pattern_tsuitachi = f"(?:{pattern_day_one_month}|{pattern_day_one_particles})"
+
+        wain_dates_map = {
+            "2日": "フツカ", "二日": "フツカ", "3日": "ミッカ", "三日": "ミッカ",
+            "4日": "ヨッカ", "四日": "ヨッカ", "5日": "イツカ", "五日": "イツカ",
+            "6日": "ムイカ", "六日": "ムイカ", "7日": "ナノカ", "七日": "ナノカ",
+            "8日": "ヨウカ", "八日": "ヨウカ", "9日": "ココノカ", "九日": "ココノカ",
+            "10日": "トオカ", "十日": "トオカ", "14日": "ジュウヨッカ", "十四日": "ジュウヨッカ",
+            "20日": "ハツカ", "二十日": "ハツカ", "24日": "ニジュウヨッカ", "二十四日": "ニジュウヨッカ",
+        }
+        pattern_wain_dates = "|".join([rf'{safe_lookbehind}{re.escape(k)}' for k in wain_dates_map.keys()])
+
+        sorted_exceptional = sorted(self._exceptional_words.keys(), key=len, reverse=True)
+        pattern_user_words = "|".join(map(re.escape, sorted_exceptional)) if sorted_exceptional else ""
+
+        all_patterns = [p for p in [pattern_tsuitachi, pattern_wain_dates, pattern_user_words] if p]
+        combined_pattern = "(" + "|".join(all_patterns) + ")"
+
+        if not re.search(combined_pattern, self.text):
+            return [self.text], [False], [None]
+
+        raw_split = re.split(combined_pattern, self.text)
+        temp_list = [x for x in raw_split if x]
+
+        final_text_list = []
+        is_exceptional_list = []
+        override_readings = []
+
+        for token in temp_list:
+            if re.fullmatch(pattern_day_one_month, token):
+                final_text_list.extend([token[:-2], token[-2:]])
+                is_exceptional_list.extend([False, True])
+                override_readings.extend([None, "ツイタチ"])
+
+            elif re.fullmatch(pattern_day_one_particles, token):
+                final_text_list.append(token)
+                is_exceptional_list.append(True)
+                override_readings.append("ツイタチ")
+
+            elif token in wain_dates_map:
+                final_text_list.append(token)
+                is_exceptional_list.append(True)
+                override_readings.append(wain_dates_map[token])
+
+            elif token in self._exceptional_words:
+                final_text_list.append(token)
+                is_exceptional_list.append(True)
+                override_readings.append(self._exceptional_words[token])
+
+            else:
+                final_text_list.append(token)
+                is_exceptional_list.append(False)
+                override_readings.append(None)
+
+        return final_text_list, is_exceptional_list, override_readings
+
     
     def _parse_token(self, tokens: list[dict], kuromoji_pronunciation: str, is_exceptional: bool = False) -> list[dict]:
         print('[BEFORE SEPARATE]', tokens, kuromoji_pronunciation)
