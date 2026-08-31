@@ -1,5 +1,6 @@
 import jaconv
 import unicodedata
+import re
 class KanaConverter:
     vowel_mapping = {
         'a': 'あ',
@@ -25,6 +26,9 @@ class KanaConverter:
         Returns:
             str: The converted string in Hiragana.
         """
+        if not text:
+            return ""
+        
         result = ""
         hiragana = jaconv.kata2hira(text)
         if len(hiragana) > 1:
@@ -77,11 +81,12 @@ class KanaConverter:
             '\u1B000' <= char <= '\u1B0FF'      # also contains some katakana-like
         )
     
-    @staticmethod
-    def is_kanji(char: str) -> bool:
-        pass
-
 class JapaneseUtils:
+    DIGIT_MAP = {
+        '0': '零', '1': '一', '2': '二', '3': '三', '4': '四',
+        '5': '五', '6': '六', '7': '七', '8': '八', '9': '九'
+    }
+    
     @staticmethod
     def get_char_type(char: str) -> str:
         return unicodedata.name(char, 'None')
@@ -90,3 +95,12 @@ class JapaneseUtils:
     def is_kanji(char: str) -> bool:
         char_type = JapaneseUtils.get_char_type(char)
         return 'CJK UNIFIED IDEOGRAPH' in char_type
+
+    @staticmethod
+    def arabic_number_to_kanji(word_str: str) -> str:
+        print(word_str)
+        if not isinstance(word_str, str):
+            print('is it arabic')
+            return word_str
+        print(re.sub(r'\d', lambda match: JapaneseUtils.DIGIT_MAP[match.group(0)], word_str))
+        return re.sub(r'\d', lambda match: JapaneseUtils.DIGIT_MAP[match.group(0)], word_str)

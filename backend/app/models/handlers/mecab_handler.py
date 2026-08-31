@@ -49,7 +49,6 @@ class MecabHandler:
     
     def _parse_single(self, parsed_words: list[str]) -> list[dict]:
         temp_list = [word.split('\t') for word in parsed_words]
-        print('fgdfgdf', temp_list)
         final_list = [list(col) for col in zip(*temp_list)]
 
         if final_list:
