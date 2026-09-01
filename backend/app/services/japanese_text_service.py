@@ -57,7 +57,6 @@ class JapaneseTextConverter:
         except Exception as e:
             print(f"_split_text_by_exceptional_words: {e}")
         try:
-            arabic_number_pos = []
             for index, text_item in enumerate(text_parts):
                 text_parts[index] = JapaneseUtils.arabic_number_to_kanji(text_item)
         except Exception as e:
@@ -89,7 +88,11 @@ class JapaneseTextConverter:
                     print(f"Calling API occurred Error: {e}")
                     traceback.print_exc()
         print('RESULT RESULT RESULT RESULT RESULT', results)
-        return results
+        try:
+            unmask_arabic_number_result = self.restore_tokens_for_number(results, text_arabic_num_pos)
+        except Exception as e:
+            print(f"Unmask Arabic Number method error: {e}")
+        return unmask_arabic_number_result
     
     """ def _split_text_by_exceptional_words(self) -> list:
         pattern = "(" + "|".join(map(re.escape, self._exceptional_words)) + ")"
@@ -261,6 +264,31 @@ class JapaneseTextConverter:
                 kanji_breakdown = token.get("kanji_breakdown", [])
             ).to_dict())
         return annotated_tokens
+
+    @staticmethod
+    def restore_tokens_for_number(tokens_list: list[dict], mask_str: str) -> list[dict]:
+        cursor = 0
+
+        REV_DIGIT_MAP = {
+            '零': '0', '一': '1', '二': '2', '三': '3', '四': '4',
+            '五': '5', '六': '6', '七': '7', '八': '8', '九': '9'
+        }
+
+        for item in tokens_list:
+            original_text = item['original']
+            text_len = len(original_text)
+
+            sub_mask = mask_str[cursor : cursor + text_len]
+            new_chars = []
+            for char, mask_char in zip(original_text, sub_mask):
+                if mask_char == '1' and char in REV_DIGIT_MAP:
+                    new_chars.append(REV_DIGIT_MAP[char])
+                else:
+                    new_chars.append(char)
+
+            item["original"] = "".join(new_chars)
+            cursor += text_len
+        return tokens_list
 
 class JapaneseTextHandler:
     def __init__(self):
