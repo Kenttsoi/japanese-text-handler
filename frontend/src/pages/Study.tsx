@@ -11,6 +11,7 @@ import KanjiGrid from '@/components/study/KanjiGrid';
 import { hiraganaData } from '@/data/kanaData';
 import { katakanaData } from '@/data/kanaData';
 import DataCards from '@/components/study/DataCards';
+import { showErrorToast, showWarningToast } from '@/utils/notification';
 
 const splitRomaji = (input: string): string[] => {
   const regex = /[bcdfghjklmnpqrstvwxyz]*[aeiou]|n(?![aeiou])/gi;
@@ -79,6 +80,7 @@ export default function Study() {
           setVocabResult(result.data);
         } else {
           console.warn("Vocab service returned no data.");
+          showWarningToast("Vocab service returned no data.");
         }
         if (result && result.count) {
           setTotalVocabCount(result.count);
@@ -87,6 +89,7 @@ export default function Study() {
         if (err.name !== 'AbortError') {
           console.error("Failed to fetch vocab:", err);
           setError(err instanceof Error ? err : new Error('Unknown error'));
+          showErrorToast(`Fetch Failed`);
         }
       } finally {
         setIsVocabCardLoading(false);
@@ -114,6 +117,7 @@ export default function Study() {
         if (err.name !== 'AbortError') {
           console.error("Failed to fetch vocab:", err);
           setError(err instanceof Error ? err : new Error('Unknown error'));
+          showErrorToast(`Fetch Failed`);
         }
       } finally {
         setIsKanjiCardLoading(false);
@@ -176,12 +180,14 @@ export default function Study() {
           setKanjiResult(kanjiData.result);
         } else {
           throw new Error('Error occurred');
+          showErrorToast(`Fetch Failed`);
         }
         console.log('KanjiData', kanjiData);
       } catch (err: any) {
         if (err.name !== 'AbortError') {
           console.error("[PARALLEL SEARCH ERROR] ", err);
           setError(err instanceof Error ? err : new Error('Unknown error'));
+          showErrorToast(`Fetch Failed`);
         }
       } finally {
         if (!controller.signal.aborted) {

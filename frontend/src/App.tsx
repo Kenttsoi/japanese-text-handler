@@ -5,6 +5,8 @@ import { createTheme, MantineProvider, Center, Loader, CSSVariablesResolver } fr
 import { AnimatePresence } from 'framer-motion';
 import '@mantine/core/styles.css';
 import './App.css'
+import { Notifications } from '@mantine/notifications';
+import '@mantine/notifications/styles.css';
 
 import Home from './pages/Home';
 import { Header } from './components/layout/Header';
@@ -108,6 +110,7 @@ function App() {
       cssVariablesResolver={resolver}
       defaultColorScheme="light"
     >
+      <Notifications position="bottom-center" zIndex={1000} />
       <BrowserRouter>
         <Header />
         <main style={{ paddingTop: '30px', minHeight: '30vh' }}>

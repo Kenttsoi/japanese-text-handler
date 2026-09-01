@@ -12,6 +12,7 @@
   "dependencies": {
     "@mantine/core": "^8.1.2",
     "@mantine/hooks": "^8.1.2",
+    "@mantine/notifications": "^8.3.18",
     "@supabase/supabase-js": "^2.106.2",
     "@tabler/icons-react": "^3.41.1",
     "framer-motion": "^12.38.0",

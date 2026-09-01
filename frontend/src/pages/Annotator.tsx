@@ -7,9 +7,9 @@ import { RubyText } from '../components/RubyText';
 import classes from './Annotator.module.css';
 import AnimatedConvertButton from '../components/annotator/AnimatedConvertButton';
 import { useTranslation } from 'react-i18next';
+import { showErrorToast } from '../utils/notification';
 
 type displayMode = 'original' | 'furigana' | 'hiragana' | 'katakana' | 'romaji' | 'pitch_accent';
-
 
 interface WordDict {
   original: string;
@@ -40,17 +40,6 @@ const Annotator: React.FC = () => {
     { value: 'pitch_accent', label: t('annotator.displayMode.pitchAccent'), disabled: true },
   ]
 
-  const handleAnnotate = async () => {
-    console.log(text)
-    try {
-      const apiResult: AnnotatedText = await annotateTextSimple(text);
-      console.log('[FUNCTION: handleAnnotate]', apiResult);
-      setResult(apiResult['result']);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
   const handleConvert = async () => {
     console.log('handleConvert', text);
     try {
@@ -59,6 +48,7 @@ const Annotator: React.FC = () => {
       setResult(apiResult['result']);
     } catch (err) {
       console.error(err);
+      showErrorToast(`Fetch Failed`);
     }
   }
 

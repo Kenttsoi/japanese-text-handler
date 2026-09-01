@@ -59,3 +59,8 @@ body {
 .read-the-docs {
   color: #888;
 }
+
+body, 
+[data-mantine-color-scheme] {
+  transition: background-color 0.5s ease, color 0.5s ease !important;
+}
