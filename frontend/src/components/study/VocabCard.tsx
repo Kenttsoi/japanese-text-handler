@@ -49,7 +49,7 @@ export default function VocabCard({ isLoading, isStarred, data, onToggle }: Voca
       styles={{
         root: {
           maxWidth: 450,
-          backgroundColor: '#ffffff',
+          backgroundColor: 'light-dark(#ffffff, var(--mantine-color-dark-6))',
           '&:hover': {
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
           },
@@ -117,7 +117,7 @@ export default function VocabCard({ isLoading, isStarred, data, onToggle }: Voca
             onClick={() => onToggle(data.id)}
           >
             {isStarred ? (
-              <IconStarFilled size={20} color="#FF6B8B" />
+              <IconStarFilled size={20} color="light-dark(#FF6B8B, #FF8EAE)" />
             ) : (
               <IconStar size={20} stroke={1.5} />
             )}
@@ -131,7 +131,7 @@ export default function VocabCard({ isLoading, isStarred, data, onToggle }: Voca
             root: {
               fontSize: '2.2rem',
               fontWeight: 500,
-              color: '#212529',
+              color: 'light-dark(#212529, #F8F9FA)',
               fontFamily: '"Noto Sans JP", sans-serif',
             }
           }}
@@ -147,7 +147,7 @@ export default function VocabCard({ isLoading, isStarred, data, onToggle }: Voca
       <Text
         size="lg"
         fw={500}
-        c="gray.7"
+        c="light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-3))"
         mt="sm"
         ta="center"
       >

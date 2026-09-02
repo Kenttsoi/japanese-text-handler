@@ -37,7 +37,7 @@ export default function DynamicKanaSlider({ kanaList, isLoading }: DynamicKanaSl
   }
 
   return (
-    <Paper shadow="xs" p="lg" radius="lg" bg="white" withBorder>
+    <Paper shadow="xs" p="lg" radius="lg" bg="light-dark(#ffffff, var(--mantine-color-dark-6))" withBorder>
       <ScrollArea
         w="100%"
         pb="xs"

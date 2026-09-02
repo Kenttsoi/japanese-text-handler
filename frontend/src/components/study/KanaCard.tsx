@@ -35,7 +35,7 @@ export default function KanaCard({ kanaData, isLoading }: KanaCardProps) {
     <Paper
       p="sm"
       radius="md"
-      bg="#FFF0F0"
+      bg="light-dark(#FFF0F0, var(--mantine-color-dark-5))"
       key={kanaData.kana}
       styles={{
         root: {
@@ -46,10 +46,11 @@ export default function KanaCard({ kanaData, isLoading }: KanaCardProps) {
       style={{
         opacity: isLoading ? 0.6 : 1,
         transition: 'opacity 0.15s ease-in-out',
+        border: '1px solid light-dark(transparent, var(--mantine-color-dark-4))',
       }}
     >
       <Stack align="center" gap={4}>
-        <Text size="32px" fw={500} c="#4A4A4A">
+        <Text size="32px" fw={500} c="light-dark(#4A4A4A, var(--mantine-color-gray-0))">
           {kanaData.kana}
         </Text>
         <Text size="sm" c="dimmed">

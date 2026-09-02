@@ -60,7 +60,7 @@ export default function DataCards({ totalWords, favorites, /* categories, showin
   return (
     <SimpleGrid cols={{ base: 2, sm: 2, md: 2 }} spacing="md">
       {stats.map((stat) => (
-        <Paper withBorder p="md" radius="lg" key={stat.title} ta="center" styles={{ root: { backgroundColor: 'white' } }}>
+        <Paper withBorder p="md" radius="lg" key={stat.title} ta="center" styles={{ root: { backgroundColor: 'light-dark(#ffffff, var(--mantine-color-dark-6))' } }}>
           <Text fz={32} fw={400} c={stat.color}>
             <AnimatedNumber value={stat.value} variant={stat.variant}/>
           </Text>
