@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Text, Loader, Center, Stack } from '@mantine/core';
+import { Modal, Text, ScrollArea } from '@mantine/core';
 import KanjiGrid from '../study/KanjiGrid';
 import { showErrorToast } from '@/utils/notification';
 import { KanjiItems } from '@/types';
@@ -54,7 +54,7 @@ export default function KanjiModal({ opened, onClose, query, total }: VocabModal
         }
         size="75%" // 大尺寸彈窗，適合放置 3 欄 Grid
         centered
-        scrollAreaComponent={Modal.NativeScrollArea} // 內容過長時彈窗內部可滾動
+        scrollAreaComponent={ScrollArea.Autosize} // 內容過長時彈窗內部可滾動
       >
         <KanjiGrid isLoading={isLoading} data={items} />
       </Modal>

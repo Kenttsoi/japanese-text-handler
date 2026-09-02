@@ -278,7 +278,7 @@ export default function Study() {
             </Button>
           ) : kanjiDisplayCount === 12 && kanjiResult.length > 12 ? (
             <Button variant="outline" onClick={() => setKanjiModalOpen(true)}>
-              檢視全部 {vocabTotal} 筆結果 ›
+              檢視全部 {kanjiResult.length} 筆結果 ›
             </Button>
           ) : null}
         </Group>

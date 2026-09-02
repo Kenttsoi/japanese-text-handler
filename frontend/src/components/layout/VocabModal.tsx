@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Text, Loader, Center, Stack } from '@mantine/core';
+import { Modal, Text, ScrollArea } from '@mantine/core';
 import VocabGrid from '../study/VocabGrid';
 import { showErrorToast } from '@/utils/notification';
 import { vocabService } from '@/services/vocabService';
@@ -58,7 +58,7 @@ export default function VocabModal({ opened, onClose, query, total, starredIds, 
         }
         size="75%" // 大尺寸彈窗，適合放置 3 欄 Grid
         centered
-        scrollAreaComponent={Modal.NativeScrollArea} // 內容過長時彈窗內部可滾動
+        scrollAreaComponent={ScrollArea.Autosize} // 內容過長時彈窗內部可滾動
       >
         <VocabGrid isLoading={isLoading} data={items} starredIds={starredIds} onToggleStar={onToggleStar} />
       </Modal>
