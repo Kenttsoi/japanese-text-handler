@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, Skeleton, Text, Button, Group, Stack, Box, SimpleGrid, Paper, Center, TextInput, Card, Alert } from '@mantine/core';
 import { useDebouncedValue, useLocalStorage } from '@mantine/hooks';
 import DynamicKanaSlider from '@/components/study/DynamicKanaSlider';
-import { KanaItem, VocabItems, KanjiItems } from '@/types';
+import { KanaItem, VocabItems, KanjiItems, VocabAPIResult } from '@/types';
 import { vocabService } from '@/services/vocabService';
 import { fetchFirstKanji, searchKanji } from '@/services/api';
 import IconSearch from '@tabler/icons-react/dist/esm/icons/IconSearch.mjs';
@@ -12,6 +12,8 @@ import { hiraganaData } from '@/data/kanaData';
 import { katakanaData } from '@/data/kanaData';
 import DataCards from '@/components/study/DataCards';
 import { showErrorToast, showWarningToast } from '@/utils/notification';
+import VocabModal from '@/components/layout/VocabModal';
+import KanjiModal from '@/components/layout/KanjiModal';
 
 const splitRomaji = (input: string): string[] => {
   const regex = /[bcdfghjklmnpqrstvwxyz]*[aeiou]|n(?![aeiou])/gi;
@@ -57,16 +59,20 @@ export default function Study() {
   const [isPending, startTransition] = React.useTransition();
   /* const [hiraganaResult, setHiraganaResult] = React.useState<KanaItem[]>([]);
   const [katakanaResult, setKatakaanaResult] = React.useState<KanaItem[]>([]); */
-  const [vocabResult, setVocabResult] = React.useState<VocabItems[]>([]);
+  const [vocabResult, setVocabResult] = React.useState<VocabAPIResult>({ items: [], total: 0 });
   const [kanjiResult, setKanjiResult] = React.useState<KanjiItems[]>([]);
   const [totalVocabCount, setTotalVocabCount] = React.useState<number>(0);
   const [isVocabCardLoading, setIsVocabCardLoading] = React.useState<boolean>(false);
   const [isKanjiCardLoading, setIsKanjiCardLoading] = React.useState<boolean>(false);
+  const [vocabDisplayCount, setVocabDisplayCount] = React.useState(6);
+  const [kanjiDisplayCount, setKanjiDisplayCount] = React.useState(6);
   const [starredIds, setStarredIds] = useLocalStorage<number[]>({
     key: 'starred-vocabs',
     defaultValue: [],
   });
   const [error, setError] = React.useState<Error | null>(null);
+  const [vocabModalOpen, setVocabModalOpen] = React.useState(false);
+  const [kanjiModalOpen, setKanjiModalOpen] = React.useState(false);
 
   React.useEffect(() => {
     const controller = new AbortController();
@@ -77,7 +83,8 @@ export default function Study() {
 
         const result = await vocabService.getAllVocab();
         if (result && result.data) {
-          setVocabResult(result.data);
+          setVocabResult({ items: result.data, total: 9 });
+          setVocabDisplayCount(6);
         } else {
           console.warn("Vocab service returned no data.");
           showWarningToast("Vocab service returned no data.");
@@ -112,6 +119,7 @@ export default function Study() {
         const { result: kanjiCardList, success } = response;
         if (success && kanjiCardList) {
           setKanjiResult(kanjiCardList);
+          setKanjiDisplayCount(6);
         }
       } catch (err: any) {
         if (err.name !== 'AbortError') {
@@ -160,7 +168,7 @@ export default function Study() {
 
   React.useEffect(() => {
     if (!debouncedSearchQuery.trim()) {
-      setVocabResult([]);
+      setVocabResult({ items: [], total: 0 });
       setKanjiResult([]);
       return;
     }
@@ -176,13 +184,16 @@ export default function Study() {
           searchKanji(debouncedSearchQuery, controller.signal)
         ]);
         setVocabResult(vocabData);
+        setVocabDisplayCount(6);
         if (kanjiData.success) {
           setKanjiResult(kanjiData.result);
+          setKanjiDisplayCount(6);
         } else {
-          throw new Error('Error occurred');
           showErrorToast(`Fetch Failed`);
+          throw new Error('Error occurred');
         }
         console.log('KanjiData', kanjiData);
+        console.log('VoacbData', vocabData.items, vocabData.total);
       } catch (err: any) {
         if (err.name !== 'AbortError') {
           console.error("[PARALLEL SEARCH ERROR] ", err);
@@ -202,6 +213,11 @@ export default function Study() {
       controller.abort();
     };
   }, [debouncedSearchQuery])
+
+  const vocabItems = vocabResult.items;
+  const vocabTotal = vocabResult.total;
+  const visibleVocabItems = vocabItems.slice(0, vocabDisplayCount)
+  const visibleKanjiItems = kanjiResult.slice(0, kanjiDisplayCount)
 
   return (
     <Container size="md" py="xl" my="md">
@@ -235,11 +251,39 @@ export default function Study() {
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ color: '#FF87B2' }}>✨</span> Vocabulary
       </Text>
-      <VocabGrid isLoading={isVocabCardLoading} data={vocabResult} starredIds={starredIds} onToggleStar={handleToggleStar} />
+      <VocabGrid isLoading={isVocabCardLoading} data={visibleVocabItems} starredIds={starredIds} onToggleStar={handleToggleStar} />
+      {vocabTotal > 6 && (
+        <Group justify='right' mt='md'>
+          {vocabDisplayCount === 6 ? (
+            <Button variant="light" onClick={() => setVocabDisplayCount(12)}>
+              顯示更多
+            </Button>
+          ) : vocabDisplayCount === 12 && vocabTotal > 12 ? (
+            <Button variant="outline" onClick={() => setVocabModalOpen(true)}>
+              檢視全部 {vocabTotal} 筆結果 ›
+            </Button>
+          ) : null}
+        </Group>
+      )}
+      <VocabModal opened={vocabModalOpen} onClose={() => setVocabModalOpen(false)} query={debouncedSearchQuery} total={vocabTotal} starredIds={starredIds} onToggleStar={handleToggleStar} />
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ color: '#FF87B2' }}>✨</span> Kanji
       </Text>
-      <KanjiGrid isLoading={isKanjiCardLoading} data={kanjiResult} />
+      <KanjiGrid isLoading={isKanjiCardLoading} data={visibleKanjiItems} />
+      {kanjiResult.length > 6 && (
+        <Group justify='right' mt='md'>
+          {kanjiDisplayCount === 6 ? (
+            <Button variant="light" onClick={() => setKanjiDisplayCount(12)}>
+              顯示更多
+            </Button>
+          ) : kanjiDisplayCount === 12 && kanjiResult.length > 12 ? (
+            <Button variant="outline" onClick={() => setKanjiModalOpen(true)}>
+              檢視全部 {vocabTotal} 筆結果 ›
+            </Button>
+          ) : null}
+        </Group>
+      )}
+      <KanjiModal opened={kanjiModalOpen} onClose={() => setKanjiModalOpen(false)} query={debouncedSearchQuery} total={kanjiResult.length} />
     </Container>
   )
 }

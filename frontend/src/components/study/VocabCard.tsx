@@ -125,7 +125,7 @@ export default function VocabCard({ isLoading, isStarred, data, onToggle }: Voca
         </Group>
       </Group>
 
-      <Stack gap={4} mb="md">
+      <Stack gap={4} mb="md" align="center">
         <Text
           styles={{
             root: {
@@ -149,6 +149,7 @@ export default function VocabCard({ isLoading, isStarred, data, onToggle }: Voca
         fw={500}
         c="gray.7"
         mt="sm"
+        ta="center"
       >
         {data.meaning_ch}
       </Text>

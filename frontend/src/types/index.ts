@@ -5,9 +5,8 @@ export interface KanaItem {
 
 export interface CardGridProps {
   isLoading: boolean;
-  data: any[]
+  data: any[];
 }
-
 export interface KanjiItems {
   kun_readings: string;
   literal: string;
@@ -15,6 +14,11 @@ export interface KanjiItems {
   on_readings: string;
   nanori_readings?: string;
   jlpt?: string;
+}
+
+export interface VocabAPIResult {
+  items: VocabItems[];
+  total: number;
 }
 
 export interface VocabItems {
