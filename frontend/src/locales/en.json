@@ -37,5 +37,45 @@
       "romaji": "Romaji",
       "pitchAccent": "Pitch Accent"
     }
+  },
+  "studyPage": {
+    "searchBarLabel": "Search",
+    "dataCards": {
+      "totalVocab": "Total Vocabulary",
+      "favorites": "Favorites"
+    },
+    "hiraganaLabel": "Hiragana",
+    "katakanaLabel": "Katakana",
+    "vocabSection": {
+      "vocabLabel": "Vocabulary"
+    },
+    "kanjiSection": {
+      "kanjiLabel": "Kanji"
+    },
+    "general": {
+      "noResultFoundLabel": "No Result Found",
+      "showMoreButton": "Show More",
+      "showAllButton": {
+        "part1": "View all ",
+        "part2": " results"
+      },
+      "modal": {
+        "modalTitle": {
+          "part1": "All search results (Total: ",
+          "part2": ")"
+        }
+      }
+    }
+  },
+  "others": {
+    "notification": {
+      "errorTitle": "Failed",
+      "successTtile": "Success",
+      "warningTitle": "Warning"
+    },
+    "fetchFailed": "Failed to fetch records."
+  },
+  "footer": {
+    "ownerStatement": "Designed & Built by"
   }
 }

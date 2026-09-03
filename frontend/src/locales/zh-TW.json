@@ -37,5 +37,45 @@
       "romaji": "羅馬拼音",
       "pitchAccent": "音調標註"
     }
+  },
+  "studyPage": {
+    "searchBarLabel": "搜尋",
+    "dataCards": {
+      "totalVocab": "詞彙總數",
+      "favorites": "收藏"
+    },
+    "hiraganaLabel": "平假名",
+    "katakanaLabel": "片假名",
+    "vocabSection": {
+      "vocabLabel": "詞彙"
+    },
+    "kanjiSection": {
+      "kanjiLabel": "漢字"
+    },
+    "general": {
+      "noResultFoundLabel": "找不到相關結果",
+      "showMoreButton": "顯示更多",
+      "showAllButton": {
+        "part1": "檢視全部",
+        "part2": "筆結果"
+      },
+      "modal": {
+        "modalTitle": {
+          "part1": "完整搜尋結果（共",
+          "part2": "筆)"
+        }
+      }
+    }
+  },
+  "others": {
+    "notification": {
+      "errorTitle": "失敗",
+      "successTtile": "成功",
+      "warningTitle": "警告"
+    },
+    "fetchFailed": "讀取記錄失敗"
+  },
+  "footer": {
+    "ownerStatement": "設計與開發："
   }
 }

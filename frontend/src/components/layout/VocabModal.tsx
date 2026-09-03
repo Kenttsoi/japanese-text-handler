@@ -4,6 +4,7 @@ import VocabGrid from '../study/VocabGrid';
 import { showErrorToast } from '@/utils/notification';
 import { vocabService } from '@/services/vocabService';
 import { VocabItems } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 interface VocabModalProps {
   opened: boolean;
@@ -17,6 +18,7 @@ interface VocabModalProps {
 export default function VocabModal({ opened, onClose, query, total, starredIds, onToggleStar }: VocabModalProps) {
   const [items, setItems] = React.useState<VocabItems[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const { t } = useTranslation();
 
   React.useEffect(() => {
     if (!opened || !query.trim()) return;
@@ -30,11 +32,9 @@ export default function VocabModal({ opened, onClose, query, total, starredIds, 
         console.log('ReSULT', result)
         if (result.items.length >= 0) {
           setItems(result.items);
-        } else {
-          showErrorToast(`Fetch Failed`);
         }
       } catch (err: any) {
-        showErrorToast(`Fetch Failed`);
+        showErrorToast(t('others.fetchFailed'));
       } finally {
         setIsLoading(false);
       }
@@ -53,12 +53,12 @@ export default function VocabModal({ opened, onClose, query, total, starredIds, 
         onClose={onClose}
         title={
           <Text fw={700} size="lg">
-            Vocab 完整搜尋結果（共 {total} 筆）
+            {t('studyPage.general.modal.modalTitle.part1')}{total}{t('studyPage.general.modal.modalTitle.part2')}
           </Text>
         }
-        size="75%" // 大尺寸彈窗，適合放置 3 欄 Grid
+        size="75%"
         centered
-        scrollAreaComponent={ScrollArea.Autosize} // 內容過長時彈窗內部可滾動
+        scrollAreaComponent={ScrollArea.Autosize}
       >
         <VocabGrid isLoading={isLoading} data={items} starredIds={starredIds} onToggleStar={onToggleStar} />
       </Modal>

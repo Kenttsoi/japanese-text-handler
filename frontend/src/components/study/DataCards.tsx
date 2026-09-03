@@ -1,7 +1,7 @@
 import React from 'react';
 import { Paper, SimpleGrid, Text } from '@mantine/core';
 import AnimatedNumber from '../AnimatedNumber';
-
+import { useTranslation } from 'react-i18next';
 
 /* function AnimatedNumber({ value }: { value: number }) {
   const count = useMotionValue(0);
@@ -50,9 +50,11 @@ interface DataCardsProps {
 }
 
 export default function DataCards({ totalWords, favorites, /* categories, showing */ }: DataCardsProps) {
+  const { t } = useTranslation();
+
   const stats = [
-    { title: 'Total Vocabulary', value: totalWords, color: 'pink', variant: 'pop' as const },
-    { title: 'Favorites', value: favorites, color: 'orange', variant: 'scroll' as const },
+    { title: t('studyPage.dataCards.totalVocab'), value: totalWords, color: 'pink', variant: 'pop' as const },
+    { title: t('studyPage.dataCards.favorites'), value: favorites, color: 'orange', variant: 'scroll' as const },
     /* { title: 'Categories', value: categories, color: 'teal' },
     { title: 'Showing', value: showing, color: 'orange' }, */
   ];

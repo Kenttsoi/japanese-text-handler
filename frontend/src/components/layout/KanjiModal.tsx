@@ -3,6 +3,7 @@ import { Modal, Text, ScrollArea } from '@mantine/core';
 import KanjiGrid from '../study/KanjiGrid';
 import { showErrorToast } from '@/utils/notification';
 import { KanjiItems } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 interface VocabModalProps {
   opened: boolean;
@@ -14,6 +15,7 @@ interface VocabModalProps {
 export default function KanjiModal({ opened, onClose, query, total }: VocabModalProps) {
   const [items, setItems] = React.useState<KanjiItems[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const { t } = useTranslation();
 
   React.useEffect(() => {
     if (!opened || !query.trim()) return;
@@ -23,14 +25,11 @@ export default function KanjiModal({ opened, onClose, query, total }: VocabModal
       try {
         setIsLoading(true);
 
-
         if (true) {
           setItems([]);
-        } else {
-          showErrorToast(`Fetch Failed`);
         }
       } catch (err: any) {
-        showErrorToast(`Fetch Failed`);
+        showErrorToast(t('others.fetchFailed'));
       } finally {
         setIsLoading(false);
       }
@@ -49,12 +48,12 @@ export default function KanjiModal({ opened, onClose, query, total }: VocabModal
         onClose={onClose}
         title={
           <Text fw={700} size="lg">
-            Kanji 完整搜尋結果（共 {total} 筆）
+            {t('studyPage.general.modal.modalTitle.part1')}{total}{t('studyPage.general.modal.modalTitle.part2')}
           </Text>
         }
-        size="75%" // 大尺寸彈窗，適合放置 3 欄 Grid
+        size="75%"
         centered
-        scrollAreaComponent={ScrollArea.Autosize} // 內容過長時彈窗內部可滾動
+        scrollAreaComponent={ScrollArea.Autosize}
       >
         <KanjiGrid isLoading={isLoading} data={items} />
       </Modal>

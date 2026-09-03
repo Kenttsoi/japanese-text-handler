@@ -2,8 +2,9 @@ import { notifications } from '@mantine/notifications';
 import IconX from '@tabler/icons-react/dist/esm/icons/IconX.mjs';
 import IconCheck from '@tabler/icons-react/dist/esm/icons/IconCheck.mjs';
 import IconAlertTriangle from '@tabler/icons-react/dist/esm/icons/IconAlertTriangle.mjs';
+import i18n from '../i18n';
 
-export const showErrorToast = (message: string, title: string = '讀取失敗') => {
+export const showErrorToast = (message: string, title: string = i18n.t('others.notification.errorTitle')) => {
   notifications.show({
     title,
     message,
@@ -13,7 +14,7 @@ export const showErrorToast = (message: string, title: string = '讀取失敗') 
   });
 };
 
-export const showSuccessToast = (message: string, title: string = '成功') => {
+export const showSuccessToast = (message: string, title: string = i18n.t('others.notification.errorTitle')) => {
   notifications.show({
     title,
     message,
@@ -23,7 +24,7 @@ export const showSuccessToast = (message: string, title: string = '成功') => {
   });
 };
 
-export const showWarningToast = (message: string, title: string = '提示') => {
+export const showWarningToast = (message: string, title: string = i18n.t('others.notification.warningTitle')) => {
   notifications.show({
     title,
     message,

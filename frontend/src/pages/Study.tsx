@@ -14,6 +14,7 @@ import DataCards from '@/components/study/DataCards';
 import { showErrorToast, showWarningToast } from '@/utils/notification';
 import VocabModal from '@/components/layout/VocabModal';
 import KanjiModal from '@/components/layout/KanjiModal';
+import { useTranslation } from 'react-i18next';
 
 const splitRomaji = (input: string): string[] => {
   const regex = /[bcdfghjklmnpqrstvwxyz]*[aeiou]|n(?![aeiou])/gi;
@@ -73,6 +74,7 @@ export default function Study() {
   const [error, setError] = React.useState<Error | null>(null);
   const [vocabModalOpen, setVocabModalOpen] = React.useState(false);
   const [kanjiModalOpen, setKanjiModalOpen] = React.useState(false);
+  const { t } = useTranslation();
 
   React.useEffect(() => {
     const controller = new AbortController();
@@ -95,8 +97,8 @@ export default function Study() {
       } catch (err: any) {
         if (err.name !== 'AbortError') {
           console.error("Failed to fetch vocab:", err);
-          setError(err instanceof Error ? err : new Error('Unknown error'));
-          showErrorToast(`Fetch Failed`);
+          // setError(err instanceof Error ? err : new Error('Unknown error'));
+          showErrorToast(t('others.fetchFailed'));
         }
       } finally {
         setIsVocabCardLoading(false);
@@ -124,8 +126,8 @@ export default function Study() {
       } catch (err: any) {
         if (err.name !== 'AbortError') {
           console.error("Failed to fetch vocab:", err);
-          setError(err instanceof Error ? err : new Error('Unknown error'));
-          showErrorToast(`Fetch Failed`);
+          // setError(err instanceof Error ? err : new Error('Unknown error'));
+          showErrorToast(t('others.fetchFailed'));
         }
       } finally {
         setIsKanjiCardLoading(false);
@@ -189,7 +191,7 @@ export default function Study() {
           setKanjiResult(kanjiData.result);
           setKanjiDisplayCount(6);
         } else {
-          showErrorToast(`Fetch Failed`);
+          showErrorToast(t('others.fetchFailed'));
           throw new Error('Error occurred');
         }
         console.log('KanjiData', kanjiData);
@@ -197,8 +199,8 @@ export default function Study() {
       } catch (err: any) {
         if (err.name !== 'AbortError') {
           console.error("[PARALLEL SEARCH ERROR] ", err);
-          setError(err instanceof Error ? err : new Error('Unknown error'));
-          showErrorToast(`Fetch Failed`);
+          // setError(err instanceof Error ? err : new Error('Unknown error'));
+          showErrorToast(t('others.fetchFailed'));
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -222,7 +224,7 @@ export default function Study() {
   return (
     <Container size="md" py="xl" my="md">
       <TextInput
-        placeholder="Search"
+        placeholder={t('studyPage.searchBarLabel')}
         size="lg"
         radius="xl"
         value={searchQuery}
@@ -237,48 +239,48 @@ export default function Study() {
       />
       <DataCards totalWords={totalVocabCount} favorites={starredIds.length} />
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ color: '#FF87B2' }}>✨</span> Hiragana
+        <span style={{ color: '#FF87B2' }}>✨</span> {t('studyPage.hiraganaLabel')}
       </Text>
       <DynamicKanaSlider
         kanaList={filteredHiragana} isLoading={isPending}
       />
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ color: '#FF87B2' }}>✨</span> Katakana
+        <span style={{ color: '#FF87B2' }}>✨</span> {t('studyPage.katakanaLabel')}
       </Text>
       <DynamicKanaSlider
         kanaList={filteredKatakana} isLoading={isPending}
       />
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ color: '#FF87B2' }}>✨</span> Vocabulary
+        <span style={{ color: '#FF87B2' }}>✨</span> {t('studyPage.vocabSection.vocabLabel')}
       </Text>
       <VocabGrid isLoading={isVocabCardLoading} data={visibleVocabItems} starredIds={starredIds} onToggleStar={handleToggleStar} />
       {vocabTotal > 6 && (
         <Group justify='right' mt='md'>
           {vocabDisplayCount === 6 ? (
             <Button variant="light" onClick={() => setVocabDisplayCount(12)}>
-              顯示更多
+              {t('studyPage.general.showMoreButton')}
             </Button>
           ) : vocabDisplayCount === 12 && vocabTotal > 12 ? (
             <Button variant="outline" onClick={() => setVocabModalOpen(true)}>
-              檢視全部 {vocabTotal} 筆結果 ›
+              {t('studyPage.general.showAllButton.part1')}{vocabTotal}{t('studyPage.general.showAllButton.part2')}
             </Button>
           ) : null}
         </Group>
       )}
       <VocabModal opened={vocabModalOpen} onClose={() => setVocabModalOpen(false)} query={debouncedSearchQuery} total={vocabTotal} starredIds={starredIds} onToggleStar={handleToggleStar} />
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ color: '#FF87B2' }}>✨</span> Kanji
+        <span style={{ color: '#FF87B2' }}>✨</span> {t('studyPage.kanjiSection.kanjiLabel')}
       </Text>
       <KanjiGrid isLoading={isKanjiCardLoading} data={visibleKanjiItems} />
       {kanjiResult.length > 6 && (
         <Group justify='right' mt='md'>
           {kanjiDisplayCount === 6 ? (
             <Button variant="light" onClick={() => setKanjiDisplayCount(12)}>
-              顯示更多
+              {t('studyPage.general.showMoreButton')}
             </Button>
           ) : kanjiDisplayCount === 12 && kanjiResult.length > 12 ? (
             <Button variant="outline" onClick={() => setKanjiModalOpen(true)}>
-              檢視全部 {kanjiResult.length} 筆結果 ›
+              {t('studyPage.general.showAllButton.part1')}{kanjiResult.length}{t('studyPage.general.showAllButton.part2')}
             </Button>
           ) : null}
         </Group>

@@ -37,5 +37,45 @@
       "romaji": "로마자",
       "pitchAccent": "액센트"
     }
+  },
+  "studyPage": {
+    "searchBarLabel": "검색",
+    "dataCards": {
+      "totalVocab": "총 단어 수",
+      "favorites": "즐겨찾기"
+    },
+    "hiraganaLabel": "히라가나",
+    "katakanaLabel": "가타카나",
+    "vocabSection": {
+      "vocabLabel": "단어"
+    },
+    "kanjiSection": {
+      "kanjiLabel": "한자"
+    },
+    "general": {
+      "noResultFoundLabel": "검색 결과가 없습니다",
+      "showMoreButton": "더 보기",
+      "showAllButton": {
+        "part1": "전체 ",
+        "part2": "개의 결과 보기"
+      },
+      "modal": {
+        "modalTitle": {
+          "part1": "전체 검색 결과 (총",
+          "part2": "개)"
+        }
+      }
+    }
+  },
+  "others": {
+    "notification": {
+      "errorTitle": "실패",
+      "successTtile": "성공",
+      "warningTitle": "경고"
+    },
+    "fetchFailed": "기록을 불러오지 못했습니다"
+  },
+  "footer": {
+    "ownerStatement": "디자인 및 개발:"
   }
 }
