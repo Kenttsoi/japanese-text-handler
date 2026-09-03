@@ -40,6 +40,10 @@ i18n
     },
   });
 
+i18n.on('languageChanged', (lng) => {
+  document.documentElement.lang = lng;
+});
+
 declare module 'i18next' {
   interface CustomTypeOptions {
     resources: typeof resources['en'];
