@@ -9,6 +9,7 @@ export const vocabService = {
 
   async searchVocab(query: string, signal?: AbortSignal, limit: number = 12, offset: number = 0) {
     console.log('Did I call you');
+    
     const queryTerm = `${query}:*`;
     const { data, error, count } = await supabase
       .from('word_entries')

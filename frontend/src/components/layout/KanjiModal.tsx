@@ -41,7 +41,7 @@ export default function KanjiModal({ opened, onClose, query, total }: VocabModal
 
     try {
       const res = await vocabService.searchVocab(query, controller, LIMIT, currentOffset);
-      
+
       setItems((prev) => [...prev, ...res.items]);
 
       if (items.length + res.items.length >= res.total || res.items.length < LIMIT) {
@@ -60,20 +60,37 @@ export default function KanjiModal({ opened, onClose, query, total }: VocabModal
     if (!opened || !bottomRef.current || !viewportRef.current) return;
     const controller = new AbortController();
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !modalLoading) {
-          fetchNextPage(controller, offset);
-        }
-      },
-      {
-        root: viewportRef.current,
-        threshold: 0.1,
-      }
-    );
+    const viewportNode = viewportRef.current;
+    const bottomNode = bottomRef.current;
+    console.log('[Debug] Modal Opened:', { viewportNode, bottomNode });
+    if (!viewportNode || !bottomNode) return;
 
-    observer.observe(bottomRef.current);
-    return () => observer.disconnect();
+    let observer: IntersectionObserver;
+
+    const timer = setTimeout(() => {
+      if (!bottomRef.current || !viewportRef.current) return;
+
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && hasMore && !modalLoading) {
+            console.log('[Debug] Triggering fetchNextPage with offset:', offset);
+            fetchNextPage(controller, offset);
+          }
+        },
+        {
+          root: viewportRef.current, // 綁定 ScrollArea 的滾動視窗
+          threshold: 0.1,
+        }
+      );
+
+      observer.observe(bottomRef.current);
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+      if (observer) observer.disconnect();
+    };
   }, [opened, offset, hasMore, modalLoading]);
 
   /* React.useEffect(() => {
@@ -112,14 +129,24 @@ export default function KanjiModal({ opened, onClose, query, total }: VocabModal
         }
         size="75%"
         centered
-        /* scrollAreaComponent={ScrollArea.Autosize} */
+      /* scrollAreaComponent={ScrollArea.Autosize} */
       >
         <ScrollArea.Autosize
           mah="70vh"
+          type="auto"
           viewportRef={viewportRef}
         >
           <KanjiGrid isLoading={isLoading} data={items} />
-          <div ref={bottomRef} style={{ minHeight: '20px' }}>
+          <div
+            ref={bottomRef}
+            style={{
+              height: '40px',
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             {modalLoading && (
               <Center p="xs">
                 <Loader size="sm" />
