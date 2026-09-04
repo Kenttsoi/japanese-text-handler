@@ -7,15 +7,17 @@ export const vocabService = {
     return { data, count };
   },
 
-  async searchVocab(query: string, signal?: AbortSignal) {
+  async searchVocab(query: string, signal?: AbortSignal, limit: number = 12, offset: number = 0) {
+    console.log('Did I call you');
     const queryTerm = `${query}:*`;
     const { data, error, count } = await supabase
       .from('word_entries')
-      .select('*', { count: 'exact'})
+      .select('*', { count: 'exact' })
       .textSearch('fts_vector', queryTerm.trim(), {
         config: 'simple'
       })
-      .limit(12)
+      .limit(limit)
+      .range(offset, offset + limit - 1)
       .abortSignal(signal || new AbortController().signal);
     if (error) throw error;
     return {
