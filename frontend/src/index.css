@@ -1,3 +1,8 @@
+#root {
+  margin: 0 auto;
+  padding: 2rem;
+}
+
 :root,
 html[lang="ja"] {
   --app-font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", sans-serif;
@@ -24,17 +29,11 @@ html[lang="en"] {
 }
 
 body {
-    font-family: var(--app-font-family);
-    background-color: var(--mantine-color-body);
+  font-family: var(--app-font-family);
+  background-color: var(--mantine-color-body);
 }
 
-body, 
+body,
 [data-mantine-color-scheme] {
   transition: background-color 0.5s ease, color 0.5s ease;
 }
-
-/* #root {
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-} */
