@@ -28,17 +28,12 @@ export default function VocabModal({ opened, onClose, query, total, starredIds, 
 
   const LIMIT = 12;
 
-  React.useEffect(() => {
-    if (opened) {
-      setItems([]);
-      setOffset(0);
-      setHasMore(true);
-      setModalLoading(false);
-    }
-  }, [opened, query]);
-
-  const fetchNextPage = async (currentOffset: number, controller: any ) => {
+  const fetchNextPage = async (currentOffset: number) => {
     if (modalLoading || !hasMore) return;
+    setModalLoading(true);
+
+    const controller = new AbortController();
+
     setModalLoading(true);
 
     try {
@@ -59,17 +54,15 @@ export default function VocabModal({ opened, onClose, query, total, starredIds, 
   };
 
   React.useEffect(() => {
-    const controller = new AbortController();
-    
     if (opened && query) {
-      // 1. 重置所有狀態
+      // reset all states
       setItems([]);
       setOffset(0);
       setHasMore(true);
+      setModalLoading(false);
 
-      // 2. 主動抓取第 1 頁資料 (offset = 0)
-      console.log('[Debug] Modal 開啟，主動發送第一次請求');
-      fetchNextPage(0, controller);
+      // 2. fetch the first record
+      fetchNextPage(0);
     }
 
   }, [opened, query]);
@@ -88,31 +81,20 @@ export default function VocabModal({ opened, onClose, query, total, starredIds, 
       (entries) => {
         const entry = entries[0];
 
-        // 印出除錯資訊，幫你確認狀態
-        console.log('👀 Observer 觸發:', {
-          isIntersecting: entry.isIntersecting,
-          hasMore,
-          modalLoading,
-          currentOffset: offset
-        });
-
         if (entry.isIntersecting && hasMore && !modalLoading) {
-          console.log('🚀 滿足條件，發送下一頁請求, offset:', offset);
-          fetchNextPage(offset, controller);
+          fetchNextPage(offset);
         }
       },
       {
         root: viewportNode,
-        // 關鍵修改 1：設定 rootMargin 讓它提早 100px 觸發（體驗更好，也比較不容易因為高度邊界問題不觸發）
         rootMargin: '0px 0px 100px 0px',
-        threshold: 0, // 只要露出一點點（0%）就觸發
+        threshold: 0,
       }
     );
 
     observer.observe(bottomNode);
 
     return () => {
-      // controller.abort();
       if (observer) observer.disconnect();
     };
   }, [opened, offset, hasMore, modalLoading]);
