@@ -1,21 +1,24 @@
 import React from 'react';
 import { Modal, Text, ScrollArea, Center, Loader } from '@mantine/core';
-import VocabGrid from '../study/VocabGrid';
+import VocabGrid from './VocabGrid';
 import { showErrorToast } from '@/utils/notification';
 import { vocabService } from '@/services/vocabService';
 import { VocabItems } from '@/types';
 import { useTranslation } from 'react-i18next';
+import { SharedModalProps } from '@/types';
+import { searchKanji } from '@/services/api';
+import KanjiGrid from './KanjiGrid';
 
-interface VocabModalProps {
+/* interface VocabModalProps {
   opened: boolean;
   onClose: () => void;
   query: string;
   total: number;
   starredIds: number[];
   onToggleStar: (id: number) => void
-}
+} */
 
-export default function VocabModal({ opened, onClose, query, total, starredIds, onToggleStar }: VocabModalProps) {
+export default function CardModal({ opened, onClose, query, type, total, starredIds, onToggleStar }: SharedModalProps) {
   const [items, setItems] = React.useState<VocabItems[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [offset, setOffset] = React.useState(0);
@@ -29,33 +32,60 @@ export default function VocabModal({ opened, onClose, query, total, starredIds, 
   const LIMIT = 12;
 
   const fetchNextPage = async (currentOffset: number) => {
-    if (modalLoading || !hasMore) return;
+    if (modalLoading || !hasMore || !opened) return;
     setModalLoading(true);
 
     const controller = new AbortController();
 
-    setModalLoading(true);
-
     try {
-      const res = await vocabService.searchVocab(query, controller.signal, LIMIT, currentOffset);
+      let res: { items: any[]; total: number; hasMore?: boolean } = { items: [], total: 0 };
 
-      setItems((prev) => [...prev, ...res.items]);
+      if (type === 'vocab') {
+        res = await vocabService.searchVocab(query, controller.signal, LIMIT, currentOffset);
+      }
+
+      if (type === 'kanji') {
+        const kanjiRes = await searchKanji(query, controller.signal, LIMIT, currentOffset)
+        console.log(kanjiRes)
+        res = {
+          items: kanjiRes.result?.items || [],
+          total: kanjiRes.result?.total || 0,
+        };
+        console.log(res)
+      }
+
+      const newItems = res.items;
+
+      setItems((prev) => {
+        const updatedItems = [...prev, ...newItems];
+
+        if (updatedItems.length >= res.total || newItems.length < LIMIT) {
+          setHasMore(false);
+        }
+
+        return updatedItems;
+      });
+
+      setOffset((prevOffset) => prevOffset + LIMIT);
+      /* setItems((prev) => [...prev, ...res.items]);
 
       if (items.length + res.items.length >= res.total || res.items.length < LIMIT) {
         setHasMore(false);
       }
 
-      setOffset(currentOffset + LIMIT);
+      setOffset(currentOffset + LIMIT); */
     } catch (err) {
       console.error('Fetch error:', err);
     } finally {
       setModalLoading(false);
+      setIsLoading(false)
     }
   };
 
   React.useEffect(() => {
     if (opened && query) {
       // reset all states
+      setIsLoading(true)
       setItems([]);
       setOffset(0);
       setHasMore(true);
@@ -64,7 +94,13 @@ export default function VocabModal({ opened, onClose, query, total, starredIds, 
       // 2. fetch the first record
       fetchNextPage(0);
     }
-
+    if (!opened) {
+      setIsLoading(false)
+      setItems([]);
+      setOffset(0);
+      setHasMore(true);
+      setModalLoading(false);
+    }
   }, [opened, query]);
 
   React.useEffect(() => {
@@ -87,7 +123,7 @@ export default function VocabModal({ opened, onClose, query, total, starredIds, 
       },
       {
         root: viewportNode,
-        rootMargin: '0px 0px 100px 0px',
+        rootMargin: '0px',
         threshold: 0,
       }
     );
@@ -143,8 +179,13 @@ export default function VocabModal({ opened, onClose, query, total, starredIds, 
           mah="70vh"
           type="auto"
           viewportRef={viewportRef}
-        >
-          <VocabGrid isLoading={isLoading} data={items} starredIds={starredIds} onToggleStar={onToggleStar} />
+        > {
+            type === 'vocab' ? (
+              <VocabGrid isLoading={isLoading} data={items} starredIds={starredIds} onToggleStar={onToggleStar} />
+            ) : type === 'kanji' ? (
+              <KanjiGrid isLoading={isLoading} data={items} />
+            ) : null
+          }
           <div
             ref={bottomRef}
             style={{

@@ -21,6 +21,11 @@ export interface VocabAPIResult {
   total: number;
 }
 
+export interface KanjiAPIResult {
+  items: KanjiItems[];
+  total: number;
+}
+
 export interface VocabItems {
   id: number;
   word: string;
@@ -30,7 +35,32 @@ export interface VocabItems {
   pos?: string | null;
 }
 
-export interface KanjiApiResponse {
+export interface FirstKanjiApiResponse {
   result: KanjiItems[];
   success: boolean;
 }
+
+export type CardType = "vocab" | "kanji";
+
+interface BaseModalProps {
+  opened: boolean;
+  onClose: () => void;
+  query: string;
+  total: number;
+}
+
+export interface VocabModalProps extends BaseModalProps {
+  type: 'vocab';
+  starredIds: number[];
+  onToggleStar: (id: number) => void
+}
+
+export interface KanjiModalProps extends BaseModalProps {
+  type: 'kanji';
+  starredIds?: number[];
+  onToggleStar?: (id: number) => void;
+}
+
+export type SharedModalProps = VocabModalProps | KanjiModalProps;
+
+export type SharedModalConfig = Omit<SharedModalProps, 'onClose' | 'opened'>;

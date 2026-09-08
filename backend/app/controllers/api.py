@@ -98,8 +98,11 @@ def search_kanji():
 
         if not query:
             return api_error("Query parameter 'q' is required", status=400)
+
+        offset = int(request.args.get('offset', 0))
+        limit = int(request.args.get('limit', 20))
         
-        results = KanjiCardService.search_kanji(query)
+        results = KanjiCardService.search_kanji(query, offset, limit)
 
         return api_success(results)
     except Exception as e:

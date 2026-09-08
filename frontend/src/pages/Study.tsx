@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, Skeleton, Text, Button, Group, Stack, Box, SimpleGrid, Paper, Center, TextInput, Card, Alert } from '@mantine/core';
 import { useDebouncedValue, useLocalStorage } from '@mantine/hooks';
 import DynamicKanaSlider from '@/components/study/DynamicKanaSlider';
-import { KanaItem, VocabItems, KanjiItems, VocabAPIResult } from '@/types';
+import { KanaItem, CardType, KanjiItems, VocabAPIResult, SharedModalProps, SharedModalConfig, KanjiAPIResult } from '@/types';
 import { vocabService } from '@/services/vocabService';
 import { fetchFirstKanji, searchKanji } from '@/services/api';
 import IconSearch from '@tabler/icons-react/dist/esm/icons/IconSearch.mjs';
@@ -12,8 +12,8 @@ import { hiraganaData } from '@/data/kanaData';
 import { katakanaData } from '@/data/kanaData';
 import DataCards from '@/components/study/DataCards';
 import { showErrorToast, showWarningToast } from '@/utils/notification';
-import VocabModal from '@/components/layout/VocabModal';
-import KanjiModal from '@/components/layout/KanjiModal';
+import CardModal from '@/components/study/CardModal';
+import KanjiModal from '@/components/study/KanjiModal';
 import { useTranslation } from 'react-i18next';
 
 const splitRomaji = (input: string): string[] => {
@@ -61,7 +61,7 @@ export default function Study() {
   /* const [hiraganaResult, setHiraganaResult] = React.useState<KanaItem[]>([]);
   const [katakanaResult, setKatakaanaResult] = React.useState<KanaItem[]>([]); */
   const [vocabResult, setVocabResult] = React.useState<VocabAPIResult>({ items: [], total: 0 });
-  const [kanjiResult, setKanjiResult] = React.useState<KanjiItems[]>([]);
+  const [kanjiResult, setKanjiResult] = React.useState<KanjiAPIResult>({ items: [], total: 0 });
   const [totalVocabCount, setTotalVocabCount] = React.useState<number>(0);
   const [isVocabCardLoading, setIsVocabCardLoading] = React.useState<boolean>(false);
   const [isKanjiCardLoading, setIsKanjiCardLoading] = React.useState<boolean>(false);
@@ -74,6 +74,7 @@ export default function Study() {
   const [error, setError] = React.useState<Error | null>(null);
   const [vocabModalOpen, setVocabModalOpen] = React.useState(false);
   const [kanjiModalOpen, setKanjiModalOpen] = React.useState(false);
+  const [modalConfig, setModalConfig] = React.useState<SharedModalConfig | null>(null);
   const { t } = useTranslation();
 
   React.useEffect(() => {
@@ -120,17 +121,19 @@ export default function Study() {
         const response = await fetchFirstKanji(controller.signal);
         const { result: kanjiCardList, success } = response;
         if (success && kanjiCardList) {
-          setKanjiResult(kanjiCardList);
+          setKanjiResult({ items: kanjiCardList, total: 6 });
           setKanjiDisplayCount(6);
         }
       } catch (err: any) {
-        if (err.name !== 'AbortError') {
-          console.error("Failed to fetch vocab:", err);
-          // setError(err instanceof Error ? err : new Error('Unknown error'));
-          showErrorToast(t('others.fetchFailed'));
+        if (err.name === 'AbortError' || controller.signal.aborted) {
+          // This request has been cancelled.
+          return;
         }
+        showErrorToast(t('others.fetchFailed'));
       } finally {
-        setIsKanjiCardLoading(false);
+        if (!controller.signal.aborted) {
+          setIsKanjiCardLoading(false);
+        }
       }
     }
     getFirstKanji();
@@ -171,7 +174,7 @@ export default function Study() {
   React.useEffect(() => {
     if (!debouncedSearchQuery.trim()) {
       setVocabResult({ items: [], total: 0 });
-      setKanjiResult([]);
+      setKanjiResult({ items: [], total: 0 });
       return;
     }
 
@@ -182,8 +185,8 @@ export default function Study() {
       setIsKanjiCardLoading(true);
       try {
         const [vocabData, kanjiData] = await Promise.all([
-          vocabService.searchVocab(debouncedSearchQuery, controller.signal),
-          searchKanji(debouncedSearchQuery, controller.signal)
+          vocabService.searchVocab(debouncedSearchQuery.trim(), controller.signal),
+          searchKanji(debouncedSearchQuery.trim(), controller.signal)
         ]);
         setVocabResult(vocabData);
         setVocabDisplayCount(6);
@@ -216,10 +219,26 @@ export default function Study() {
     };
   }, [debouncedSearchQuery])
 
+  const handleOpenModal = (type: CardType, query: string, total: number) => {
+    let preModalConfig: SharedModalConfig = {
+      type: type,
+      query,
+      total
+    }
+    if (type === 'vocab') {
+      preModalConfig['starredIds'] = starredIds;
+      preModalConfig['onToggleStar'] = handleToggleStar;
+    }
+    setModalConfig(preModalConfig);
+    setVocabModalOpen(true);
+  }
+
   const vocabItems = vocabResult.items;
   const vocabTotal = vocabResult.total;
+  const kanjiItems = kanjiResult.items;
+  const kanjiTotal = kanjiResult.total;
   const visibleVocabItems = vocabItems.slice(0, vocabDisplayCount)
-  const visibleKanjiItems = kanjiResult.slice(0, kanjiDisplayCount)
+  const visibleKanjiItems = kanjiItems.slice(0, kanjiDisplayCount)
 
   return (
     <Container size="md" py="xl" my="md">
@@ -261,31 +280,34 @@ export default function Study() {
               {t('studyPage.general.showMoreButton')}
             </Button>
           ) : vocabDisplayCount === 12 && vocabTotal > 12 ? (
-            <Button variant="outline" onClick={() => setVocabModalOpen(true)}>
+            /* setVocabModalOpen(true) */
+            <Button variant="outline" onClick={() => handleOpenModal('vocab', debouncedSearchQuery.trim(), vocabTotal)}>
+
               {t('studyPage.general.showAllButton.part1')}{vocabTotal}{t('studyPage.general.showAllButton.part2')}
             </Button>
           ) : null}
         </Group>
       )}
-      <VocabModal opened={vocabModalOpen} onClose={() => setVocabModalOpen(false)} query={debouncedSearchQuery} total={vocabTotal} starredIds={starredIds} onToggleStar={handleToggleStar} />
+      {/* <CardModal type='vocab' opened={vocabModalOpen} onClose={() => setVocabModalOpen(false)} query={debouncedSearchQuery.trim()} total={vocabTotal} starredIds={starredIds} onToggleStar={handleToggleStar} /> */}
+
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ color: '#FF87B2' }}>✨</span> {t('studyPage.kanjiSection.kanjiLabel')}
       </Text>
       <KanjiGrid isLoading={isKanjiCardLoading} data={visibleKanjiItems} />
-      {kanjiResult.length > 6 && (
+      {kanjiTotal > 6 && (
         <Group justify='right' mt='md'>
           {kanjiDisplayCount === 6 ? (
             <Button variant="light" onClick={() => setKanjiDisplayCount(12)}>
               {t('studyPage.general.showMoreButton')}
             </Button>
-          ) : kanjiDisplayCount === 12 && kanjiResult.length > 12 ? (
-            <Button variant="outline" onClick={() => setKanjiModalOpen(true)}>
-              {t('studyPage.general.showAllButton.part1')}{kanjiResult.length}{t('studyPage.general.showAllButton.part2')}
+          ) : kanjiDisplayCount === 12 && kanjiTotal > 12 ? (
+            <Button variant="outline" onClick={() => handleOpenModal('kanji', debouncedSearchQuery.trim(), kanjiTotal)}>
+              {t('studyPage.general.showAllButton.part1')}{kanjiTotal}{t('studyPage.general.showAllButton.part2')}
             </Button>
           ) : null}
         </Group>
       )}
-      <KanjiModal opened={kanjiModalOpen} onClose={() => setKanjiModalOpen(false)} query={debouncedSearchQuery} total={kanjiResult.length} />
+      <CardModal {...modalConfig as SharedModalProps} opened={vocabModalOpen} onClose={() => setVocabModalOpen(false)} />
     </Container>
   )
 }

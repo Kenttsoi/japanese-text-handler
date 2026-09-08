@@ -24,22 +24,24 @@ class KanjiCardService:
         return formatted_results
     
     @staticmethod
-    def search_kanji(query: str):
+    def search_kanji(query: str, offset: int = 0, limit: int = 0):
         raw_dict = KanjiModel.get_all_kanji_raw()
         
         if not raw_dict:
-            return []
+            return {"items": [], "total": 0}
 
         results = []
+        query_lower = query.lower().strip()
+
         for literal, info in raw_dict.items():
             on_readings = " ".join(info.get("on_readings", []))
             kun_readings = " ".join(info.get("kun_readings", []))
             meanings = " ".join(info.get("meaning_en", []))
 
-            if (query.lower() in literal.lower() or 
-                query.lower() in on_readings.lower() or 
-                query.lower() in kun_readings.lower() or 
-                query.lower() in meanings.lower()):
+            if (query_lower in literal.lower() or 
+                query_lower in on_readings.lower() or 
+                query_lower in kun_readings.lower() or 
+                query_lower in meanings.lower()):
 
                 results.append({
                     "literal": literal,
@@ -48,4 +50,11 @@ class KanjiCardService:
                     "meaning_en": ", ".join(info.get("meaning_en", [])),
                 })
 
-        return results
+        total = len(results)
+
+        paged_results = results[offset : offset + limit]
+
+        return {
+            "items": paged_results,
+            "total": total
+        }

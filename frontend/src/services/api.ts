@@ -1,4 +1,4 @@
-import { KanjiApiResponse } from "@/types";
+import { FirstKanjiApiResponse } from "@/types";
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -70,7 +70,7 @@ export const annotateSample = async (text: string) => {
     }
 }
 
-export const fetchFirstKanji = async (signal?: AbortSignal): Promise<KanjiApiResponse> => {
+export const fetchFirstKanji = async (signal?: AbortSignal): Promise<FirstKanjiApiResponse> => {
     try {
         const response = await fetch(`${API_URL}/kanji/first-six`, {
             method: 'GET',
@@ -87,9 +87,9 @@ export const fetchFirstKanji = async (signal?: AbortSignal): Promise<KanjiApiRes
     }
 }
 
-export const searchKanji = async (kanjiQuery: string, signal?: AbortSignal) => {
+export const searchKanji = async (kanjiQuery: string, signal?: AbortSignal, limit: number = 20, offset: number = 0) => {
     try {
-        const response = await fetch(`${API_URL}/kanji/search?q=${encodeURIComponent(kanjiQuery.trim())}`, {
+        const response = await fetch(`${API_URL}/kanji/search?q=${encodeURIComponent(kanjiQuery.trim())}&limit=${limit}&offset=${offset}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             signal
@@ -99,6 +99,10 @@ export const searchKanji = async (kanjiQuery: string, signal?: AbortSignal) => {
         }
         return await response.json();
     } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') {
+            console.log('[FRONT INFO] Fetch aborted');
+            return { items: [], total: 0 };
+        }
         console.error("[FRONT ERROR] ", err);
         throw err;
     }
@@ -108,6 +112,7 @@ export const fetchPronunciation = async (word: string): Promise<Blob> => {
     const response = await fetch(`${API_URL}/pronounce?text=${encodeURIComponent(word)}`);
 
     if (!response.ok) {
+        console.log(response)
         throw new Error(`Failed to fetch pronunciation: ${response.statusText}`);
     }
 
