@@ -41,11 +41,19 @@ def validate_and_sanitize_incoming_request():
 
                 # Length check (OOM Prevention)
                 if len(value) > MAX_CHARS:
-                    return api_error(f"Please limit to {MAX_CHARS} characters", status=413)
+                    return api_error(
+                        message=f"Please limit to {MAX_CHARS} characters",
+                        code="PAYLOAD_TOO_LARGE",
+                        status=413
+                    )
 
                 # Security check (Injection Prevention)
                 if is_suspicious(value):
-                    return api_error("Unsafe content detected.", status=400)
+                    return api_error(
+                        message="Unsafe content detected.",
+                        code="UNSAFE_CONTENT_DETECTED",
+                        status=400
+                    )
 
                 # HTML Escape (XSS Prevention)
                 safe_text = html.escape(value)
@@ -58,7 +66,11 @@ def validate_and_sanitize_incoming_request():
     if request.method == 'GET':
         for key, value in request.args.items():
             if len(value) > 50:
-                return api_error("error: Query too long", status=400)
+                return api_error(
+                    message="error: Query too long",
+                    code="QUERY_TOO_LONG",
+                    status=400
+                )
         print('passed')
 
 @api.route('/')
@@ -69,19 +81,32 @@ def hello():
 def convert():
     # Extract data
     passage_text = request.environ.get('CLEAN_TEXT')
-    if not passage_text:
+    """ if not passage_text:
         return api_success([])
     handled_text = passage_text.replace('\n', '\\n') if passage_text else None
 
     if not handled_text:
-        return api_error('You need to enter text')
+        return api_error('You need to enter text') """
+    if not passage_text or not passage_text.strip():
+        return api_error(
+            message='You need to enter text',
+            code='INVALID_INPUT',
+            status=400
+        )
+    
+    handled_text = passage_text.replace('\n', '\\n')
+
     try:
         print(handled_text)
         converter = JapaneseTextConverter(handled_text)
         result = converter.convert()
         return api_success(result)
     except Exception as e:
-        return api_error('Conversion Error', status=500)
+        return api_error(
+            message="An unexpected server error occurred", 
+            code="INTERNAL_SERVER_ERROR", 
+            status=500
+        )
 
 @api.route('/kanji/first-six', methods=['GET'])
 def get_first_six_kanji():
@@ -89,7 +114,11 @@ def get_first_six_kanji():
         cards_data = KanjiCardService.get_first_six_cards()
         return api_success(cards_data)
     except Exception as e:
-        return api_error('Data retrieve Error', status=500)
+        return api_error(
+            message='Data retrieve Error', 
+            code="INTERNAL_SERVER_ERROR", 
+            status=500
+        )
 
 @api.route('/kanji/search', methods=['GET'])
 def search_kanji():
@@ -97,7 +126,11 @@ def search_kanji():
         query = request.args.get('q', '').strip()
 
         if not query:
-            return api_error("Query parameter 'q' is required", status=400)
+            return api_error(
+                message="Query parameter 'q' is required",
+                code="INVALID_INPUT",
+                status=400
+            )
 
         offset = int(request.args.get('offset', 0))
         limit = int(request.args.get('limit', 20))
@@ -106,13 +139,21 @@ def search_kanji():
 
         return api_success(results)
     except Exception as e:
-        return api_error('Search operation failed', status=500)
+        return api_error(
+            message='Search operation failed', 
+            code='SEARCH_FAILED',
+            status=500
+        )
 
 @api.route('/pronounce', methods=['GET'])
 def get_pronunciation():
     text = request.args.get('text', 'こんにちは')
     if not text:
-        return api_error('Text is required', status=400)
+        return api_error(
+            message='Text is required',
+            code='MISSING_TEXT',
+            status=400
+        )
 
     text_hash = hashlib.md5(text.encode('utf-8')).hexdigest()
     cache_file_path = os.path.join(CACHE_DIR, f"{text_hash}.wav")
@@ -128,7 +169,11 @@ def get_pronunciation():
         query_res = requests.post(f"{VOICEVOX_URL}/audio_query", params=query_payload, timeout=5)
         
         if query_res.status_code != 200:
-            return api_error('Failed to query VOICEVOX', status=500)
+            return api_error(
+                message='Failed to query VOICEVOX', 
+                code='VOICEVOX_SERVICE_ERROR',
+                status=500
+            )
 
         synth_res = requests.post(
             f"{VOICEVOX_URL}/synthesis",
@@ -137,7 +182,11 @@ def get_pronunciation():
         )
 
         if synth_res.status_code != 200:
-            return api_error('Failed to synthesize audio', status=500)
+            return api_error(
+                message='Failed to synthesize audio',
+                code='AUDIO_SYNTHESIS_FAILED',
+                status=500
+            )
 
         with open(cache_file_path, "wb") as f:
             f.write(synth_res.content)
@@ -145,7 +194,11 @@ def get_pronunciation():
         return api_media_success(synth_res.content, mimetype="audio/wav")
 
     except Exception as e:
-        return api_error('Voice service unavailable', status=500)
+        return api_error(
+            message='Voice service unavailable',
+            code='VOICE_SERVICE_UNAVAILABLE',
+            status=500
+        )
 
 """ @api.route('/sample1')
 def sample1():

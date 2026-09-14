@@ -1,3 +1,25 @@
+export interface ApiResponse<T = unknown> {
+  success: boolean;
+  code: ApiErrorCode | string;
+  result: T | null;
+  message: string | null;
+  timestamp: number;
+}
+
+export type ApiErrorCode =
+  | 'SUCCESS'
+  | 'BAD_REQUEST'
+  | 'UNAUTHORIZED'
+  | 'FORBIDDEN'
+  | 'NOT_FOUND'
+  | 'INTERNAL_SERVER_ERROR'
+  | 'UNKNOWN_ERROR';
+
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+}
+
 export interface KanaItem {
   kana: string;
   romaji: string;
