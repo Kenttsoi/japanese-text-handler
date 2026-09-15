@@ -1,8 +1,8 @@
-import { ApiResponse } from '@/types';
+import { ApiResponse, VocabAPIResult, VocabItems } from '@/types';
 import { supabase } from '../utils/supabaseClient';
 
 export const vocabService = {
-  async getAllVocab(): Promise<ApiResponse> {
+  async getAllVocab(): Promise<ApiResponse<VocabAPIResult>> {
     try {
       const { data, count, error } = await supabase.from('word_entries').select('*', { count: 'exact' }).order('id', { ascending: true }).limit(9);
       if (error) throw error;
@@ -27,7 +27,7 @@ export const vocabService = {
     }
   },
 
-  async searchVocab(query: string, signal?: AbortSignal, limit: number = 12, offset: number = 0): Promise<ApiResponse> {
+  async searchVocab(query: string, signal?: AbortSignal, limit: number = 12, offset: number = 0): Promise<ApiResponse<VocabAPIResult>> {
     try {
       const queryTerm = `${query}:*`;
       const { data, error, count } = await supabase

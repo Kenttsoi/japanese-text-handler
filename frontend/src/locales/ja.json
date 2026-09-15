@@ -74,7 +74,15 @@
     "notification": {
       "errorTitle": "失敗",
       "successTtile": "成功",
-      "warningTitle": "警告"
+      "warningTitle": "警告",
+      "errorMessage": {
+        "catchedError": "予期せぬエラーが発生しました。ページを再読み込みしてください。",
+        "INVALID_INPUT": "有効な内容を入力してください。",
+        "PAYLOAD_TOO_LARGE": "文字数が上限を超えています。短くしてから再度お試しください。",
+        "UNSAFE_CONTENT_DETECTED": "不適切なコンテンツが検出されました。",
+        "NETWORK_ERROR": "ネットワーク接続に失敗しました。ネットワーク設定を確認してください。",
+        "default": "処理に失敗しました。しばらく時間をおいてから再度お試しください。"
+      }
     },
     "fetchFailed": "データの取得に失敗しました"
   },

@@ -15,6 +15,14 @@ export type ApiErrorCode =
   | 'INTERNAL_SERVER_ERROR'
   | 'UNKNOWN_ERROR';
 
+export interface KanjiAnnotatedDictItem {
+  original: string;
+  hiragana: string;
+  katakana: string;
+  kanji_breakdown: string[];
+  word_type: string;
+}
+
 export interface PaginatedResult<T> {
   data: T[];
   total: number;
@@ -39,12 +47,12 @@ export interface KanjiItems {
 }
 
 export interface VocabAPIResult {
-  items: VocabItems[];
+  data: VocabItems[];
   total: number;
 }
 
 export interface KanjiAPIResult {
-  items: KanjiItems[];
+  data: KanjiItems[];
   total: number;
 }
 
@@ -55,11 +63,6 @@ export interface VocabItems {
   meaning_ch: string;
   jlpt_level_1?: string | null;
   pos?: string | null;
-}
-
-export interface FirstKanjiApiResponse {
-  result: KanjiItems[];
-  success: boolean;
 }
 
 export type CardType = "vocab" | "kanji";

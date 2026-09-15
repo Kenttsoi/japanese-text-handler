@@ -2,31 +2,20 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Container, Title, Stack, Badge, Textarea, Paper, Group, Text, Button, SegmentedControl, Chip, Select } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { convertJapaneseText, annotateTextSimple, annotateText, annotateSample } from '../services/api';
+import { convertJapaneseText } from '../services/api';
 import { RubyText } from '../components/RubyText';
 import classes from './Annotator.module.css';
 import AnimatedConvertButton from '../components/annotator/AnimatedConvertButton';
 import { useTranslation } from 'react-i18next';
 import { showErrorToast } from '../utils/notification';
+import { ApiResponse, KanjiAnnotatedDictItem } from '@/types';
 
 type displayMode = 'original' | 'furigana' | 'hiragana' | 'katakana' | 'romaji' | 'pitch_accent';
 
-interface WordDict {
-  original: string;
-  hiragana: string;
-  katakana: string;
-  kanji_breakdown: string[];
-  word_type: string;
-}
-
-interface AnnotatedText {
-  result: WordDict[],
-  success: boolean
-}
-
 const Annotator: React.FC = () => {
   const [text, setText] = React.useState<string>('');
-  const [result, setResult] = React.useState<WordDict[]>([]);
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const [result, setResult] = React.useState<KanjiAnnotatedDictItem[]>([]);
   const [displayMode, setDisplayMode] = React.useState<displayMode>('furigana');
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { t } = useTranslation();
@@ -42,13 +31,43 @@ const Annotator: React.FC = () => {
 
   const handleConvert = async () => {
     console.log('handleConvert', text);
+    setLoading(true);
     try {
-      const apiResult: AnnotatedText = await convertJapaneseText(text);
-      console.log('[FUNCTION: handleConvert]', apiResult);
-      setResult(apiResult['result']);
+      const apiRes: ApiResponse<KanjiAnnotatedDictItem[]> = await convertJapaneseText(text);
+      console.log('[FUNCTION: handleConvert]', apiRes);
+
+      if (apiRes.success && apiRes.result) {
+        setResult(apiRes.result);
+        return;
+      }
+
+      setResult([]);
+
+      switch (apiRes.code) {
+        case "MISSING_TEXT":
+        case "INVALID_INPUT":
+          showErrorToast(t('others.notification.errorMessage.INVALID_INPUT'));
+          break;
+        case 'PAYLOAD_TOO_LARGE':
+          showErrorToast(t('others.notification.errorMessage.PAYLOAD_TOO_LARGE'));
+          break;
+        case 'UNSAFE_CONTENT_DETECTED':
+          showErrorToast(t('others.notification.errorMessage.UNSAFE_CONTENT_DETECTED'));
+          break;
+        case 'NETWORK_ERROR':
+          showErrorToast(t('others.notification.errorMessage.NETWORK_ERROR'));
+          break;
+        default:
+          showErrorToast(apiRes.message || t('others.notification.errorMessage.default'));
+          break;
+      }
+
     } catch (err) {
       console.error(err);
-      showErrorToast(`Fetch Failed`);
+      setResult([]);
+      showErrorToast(t('others.notification.errorMessage.catchedError'));
+    } finally {
+      setLoading(false);
     }
   }
 

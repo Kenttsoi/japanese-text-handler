@@ -71,7 +71,15 @@
     "notification": {
       "errorTitle": "失敗",
       "successTtile": "成功",
-      "warningTitle": "警告"
+      "warningTitle": "警告",
+      "errorMessage": {
+        "catchedError": "頁面發生未預期錯誤，請重新整理",
+        "INVALID_INPUT": "請輸入有效的內容",
+        "PAYLOAD_TOO_LARGE": "字數超出限制，請縮短後再試",
+        "UNSAFE_CONTENT_DETECTED": "檢測到不安全的內容",
+        "NETWORK_ERROR": "網路連線失敗，請檢查網路設定",
+        "default": "處理失敗，請稍後再試。"
+      }
     },
     "fetchFailed": "讀取記錄失敗"
   },

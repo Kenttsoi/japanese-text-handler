@@ -71,7 +71,15 @@
     "notification": {
       "errorTitle": "Failed",
       "successTtile": "Success",
-      "warningTitle": "Warning"
+      "warningTitle": "Warning",
+      "errorMessage": {
+        "catchedError": "An unexpected error occurred. Please refresh the page.",
+        "INVALID_INPUT": "Please enter valid content.",
+        "PAYLOAD_TOO_LARGE": "Character count exceeds the limit. Please shorten and try again.",
+        "UNSAFE_CONTENT_DETECTED": "Unsafe content detected.",
+        "NETWORK_ERROR": "Network connection failed. Please check your network settings.",
+        "default": "Failure occurred. Please try again later."
+      }
     },
     "fetchFailed": "Failed to fetch records."
   },

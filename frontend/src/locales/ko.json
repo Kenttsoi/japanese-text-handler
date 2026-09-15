@@ -71,7 +71,15 @@
     "notification": {
       "errorTitle": "실패",
       "successTtile": "성공",
-      "warningTitle": "경고"
+      "warningTitle": "경고",
+      "errorMessage": {
+        "catchedError": "예기치 않은 오류가 발생했습니다. 페이지를 새로고침해 주세요.",
+        "INVALID_INPUT": "올바른 내용을 입력해 주세요.",
+        "PAYLOAD_TOO_LARGE": "글자 수가 제한을 초과했습니다. 줄인 후 다시 시도해 주세요.",
+        "UNSAFE_CONTENT_DETECTED": "안전하지 않은 콘텐츠가 감지되었습니다.",
+        "NETWORK_ERROR": "네트워크 연결에 실패했습니다. 네트워크 설정을 확인해 주세요.",
+        "default": "처리에 실패했습니다. 잠시 후 다시 시도해 주세요."
+      }
     },
     "fetchFailed": "기록을 불러오지 못했습니다"
   },

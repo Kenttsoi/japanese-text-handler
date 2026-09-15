@@ -55,6 +55,6 @@ class KanjiCardService:
         paged_results = results[offset : offset + limit]
 
         return {
-            "items": paged_results,
+            "data": paged_results,
             "total": total
         }

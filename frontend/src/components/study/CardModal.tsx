@@ -48,7 +48,7 @@ export default function CardModal({ opened, onClose, query, type, total, starred
         const kanjiRes = await searchKanji(query, controller.signal, LIMIT, currentOffset)
         console.log(kanjiRes)
         res = {
-          items: kanjiRes.result?.items || [],
+          items: kanjiRes.result?.data || [],
           total: kanjiRes.result?.total || 0,
         };
         console.log(res)

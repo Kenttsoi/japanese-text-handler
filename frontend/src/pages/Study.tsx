@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, Skeleton, Text, Button, Group, Stack, Box, SimpleGrid, Paper, Center, TextInput, Card, Alert } from '@mantine/core';
 import { useDebouncedValue, useLocalStorage } from '@mantine/hooks';
 import DynamicKanaSlider from '@/components/study/DynamicKanaSlider';
-import { KanaItem, CardType, KanjiItems, VocabAPIResult, SharedModalProps, SharedModalConfig, KanjiAPIResult } from '@/types';
+import { KanaItem, CardType, KanjiItems, VocabAPIResult, SharedModalProps, SharedModalConfig, KanjiAPIResult, ApiResponse, VocabItems } from '@/types';
 import { vocabService } from '@/services/vocabService';
 import { fetchFirstKanji, searchKanji } from '@/services/api';
 import IconSearch from '@tabler/icons-react/dist/esm/icons/IconSearch.mjs';
@@ -60,8 +60,8 @@ export default function Study() {
   const [isPending, startTransition] = React.useTransition();
   /* const [hiraganaResult, setHiraganaResult] = React.useState<KanaItem[]>([]);
   const [katakanaResult, setKatakaanaResult] = React.useState<KanaItem[]>([]); */
-  const [vocabResult, setVocabResult] = React.useState<VocabAPIResult>({ items: [], total: 0 });
-  const [kanjiResult, setKanjiResult] = React.useState<KanjiAPIResult>({ items: [], total: 0 });
+  const [vocabResult, setVocabResult] = React.useState<VocabAPIResult>({ data: [], total: 0 });
+  const [kanjiResult, setKanjiResult] = React.useState<KanjiAPIResult>({ data: [], total: 0 });
   const [totalVocabCount, setTotalVocabCount] = React.useState<number>(0);
   const [isVocabCardLoading, setIsVocabCardLoading] = React.useState<boolean>(false);
   const [isKanjiCardLoading, setIsKanjiCardLoading] = React.useState<boolean>(false);
@@ -84,22 +84,20 @@ export default function Study() {
         setIsVocabCardLoading(true);
         setError(null);
 
-        const result = await vocabService.getAllVocab();
-        if (result && result.data) {
-          setVocabResult({ items: result.data, total: 9 });
+        const response: ApiResponse<VocabAPIResult> = await vocabService.getAllVocab();
+        const { success, result: vocabCardList } = response
+        if (success && vocabCardList && vocabCardList.data.length > 0) {
+          setVocabResult({ data: vocabCardList.data, total: vocabCardList.data.length });
+          setTotalVocabCount(vocabCardList.total);
           setVocabDisplayCount(6);
         } else {
-          console.warn("Vocab service returned no data.");
-          showWarningToast("Vocab service returned no data.");
-        }
-        if (result && result.count) {
-          setTotalVocabCount(result.count);
+          setVocabResult({ data: [], total: 0 });
         }
       } catch (err: any) {
         if (err.name !== 'AbortError') {
           console.error("Failed to fetch vocab:", err);
           // setError(err instanceof Error ? err : new Error('Unknown error'));
-          showErrorToast(t('others.fetchFailed'));
+          showErrorToast(t('others.notification.errorMessage.catchedError'));
         }
       } finally {
         setIsVocabCardLoading(false);
@@ -118,18 +116,21 @@ export default function Study() {
       try {
         setIsKanjiCardLoading(true);
 
-        const response = await fetchFirstKanji(controller.signal);
+        const response: ApiResponse<KanjiItems[]> = await fetchFirstKanji(controller.signal);
+
         const { result: kanjiCardList, success } = response;
-        if (success && kanjiCardList) {
-          setKanjiResult({ items: kanjiCardList, total: 6 });
+        if (success && kanjiCardList && kanjiCardList.length > 0) {
+          setKanjiResult({ data: kanjiCardList, total: 6 });
           setKanjiDisplayCount(6);
+          return;
         }
+        setKanjiResult({ data: [], total: 0 });
       } catch (err: any) {
         if (err.name === 'AbortError' || controller.signal.aborted) {
           // This request has been cancelled.
           return;
         }
-        showErrorToast(t('others.fetchFailed'));
+        showErrorToast(t('others.notification.errorMessage.catchedError'));
       } finally {
         if (!controller.signal.aborted) {
           setIsKanjiCardLoading(false);
@@ -173,8 +174,8 @@ export default function Study() {
 
   React.useEffect(() => {
     if (!debouncedSearchQuery.trim()) {
-      setVocabResult({ items: [], total: 0 });
-      setKanjiResult({ items: [], total: 0 });
+      setVocabResult({ data: [], total: 0 });
+      setKanjiResult({ data: [], total: 0 });
       return;
     }
 
@@ -184,21 +185,22 @@ export default function Study() {
       setIsVocabCardLoading(true);
       setIsKanjiCardLoading(true);
       try {
-        const [vocabData, kanjiData] = await Promise.all([
+        const [vocabRes, kanjiRes] = await Promise.allSettled([
           vocabService.searchVocab(debouncedSearchQuery.trim(), controller.signal),
           searchKanji(debouncedSearchQuery.trim(), controller.signal)
         ]);
-        setVocabResult(vocabData);
-        setVocabDisplayCount(6);
-        if (kanjiData.success) {
-          setKanjiResult(kanjiData.result);
-          setKanjiDisplayCount(6);
-        } else {
-          showErrorToast(t('others.fetchFailed'));
-          throw new Error('Error occurred');
+        console.log('[vocabRes]', vocabRes);
+        console.log('[kanjiRes]', kanjiRes);
+        if (vocabRes.status === 'fulfilled' && vocabRes.value.success && vocabRes.value.result) {
+          setVocabResult(vocabRes.value.result);
+          setVocabDisplayCount(6);
         }
-        console.log('KanjiData', kanjiData);
-        console.log('VoacbData', vocabData.items, vocabData.total);
+
+        if (kanjiRes.status === 'fulfilled' && kanjiRes.value.success && kanjiRes.value.result) {
+          setKanjiResult(kanjiRes.value.result);
+          setKanjiDisplayCount(6);
+        }
+
       } catch (err: any) {
         if (err.name !== 'AbortError') {
           console.error("[PARALLEL SEARCH ERROR] ", err);
@@ -233,9 +235,9 @@ export default function Study() {
     setVocabModalOpen(true);
   }
 
-  const vocabItems = vocabResult.items;
+  const vocabItems = vocabResult.data;
   const vocabTotal = vocabResult.total;
-  const kanjiItems = kanjiResult.items;
+  const kanjiItems = kanjiResult.data;
   const kanjiTotal = kanjiResult.total;
   const visibleVocabItems = vocabItems.slice(0, vocabDisplayCount)
   const visibleKanjiItems = kanjiItems.slice(0, kanjiDisplayCount)

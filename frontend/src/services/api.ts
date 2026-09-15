@@ -1,110 +1,64 @@
-import { FirstKanjiApiResponse } from "@/types";
+import { ApiResponse, KanjiAnnotatedDictItem, KanjiAPIResult, KanjiItems } from "@/types";
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
-export const convertJapaneseText = async (text: string) => {
+export const convertJapaneseText = async (text: string): Promise<ApiResponse<KanjiAnnotatedDictItem[]>> => {
     try {
         const response = await fetch(`${API_URL}/convert`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ text }),
         });
-        if (!response.ok) {
-            throw new Error('API request failed');
-        }
-        return await response.json();
+        const data: ApiResponse<KanjiAnnotatedDictItem[]> = await response.json();
+        return data;
     } catch (err) {
-        console.error('[FRONTEND ERROR]', err);
-        throw err;
-    }
-}
-
-export const annotateTextSimple = async (text: string) => {
-    try {
-        const response = await fetch(`${API_URL}/annotate`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text }),
-        });
-        if (!response.ok) {
-            throw new Error('API request failed');
+        return {
+            success: false,
+            code: "NETWORK_ERROR",
+            result: null,
+            message: err instanceof Error ? err.message : 'Network failure',
+            timestamp: Date.now(),
         }
-        return await response.json();
-    } catch (error) {
-        console.error("[FRONT ERROR] ", error);
-        throw error;
     }
 }
 
-export const annotateText = async (text: string) => {
-    try {
-        const response = await fetch(`${API_URL}/annotate2`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text }),
-        });
-        if (!response.ok) {
-            throw new Error('API request failed');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error("[FRONT ERROR] ", error);
-        throw error;
-    }
-}
-
-export const annotateSample = async (text: string) => {
-    try {
-        const response = await fetch(`${API_URL}/annotateSample`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text }),
-        });
-        if (!response.ok) {
-            throw new Error('API request failed');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error("[FRONT ERROR] ", error);
-        throw error;
-    }
-}
-
-export const fetchFirstKanji = async (signal?: AbortSignal): Promise<FirstKanjiApiResponse> => {
+export const fetchFirstKanji = async (signal?: AbortSignal): Promise<ApiResponse<KanjiItems[]>> => {
     try {
         const response = await fetch(`${API_URL}/kanji/first-six`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             signal
         });
-        if (!response.ok) {
-            throw new Error('API request failed');
-        }
-        return await response.json();
+        const data: ApiResponse<KanjiItems[]> = await response.json();
+        return data;
     } catch (err) {
-        console.error("[FRONT ERROR] ", err);
-        throw err;
+        return {
+            success: false,
+            code: "NETWORK_ERROR",
+            result: null,
+            message: err instanceof Error ? err.message : 'Network failure',
+            timestamp: Date.now()
+        }
     }
 }
 
-export const searchKanji = async (kanjiQuery: string, signal?: AbortSignal, limit: number = 20, offset: number = 0) => {
+export const searchKanji = async (kanjiQuery: string, signal?: AbortSignal, limit: number = 20, offset: number = 0): Promise<ApiResponse<KanjiAPIResult>> => {
     try {
         const response = await fetch(`${API_URL}/kanji/search?q=${encodeURIComponent(kanjiQuery.trim())}&limit=${limit}&offset=${offset}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             signal
         });
-        if (!response.ok) {
-            throw new Error('API request failed');
-        }
-        return await response.json();
+        const data: ApiResponse<KanjiAPIResult> = await response.json();
+        return data;
     } catch (err) {
-        if (err instanceof Error && err.name === 'AbortError') {
-            console.log('[FRONT INFO] Fetch aborted');
-            return { items: [], total: 0 };
+        return {
+            success: false,
+            code: "NETWORK_ERROR",
+            result: null,
+            message: err instanceof Error ? err.message : 'Network failure',
+            timestamp: Date.now()
         }
-        console.error("[FRONT ERROR] ", err);
-        throw err;
     }
 }
 
