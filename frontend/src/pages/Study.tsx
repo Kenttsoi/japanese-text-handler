@@ -189,8 +189,7 @@ export default function Study() {
           vocabService.searchVocab(debouncedSearchQuery.trim(), controller.signal),
           searchKanji(debouncedSearchQuery.trim(), controller.signal)
         ]);
-        console.log('[vocabRes]', vocabRes);
-        console.log('[kanjiRes]', kanjiRes);
+
         if (vocabRes.status === 'fulfilled' && vocabRes.value.success && vocabRes.value.result) {
           setVocabResult(vocabRes.value.result);
           setVocabDisplayCount(6);
@@ -205,7 +204,7 @@ export default function Study() {
         if (err.name !== 'AbortError') {
           console.error("[PARALLEL SEARCH ERROR] ", err);
           // setError(err instanceof Error ? err : new Error('Unknown error'));
-          showErrorToast(t('others.fetchFailed'));
+          showErrorToast(t('others.notification.errorMessage.catchedError'));
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -225,7 +224,7 @@ export default function Study() {
     let preModalConfig: SharedModalConfig = {
       type: type,
       query,
-      total
+      total,
     }
     if (type === 'vocab') {
       preModalConfig['starredIds'] = starredIds;

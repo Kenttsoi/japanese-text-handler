@@ -3,27 +3,18 @@ import { Modal, Text, ScrollArea, Center, Loader } from '@mantine/core';
 import VocabGrid from './VocabGrid';
 import { showErrorToast } from '@/utils/notification';
 import { vocabService } from '@/services/vocabService';
-import { VocabItems } from '@/types';
+import { ApiResponse, KanjiItems, VocabAPIResult, VocabItems } from '@/types';
 import { useTranslation } from 'react-i18next';
 import { SharedModalProps } from '@/types';
 import { searchKanji } from '@/services/api';
 import KanjiGrid from './KanjiGrid';
 
-/* interface VocabModalProps {
-  opened: boolean;
-  onClose: () => void;
-  query: string;
-  total: number;
-  starredIds: number[];
-  onToggleStar: (id: number) => void
-} */
-
 export default function CardModal({ opened, onClose, query, type, total, starredIds, onToggleStar }: SharedModalProps) {
-  const [items, setItems] = React.useState<VocabItems[]>([]);
+  const [items, setItems] = React.useState<(VocabItems | KanjiItems)[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [offset, setOffset] = React.useState(0);
-  const [hasMore, setHasMore] = React.useState(true);
-  const [modalLoading, setModalLoading] = React.useState(false);
+  const [offset, setOffset] = React.useState<number>(0);
+  const [hasMore, setHasMore] = React.useState<boolean>(true);
+  const [modalLoading, setModalLoading] = React.useState<boolean>(false);
   const { t } = useTranslation();
 
   const viewportRef = React.useRef<HTMLDivElement>(null);
@@ -38,44 +29,40 @@ export default function CardModal({ opened, onClose, query, type, total, starred
     const controller = new AbortController();
 
     try {
-      let res: { items: any[]; total: number; hasMore?: boolean } = { items: [], total: 0 };
-
-      if (type === 'vocab') {
-        res = await vocabService.searchVocab(query, controller.signal, LIMIT, currentOffset);
+      const apiMap = {
+        vocab: vocabService.searchVocab,
+        kanji: searchKanji
       }
 
-      if (type === 'kanji') {
-        const kanjiRes = await searchKanji(query, controller.signal, LIMIT, currentOffset)
-        console.log(kanjiRes)
-        res = {
-          items: kanjiRes.result?.data || [],
-          total: kanjiRes.result?.total || 0,
-        };
-        console.log(res)
+      const fetchApi = apiMap[type];
+
+      const res = await fetchApi(query, controller.signal, LIMIT, currentOffset);
+
+      if (!res.success && !res.result) {
+        throw new Error;
       }
 
-      const newItems = res.items;
+      if (res.success && res.result) {
+        const newItems = res.result.data;
+        const newTotal = res.result.total
 
-      setItems((prev) => {
-        const updatedItems = [...prev, ...newItems];
+        setItems((prev) => {
+          const updatedItems = [...prev, ...newItems];
 
-        if (updatedItems.length >= res.total || newItems.length < LIMIT) {
-          setHasMore(false);
-        }
+          if (updatedItems.length >= newTotal || newItems.length < LIMIT) {
+            setHasMore(false);
+          }
 
-        return updatedItems;
-      });
+          return updatedItems;
+        });
 
-      setOffset((prevOffset) => prevOffset + LIMIT);
-      /* setItems((prev) => [...prev, ...res.items]);
-
-      if (items.length + res.items.length >= res.total || res.items.length < LIMIT) {
-        setHasMore(false);
+        setOffset((prevOffset) => prevOffset + LIMIT);
       }
-
-      setOffset(currentOffset + LIMIT); */
     } catch (err) {
-      console.error('Fetch error:', err);
+      showErrorToast(t('others.notification.errorMessage.catchedError'));
+      setItems([]);
+      setOffset(0);
+      setHasMore(true);
     } finally {
       setModalLoading(false);
       setIsLoading(false)
@@ -110,7 +97,7 @@ export default function CardModal({ opened, onClose, query, type, total, starred
 
     const viewportNode = viewportRef.current;
     const bottomNode = bottomRef.current;
-    console.log('[Debug] Modal Opened:', { viewportNode, bottomNode });
+
     if (!viewportNode || !bottomNode) return;
 
     const observer = new IntersectionObserver(
@@ -134,32 +121,6 @@ export default function CardModal({ opened, onClose, query, type, total, starred
       if (observer) observer.disconnect();
     };
   }, [opened, offset, hasMore, modalLoading]);
-
-  /* React.useEffect(() => {
-    if (!opened || !query.trim()) return;
-    const controller = new AbortController();
-
-    async function fetchAllVocab() {
-      try {
-        setIsLoading(true);
-
-        const result = await vocabService.searchVocab(query, controller.signal);
-        console.log('ReSULT', result)
-        if (result.items.length >= 0) {
-          setItems(result.items);
-        }
-      } catch (err: any) {
-        showErrorToast(t('others.fetchFailed'));
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchAllVocab();
-
-    return () => {
-      controller.abort();
-    }
-  }, [opened, query]); */
 
   return (
     <>
