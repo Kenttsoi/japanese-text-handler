@@ -9,14 +9,14 @@ interface VocabCardGridProps extends CardGridProps {
   onToggleStar: (id: number) => void
 }
 
-export default function VocabGrid({ isLoading, data, starredIds, onToggleStar}: VocabCardGridProps) {
+export default function VocabGrid({ isLoading, data, starredIds, onToggleStar }: VocabCardGridProps) {
 
   if (isLoading) {
     return (
       <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
         {
           Array.from({ length: 3 }).map((_, i) => (
-            <VocabCard key={`skeleton-vocabCard-${i}`} isLoading={true} isStarred={false} onToggle={() => {}}/>
+            <VocabCard key={`skeleton-vocabCard-${i}`} isLoading={true} isStarred={false} onToggle={() => { }} />
           ))
         }
       </SimpleGrid>
@@ -39,7 +39,7 @@ export default function VocabGrid({ isLoading, data, starredIds, onToggleStar}: 
             isLoading={false}
             data={item}
             isStarred={starredIds.includes(item.id)}
-            onToggle={() => onToggleStar(item.id)}
+            onToggle={onToggleStar}
           />
         ))
       }

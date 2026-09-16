@@ -1,13 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Container, Title, Stack, Badge, Textarea, Paper, Group, Text, Button, SegmentedControl, Chip, Select } from '@mantine/core';
+import { Container, Title, Stack, Badge, Textarea, Paper, Group, Text, Button, SegmentedControl, Chip, Select, Center, Loader } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { convertJapaneseText } from '../services/api';
 import { RubyText } from '../components/RubyText';
 import classes from './Annotator.module.css';
 import AnimatedConvertButton from '../components/annotator/AnimatedConvertButton';
 import { useTranslation } from 'react-i18next';
-import { showErrorToast } from '../utils/notification';
+import { showErrorToast, showWarningToast } from '../utils/notification';
 import { ApiResponse, KanjiAnnotatedDictItem } from '@/types';
 
 type displayMode = 'original' | 'furigana' | 'hiragana' | 'katakana' | 'romaji' | 'pitch_accent';
@@ -31,6 +31,12 @@ const Annotator: React.FC = () => {
 
   const handleConvert = async () => {
     console.log('handleConvert', text);
+
+    if (!text.trim()) {
+      showWarningToast(t('others.notification.errorMessage.INVALID_INPUT'));
+      return;
+    }
+
     setLoading(true);
     try {
       const apiRes: ApiResponse<KanjiAnnotatedDictItem[]> = await convertJapaneseText(text);
@@ -46,7 +52,7 @@ const Annotator: React.FC = () => {
       switch (apiRes.code) {
         case "MISSING_TEXT":
         case "INVALID_INPUT":
-          showErrorToast(t('others.notification.errorMessage.INVALID_INPUT'));
+          showWarningToast(t('others.notification.errorMessage.INVALID_INPUT'));
           break;
         case 'PAYLOAD_TOO_LARGE':
           showErrorToast(t('others.notification.errorMessage.PAYLOAD_TOO_LARGE'));
@@ -129,7 +135,7 @@ const Annotator: React.FC = () => {
         <br />
         <Container className="mainContentWidth">
           <Group align="center" justify="center">
-            <AnimatedConvertButton onClick={handleConvert} />
+            <AnimatedConvertButton onClick={handleConvert} loading={loading}/>
           </Group>
         </Container>
         <Container className="mainContentWidth">
@@ -160,7 +166,11 @@ const Annotator: React.FC = () => {
               </Group>
             </Group>
             <Paper shadow="xs" radius="md" p="xl" className={classes.displayPaper}>
-              {result.length > 0 ?
+              {loading ? (
+                <Center h="100%">
+                  <Loader size="md" />
+                </Center>
+              ) : (result.length > 0 ?
                 result.map((item, index) => {
                   if (item.original === '\\n') {
                     return (
@@ -214,7 +224,7 @@ const Annotator: React.FC = () => {
                         <span key={index}>{result[index]['katakana']}</span>
                       );
                   }
-                }) : <></>}
+                }) : <></>)}
             </Paper>
             <Group align="center" justify="flex-end" className={classes.outputToolsBottom}>
               <Button

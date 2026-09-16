@@ -14,6 +14,7 @@ interface VocabCardProps {
 }
 
 export default function VocabCard({ isLoading, isStarred, data, onToggle }: VocabCardProps) {
+  
   if (isLoading) {
     return (
       <Card shadow="sm" padding="xl" radius="lg" withBorder>

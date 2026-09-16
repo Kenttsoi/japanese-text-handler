@@ -11,9 +11,8 @@ import KanjiGrid from '@/components/study/KanjiGrid';
 import { hiraganaData } from '@/data/kanaData';
 import { katakanaData } from '@/data/kanaData';
 import DataCards from '@/components/study/DataCards';
-import { showErrorToast, showWarningToast } from '@/utils/notification';
+import { showErrorToast, showSuccessToast } from '@/utils/notification';
 import CardModal from '@/components/study/CardModal';
-import KanjiModal from '@/components/study/KanjiModal';
 import { useTranslation } from 'react-i18next';
 
 const splitRomaji = (input: string): string[] => {
@@ -71,9 +70,7 @@ export default function Study() {
     key: 'starred-vocabs',
     defaultValue: [],
   });
-  const [error, setError] = React.useState<Error | null>(null);
   const [vocabModalOpen, setVocabModalOpen] = React.useState(false);
-  const [kanjiModalOpen, setKanjiModalOpen] = React.useState(false);
   const [modalConfig, setModalConfig] = React.useState<SharedModalConfig | null>(null);
   const { t } = useTranslation();
 
@@ -82,7 +79,6 @@ export default function Study() {
     async function fetchFirstVocab() {
       try {
         setIsVocabCardLoading(true);
-        setError(null);
 
         const response: ApiResponse<VocabAPIResult> = await vocabService.getAllVocab();
         const { success, result: vocabCardList } = response
@@ -96,7 +92,6 @@ export default function Study() {
       } catch (err: any) {
         if (err.name !== 'AbortError') {
           console.error("Failed to fetch vocab:", err);
-          // setError(err instanceof Error ? err : new Error('Unknown error'));
           showErrorToast(t('others.notification.errorMessage.catchedError'));
         }
       } finally {
@@ -155,11 +150,17 @@ export default function Study() {
   }
 
   const handleToggleStar = (id: number) => {
+    const isCurrentlyStarred = starredIds.includes(id);
     setStarredIds((current) =>
       current.includes(id)
         ? current.filter((itemId) => itemId !== id)
         : [...current, id]
     );
+    if (isCurrentlyStarred) {
+      showSuccessToast(t('others.notification.study.star.removeStarSuccessMsg'), t('others.notification.study.star.removeStarSuccessTitle'), 1500);
+    } else {
+      showSuccessToast(t('others.notification.study.star.addStarSuccessMsg'), t('others.notification.study.star.addStarSuccessTitle'), 1500);
+    }
   };
 
   const filteredHiragana = React.useMemo(() =>
@@ -203,7 +204,6 @@ export default function Study() {
       } catch (err: any) {
         if (err.name !== 'AbortError') {
           console.error("[PARALLEL SEARCH ERROR] ", err);
-          // setError(err instanceof Error ? err : new Error('Unknown error'));
           showErrorToast(t('others.notification.errorMessage.catchedError'));
         }
       } finally {
@@ -227,7 +227,6 @@ export default function Study() {
       total,
     }
     if (type === 'vocab') {
-      preModalConfig['starredIds'] = starredIds;
       preModalConfig['onToggleStar'] = handleToggleStar;
     }
     setModalConfig(preModalConfig);
@@ -308,7 +307,7 @@ export default function Study() {
           ) : null}
         </Group>
       )}
-      <CardModal {...modalConfig as SharedModalProps} opened={vocabModalOpen} onClose={() => setVocabModalOpen(false)} />
+      <CardModal {...modalConfig as SharedModalProps} starredIds={starredIds} opened={vocabModalOpen} onClose={() => setVocabModalOpen(false)} />
     </Container>
   )
 }

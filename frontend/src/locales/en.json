@@ -18,7 +18,10 @@
   },
   "features": {
     "cardList": [
-      { "title": "Auto Furigana Annotation", "description": "Automatically generate Furigana for complex Kanji and toggle entire passages between Hiragana, Katakana, and Romaji." }
+      {
+        "title": "Auto Furigana Annotation",
+        "description": "Automatically generate Furigana for complex Kanji and toggle entire passages between Hiragana, Katakana, and Romaji."
+      }
     ]
   },
   "annotator": {
@@ -79,6 +82,14 @@
         "UNSAFE_CONTENT_DETECTED": "Unsafe content detected.",
         "NETWORK_ERROR": "Network connection failed. Please check your network settings.",
         "default": "Failure occurred. Please try again later."
+      },
+      "study": {
+        "star": {
+          "removeStarSuccessTitle": "Removed from Favorites",
+          "removeStarSuccessMsg": "This word has been removed from your favorites list.",
+          "addStarSuccessTitle": "Saved to Favorites!",
+          "addStarSuccessMsg": "This word has been added to your favorites list."
+        }
       }
     },
     "fetchFailed": "Failed to fetch records."

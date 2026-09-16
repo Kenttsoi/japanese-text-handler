@@ -82,6 +82,14 @@
         "UNSAFE_CONTENT_DETECTED": "不適切なコンテンツが検出されました。",
         "NETWORK_ERROR": "ネットワーク接続に失敗しました。ネットワーク設定を確認してください。",
         "default": "処理に失敗しました。しばらく時間をおいてから再度お試しください。"
+      },
+      "study": {
+        "star": {
+          "removeStarSuccessTitle": "お気に入り解除",
+          "removeStarSuccessMsg": "お気に入りリストから削除しました。",
+          "addStarSuccessTitle": "お気に入り追加！",
+          "addStarSuccessMsg": "お気に入りリストに追加しました。"
+        }
       }
     },
     "fetchFailed": "データの取得に失敗しました"

@@ -8,7 +8,7 @@
     },
     "selectLanguage": "언어 선택"
   },
-    "homePage": {
+  "homePage": {
     "mainSlogan1": "모든 일본어 독자를 위한",
     "mainSlogan2": "전담 파트너.",
     "subSlogan": "한자 정렬 및 데이터 어노테이션 전용 툴. 별도의 설정 없이 즉시 라벨링을 시작하세요.",
@@ -18,7 +18,10 @@
   },
   "features": {
     "cardList": [
-      { "title": "후리가나 자동 주석 기능", "description": "구문 분석 기술로 한자의 정확한 읽기 정보를 제공합니다. 히라가나, 가타카나, 로마자 표기를 자유롭게 선택할 수 있습니다." }
+      {
+        "title": "후리가나 자동 주석 기능",
+        "description": "구문 분석 기술로 한자의 정확한 읽기 정보를 제공합니다. 히라가나, 가타카나, 로마자 표기를 자유롭게 선택할 수 있습니다."
+      }
     ]
   },
   "annotator": {
@@ -79,6 +82,14 @@
         "UNSAFE_CONTENT_DETECTED": "안전하지 않은 콘텐츠가 감지되었습니다.",
         "NETWORK_ERROR": "네트워크 연결에 실패했습니다. 네트워크 설정을 확인해 주세요.",
         "default": "처리에 실패했습니다. 잠시 후 다시 시도해 주세요."
+      },
+      "study": {
+        "star": {
+          "removeStarSuccessTitle": "즐겨찾기 해제",
+          "removeStarSuccessMsg": "즐겨찾기 목록에서 삭제되었습니다.",
+          "addStarSuccessTitle": "즐겨찾기 추가!",
+          "addStarSuccessMsg": "즐겨찾기 목록에 추가되었습니다."
+        }
       }
     },
     "fetchFailed": "기록을 불러오지 못했습니다"

@@ -18,7 +18,10 @@
   },
   "features": {
     "cardList": [
-      { "title": "自動標註振假名", "description": "利用的語法分析技術，一鍵為日文漢字標上正確的讀音，支援多種顯示模式。" }
+      {
+        "title": "自動標註振假名",
+        "description": "利用的語法分析技術，一鍵為日文漢字標上正確的讀音，支援多種顯示模式。"
+      }
     ]
   },
   "annotator": {
@@ -79,6 +82,14 @@
         "UNSAFE_CONTENT_DETECTED": "檢測到不安全的內容",
         "NETWORK_ERROR": "網路連線失敗，請檢查網路設定",
         "default": "處理失敗，請稍後再試。"
+      },
+      "study": {
+        "star": {
+          "removeStarSuccessTitle": "已移除收藏",
+          "removeStarSuccessMsg": "已將該單字從收藏清單中移除",
+          "addStarSuccessTitle": "成功收藏！",
+          "addStarSuccessMsg": "已將該單字加入收藏清單"
+        }
       }
     },
     "fetchFailed": "讀取記錄失敗"
