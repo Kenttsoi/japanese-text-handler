@@ -4,7 +4,7 @@ import classes from './RubyText.module.css';
 interface RubyTextProps {
     text: string;
     rubyText: string;
-    key: number
+    key: string | number
 }
 
 export const RubyText: React.FC<RubyTextProps> = ({ text, rubyText }) => {

@@ -1,14 +1,28 @@
+
 from flask import Blueprint, request, jsonify, Response, current_app
-from app.models.japanese_text_handler import JapaneseTextHandler
-from app.models.japanese_text_handler import JapaneseTextConverter
-from app.handlers.kuromoji_handler import KuromojiHandler
-from app.utils.response import api_success, api_error
+from app.services.kanji_card_service import KanjiCardService
+from app.services.japanese_text_service import JapaneseTextHandler
+from app.services.japanese_text_service import JapaneseTextConverter
+from app.utils.response import api_success, api_error, api_media_success
+from itertools import islice
 import html
+import requests
+import os
+import hashlib
+
+api = Blueprint('api', __name__)
+
 MAX_CHARS = 500
+
 FORBIDDEN_PATTERNS = [
     "<script", "javascript:", "DROP TABLE", 
     "INSERT INTO", "SELECT *", "--", "OR 1=1"
 ]
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+CACHE_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "..", "data", "audio_cache"))
+os.makedirs(CACHE_DIR, exist_ok=True)
+VOICEVOX_URL = "http://127.0.0.1:50021"
 
 def is_suspicious(text):
     """Check for common SQL injection or Script injection patterns."""
@@ -17,7 +31,47 @@ def is_suspicious(text):
             return True
     return False
 
-api = Blueprint('api', __name__)
+@api.before_request
+def validate_and_sanitize_incoming_request():
+    if request.is_json and request.method in ['POST', 'PUT', 'PATCH']:
+        data = request.json or {}
+
+        for key, value in data.items():
+            if isinstance(value, str):
+
+                # Length check (OOM Prevention)
+                if len(value) > MAX_CHARS:
+                    return api_error(
+                        message=f"Please limit to {MAX_CHARS} characters",
+                        code="PAYLOAD_TOO_LARGE",
+                        status=413
+                    )
+
+                # Security check (Injection Prevention)
+                if is_suspicious(value):
+                    return api_error(
+                        message="Unsafe content detected.",
+                        code="UNSAFE_CONTENT_DETECTED",
+                        status=400
+                    )
+
+                # HTML Escape (XSS Prevention)
+                safe_text = html.escape(value)
+
+        if 'text' in data:
+            request.environ['CLEAN_TEXT'] = safe_text
+
+        print('passed')
+        
+    if request.method == 'GET':
+        for key, value in request.args.items():
+            if len(value) > 50:
+                return api_error(
+                    message="error: Query too long",
+                    code="QUERY_TOO_LONG",
+                    status=400
+                )
+        print('passed')
 
 @api.route('/')
 def hello():
@@ -26,31 +80,127 @@ def hello():
 @api.route('/convert', methods=['POST'])
 def convert():
     # Extract data
-    data = request.json
-    raw_text = data.get('text').replace('\n', '\\n') if data else None
+    passage_text = request.environ.get('CLEAN_TEXT')
+    """ if not passage_text:
+        return api_success([])
+    handled_text = passage_text.replace('\n', '\\n') if passage_text else None
 
-    # Length check (OOM Prevention)
-    if len(raw_text) > MAX_CHARS:
-        return api_error(f"Please limit to {MAX_CHARS} words", status=413)
+    if not handled_text:
+        return api_error('You need to enter text') """
+    if not passage_text or not passage_text.strip():
+        return api_error(
+            message='You need to enter text',
+            code='INVALID_INPUT',
+            status=400
+        )
     
-    # Security check (Injection Prevention)
-    if is_suspicious(raw_text):
-        return api_error("Unsafe content detected.", status=400)
-    
-    # HTML Escape (XSS Prevention)
-    safe_text = html.escape(raw_text)
+    handled_text = passage_text.replace('\n', '\\n')
 
-    if not safe_text:
-        return api_error('You need to enter text')
     try:
-        print(safe_text)
-        converter = JapaneseTextConverter(safe_text)
+        print(handled_text)
+        converter = JapaneseTextConverter(handled_text)
         result = converter.convert()
         return api_success(result)
     except Exception as e:
-        return api_error('Conversion Error', status=500)
+        return api_error(
+            message="An unexpected server error occurred", 
+            code="INTERNAL_SERVER_ERROR", 
+            status=500
+        )
 
-@api.route('/sample1')
+@api.route('/kanji/first-six', methods=['GET'])
+def get_first_six_kanji():
+    try:
+        cards_data = KanjiCardService.get_first_six_cards()
+        return api_success(cards_data)
+    except Exception as e:
+        return api_error(
+            message='Data retrieve Error', 
+            code="INTERNAL_SERVER_ERROR", 
+            status=500
+        )
+
+@api.route('/kanji/search', methods=['GET'])
+def search_kanji():
+    try:
+        query = request.args.get('q', '').strip()
+
+        if not query:
+            return api_error(
+                message="Query parameter 'q' is required",
+                code="INVALID_INPUT",
+                status=400
+            )
+
+        offset = int(request.args.get('offset', 0))
+        limit = int(request.args.get('limit', 20))
+        
+        results = KanjiCardService.search_kanji(query, offset, limit)
+
+        return api_success(results)
+    except Exception as e:
+        return api_error(
+            message='Search operation failed', 
+            code='SEARCH_FAILED',
+            status=500
+        )
+
+@api.route('/pronounce', methods=['GET'])
+def get_pronunciation():
+    text = request.args.get('text', 'こんにちは')
+    if not text:
+        return api_error(
+            message='Text is required',
+            code='MISSING_TEXT',
+            status=400
+        )
+
+    text_hash = hashlib.md5(text.encode('utf-8')).hexdigest()
+    cache_file_path = os.path.join(CACHE_DIR, f"{text_hash}.wav")
+
+    if os.path.exists(cache_file_path):
+        with open(cache_file_path, "rb") as f:
+            cached_audio = f.read()
+        return api_media_success(cached_audio, mimetype="audio/wav")
+
+    try:
+        speaker_id = 29 # 11 for otoko
+        query_payload = {"text": text, "speaker": speaker_id}
+        query_res = requests.post(f"{VOICEVOX_URL}/audio_query", params=query_payload, timeout=5)
+        
+        if query_res.status_code != 200:
+            return api_error(
+                message='Failed to query VOICEVOX', 
+                code='VOICEVOX_SERVICE_ERROR',
+                status=500
+            )
+
+        synth_res = requests.post(
+            f"{VOICEVOX_URL}/synthesis",
+            params={"speaker": speaker_id},
+            json=query_res.json()
+        )
+
+        if synth_res.status_code != 200:
+            return api_error(
+                message='Failed to synthesize audio',
+                code='AUDIO_SYNTHESIS_FAILED',
+                status=500
+            )
+
+        with open(cache_file_path, "wb") as f:
+            f.write(synth_res.content)
+
+        return api_media_success(synth_res.content, mimetype="audio/wav")
+
+    except Exception as e:
+        return api_error(
+            message='Voice service unavailable',
+            code='VOICE_SERVICE_UNAVAILABLE',
+            status=500
+        )
+
+""" @api.route('/sample1')
 def sample1():
     answer = current_app.wakati_tagger.parse("pythonが大好きです").split()
     return answer
@@ -59,7 +209,7 @@ def sample1():
 def sample2():
     text = "今日、こんにちは"
     parsed = current_app.tagger.parse(text).splitlines()[:-1]
-    return jsonify({'result': parsed})  # 返回 JSON
+    return jsonify({'result': parsed})
 
 @api.route('/annotate', methods=['POST'])
 def annotate():
@@ -69,4 +219,4 @@ def annotate():
         return jsonify({'error': 'No text provided'})
     else:
         result = JapaneseTextHandler().annotate(text)
-        return jsonify(result)
+        return jsonify(result) """

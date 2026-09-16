@@ -1,6 +1,8 @@
 import pandas as pd
-from app import create_app, db
+from app import create_app
+from app.extensions import db
 from app.models.word import WordImport
+from sqlalchemy import text
 
 app = create_app('development')
 
@@ -10,8 +12,10 @@ def seed_from_excel():
     df = pd.read_excel(excel_file_path, dtype=str, engine="openpyxl")
     word_dicts = df.to_dict(orient='records')
     words_to_insert = []
- 
-    for row in word_dicts:
+
+    total = len(word_dicts)
+    for i, row in enumerate(word_dicts, start=1):
+        print('Import each row starts')
         word_val = str(row['word']).strip() if pd.notna(row['word']) else ""
         reading_val = str(row['reading']).strip() if pd.notna(row['reading']) else ""
         meaning_ch_val = str(row['meaning_ch']).strip() if pd.notna(row['meaning_ch']) else ""
@@ -36,10 +40,27 @@ def seed_from_excel():
         )
         words_to_insert.append(word_entry)
 
+        percent = (i / total) * 100
+        print(f"\rProcessing: {i}/{total} ({percent:.2f}%)", end="", flush=True)
+
+
     with app.app_context():
+        print("Start connecting to DB")
+        print("Current DB URI:", app.config.get('SQLALCHEMY_DATABASE_URI'))
+        db.init_app(app)
         try:
+            print('Start dropping and building table')
             db.drop_all()
+            print('dropped')
             db.create_all()
+            db.session.execute(text("ALTER TABLE word_entries ENABLE ROW LEVEL SECURITY;"))
+            db.session.execute(text("""
+                CREATE POLICY "Allow public read access" 
+                ON word_entries 
+                FOR SELECT 
+                TO anon 
+                USING (true);
+            """))
             db.session.bulk_save_objects(words_to_insert)
             db.session.commit()
             print('Finished Import Data')

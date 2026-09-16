@@ -5,6 +5,8 @@ import { createTheme, MantineProvider, Center, Loader, CSSVariablesResolver } fr
 import { AnimatePresence } from 'framer-motion';
 import '@mantine/core/styles.css';
 import './App.css'
+import { Notifications } from '@mantine/notifications';
+import '@mantine/notifications/styles.css';
 
 import Home from './pages/Home';
 import { Header } from './components/layout/Header';
@@ -38,16 +40,16 @@ const LanguageWrapper = () => {
   return <Outlet />;
 }
 
-const NavigateToLang = () => {
+const NavigateToLang = ({ i18nLang }: { i18nLang: string }) => {
   const location = useLocation();
-  const { language } = useTranslation().i18n;
+  // const { language } = useTranslation().i18n;
 
-  return <Navigate to={`/${language}${location.pathname}`} replace />;
+  return <Navigate to={`/${i18nLang}${location.pathname}`} replace />;
 }
 
-const AnimatedRoutes = () => {
+const AnimatedRoutes = ({ i18nLang }: { i18nLang: string }) => {
   const location = useLocation();
-  const { i18n } = useTranslation();
+  // const { i18n } = useTranslation();
 
   return (
     <AnimatePresence mode="wait">
@@ -59,7 +61,7 @@ const AnimatedRoutes = () => {
         <Routes location={location} key={location.pathname}>
           <Route
             path="/"
-            element={<Navigate to={`/${i18n.language}`} replace />}
+            element={<Navigate to={`/${i18nLang}`} replace />}
           />
           <Route path="/:lang" element={<LanguageWrapper />}>
             <Route index element={<PageLayout><Home /></PageLayout>} />
@@ -69,7 +71,7 @@ const AnimatedRoutes = () => {
           </Route>
           <Route
             path="/:path/*"
-            element={<NavigateToLang />}
+            element={<NavigateToLang i18nLang={i18nLang} />}
           />
           <Route path="/404" element={<PageLayout><NotFound /></PageLayout>} />
           <Route path="*" element={<Navigate to="/404" replace />} />
@@ -102,16 +104,20 @@ const resolver: CSSVariablesResolver = (theme) => ({
 });
 
 function App() {
+  const { i18n: i18nInstance } = useTranslation();
+  const i18nLang = i18nInstance.language;
+
   return (
     <MantineProvider
       theme={theme}
       cssVariablesResolver={resolver}
       defaultColorScheme="light"
     >
+      <Notifications position="bottom-center" zIndex={1000} />
       <BrowserRouter>
         <Header />
         <main style={{ paddingTop: '30px', minHeight: '30vh' }}>
-          <AnimatedRoutes />
+          <AnimatedRoutes i18nLang={i18nLang} />
         </main>
         <Footer />
       </BrowserRouter>

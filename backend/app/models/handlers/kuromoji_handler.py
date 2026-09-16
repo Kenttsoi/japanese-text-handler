@@ -8,8 +8,8 @@ import pykakasi
 
 class KuromojiHandler:
     def __init__(self, jar_core_path: Path = None, jar_path: Path = None):
-        self.jar_path = Path(__file__).resolve().parent.parent / 'lib' / 'kuromoji-ipadic-0.9.0.jar'
-        self.jar_core_path = Path(__file__).resolve().parent.parent / 'lib' / 'kuromoji-core-0.9.0.jar'
+        self.jar_path = Path(__file__).resolve().parent.parent.parent / 'lib' / 'kuromoji-ipadic-0.9.0.jar'
+        self.jar_core_path = Path(__file__).resolve().parent.parent.parent / 'lib' / 'kuromoji-core-0.9.0.jar'
 
     def _start_jvm(self) -> bool:
         try:

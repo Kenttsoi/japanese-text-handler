@@ -18,7 +18,10 @@
   },
   "features": {
     "cardList": [
-      { "title": "自動標註振假名", "description": "利用的語法分析技術，一鍵為日文漢字標上正確的讀音，支援多種顯示模式。" }
+      {
+        "title": "自動標註振假名",
+        "description": "利用的語法分析技術，一鍵為日文漢字標上正確的讀音，支援多種顯示模式。"
+      }
     ]
   },
   "annotator": {
@@ -37,5 +40,61 @@
       "romaji": "羅馬拼音",
       "pitchAccent": "音調標註"
     }
+  },
+  "studyPage": {
+    "searchBarLabel": "搜尋",
+    "dataCards": {
+      "totalVocab": "詞彙總數",
+      "favorites": "收藏"
+    },
+    "hiraganaLabel": "平假名",
+    "katakanaLabel": "片假名",
+    "vocabSection": {
+      "vocabLabel": "詞彙"
+    },
+    "kanjiSection": {
+      "kanjiLabel": "漢字"
+    },
+    "general": {
+      "noResultFoundLabel": "找不到相關結果",
+      "showMoreButton": "顯示更多",
+      "showAllButton": {
+        "part1": "檢視全部",
+        "part2": "筆結果"
+      },
+      "modal": {
+        "modalTitle": {
+          "part1": "完整搜尋結果（共",
+          "part2": "筆)"
+        }
+      }
+    }
+  },
+  "others": {
+    "notification": {
+      "errorTitle": "失敗",
+      "successTtile": "成功",
+      "warningTitle": "警告",
+      "errorMessage": {
+        "catchedError": "頁面發生未預期錯誤，請重新整理",
+        "INVALID_INPUT": "請輸入有效的內容",
+        "PAYLOAD_TOO_LARGE": "字數超出限制，請縮短後再試",
+        "UNSAFE_CONTENT_DETECTED": "檢測到不安全的內容",
+        "NETWORK_ERROR": "網路連線失敗，請檢查網路設定",
+        "default": "處理失敗，請稍後再試。"
+      },
+      "study": {
+        "star": {
+          "removeStarSuccessTitle": "已移除收藏",
+          "removeStarSuccessMsg": "已將該單字從收藏清單中移除",
+          "addStarSuccessTitle": "成功收藏！",
+          "addStarSuccessMsg": "已將該單字加入收藏清單"
+        }
+      }
+    },
+    "fetchFailed": "讀取記錄失敗"
+  },
+  "footer": {
+    "ownerStatement": "設計與開發："
   }
 }

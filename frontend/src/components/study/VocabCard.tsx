@@ -1,23 +1,45 @@
 import React from 'react';
-import { Card, Text, Badge, Group, Stack, ActionIcon, Divider } from '@mantine/core';
+import { Card, Text, Badge, Group, Stack, ActionIcon, Divider, Skeleton } from '@mantine/core';
+import { VocabItems } from '@/types';
+import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import IconVolume from '@tabler/icons-react/dist/esm/icons/IconVolume.mjs';
 import IconStar from '@tabler/icons-react/dist/esm/icons/IconStar.mjs';
 import IconStarFilled from '@tabler/icons-react/dist/esm/icons/IconStarFilled.mjs';
 
 interface VocabCardProps {
-  word: string;
-  reading: string;
-  meaning_ch: string;
-  jlpt_level_1?: string | null;
-  pos?: string | null;
+  isLoading: boolean;
+  isStarred: boolean;
+  onToggle: (id: number) => void;
+  data?: VocabItems;
 }
 
-export default function VocabCard({ word, reading, meaning_ch, pos, jlpt_level_1 }: VocabCardProps) {
+export default function VocabCard({ isLoading, isStarred, data, onToggle }: VocabCardProps) {
+  
+  if (isLoading) {
+    return (
+      <Card shadow="sm" padding="xl" radius="lg" withBorder>
+        <Skeleton height={26} radius="xl" mb="md" />
+        <Skeleton height={45} radius="md" mx="auto" mb="sm" />
+        <Divider my="md" opacity={0.6} />
+        <Skeleton height={20} radius="sm" mx="auto" />
+      </Card>
+    );
+  }
+
+  /* const speak = (text: string) => {
+    new Audio(`/api/pronounce?text=${encodeURIComponent(text)}`).play();
+  } */
+
+  const { speak, playingWord } = useAudioPlayer();
+  const isThisWordPlaying = playingWord === data?.word;
+  const isAnyWordPlaying = playingWord !== null;
+
+  if (!data) return null;
+
   const badges = [
-    jlpt_level_1 ? { label: jlpt_level_1, color: 'orange' } : null,
-    pos ? { label: pos, color: 'gray' } : null,
+    data.jlpt_level_1 ? { label: data.jlpt_level_1, color: 'orange' } : null,
+    data.pos ? { label: data.pos, color: 'gray' } : null,
   ].filter(Boolean)
-  const [isStarred, setIsStarred] = React.useState(false);
 
   return (
     <Card
@@ -28,7 +50,7 @@ export default function VocabCard({ word, reading, meaning_ch, pos, jlpt_level_1
       styles={{
         root: {
           maxWidth: 450,
-          backgroundColor: '#ffffff',
+          backgroundColor: 'light-dark(#ffffff, var(--mantine-color-dark-6))',
           '&:hover': {
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
           },
@@ -81,6 +103,9 @@ export default function VocabCard({ word, reading, meaning_ch, pos, jlpt_level_1
             color="gray"
             radius="xl"
             size="md"
+            loading={isThisWordPlaying}
+            disabled={isAnyWordPlaying && !isThisWordPlaying}
+            onClick={() => speak(data.word)}
           >
             <IconVolume size={20} stroke={1.5} />
           </ActionIcon>
@@ -90,10 +115,10 @@ export default function VocabCard({ word, reading, meaning_ch, pos, jlpt_level_1
             color={isStarred ? 'pink' : 'gray'}
             radius="xl"
             size="md"
-            onClick={() => setIsStarred(!isStarred)}
+            onClick={() => onToggle(data.id)}
           >
             {isStarred ? (
-              <IconStarFilled size={20} color="#FF6B8B" />
+              <IconStarFilled size={20} color="light-dark(#FF6B8B, #FF8EAE)" />
             ) : (
               <IconStar size={20} stroke={1.5} />
             )}
@@ -101,32 +126,33 @@ export default function VocabCard({ word, reading, meaning_ch, pos, jlpt_level_1
         </Group>
       </Group>
 
-      <Stack gap={4} mb="md">
+      <Stack gap={4} mb="md" align="center">
         <Text
           styles={{
             root: {
               fontSize: '2.2rem',
               fontWeight: 500,
-              color: '#212529',
+              color: 'light-dark(#212529, #F8F9FA)',
               fontFamily: '"Noto Sans JP", sans-serif',
             }
           }}
         >
-          {word}
+          {data.word}
         </Text>
 
         <Text size="md" c="dimmed" fw={500} style={{ fontFamily: 'monospace' }}>
-          {reading}
+          {data.reading}
         </Text>
       </Stack>
       <Divider my="md" color="#f1f3f5" />
       <Text
         size="lg"
         fw={500}
-        c="gray.7"
+        c="light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-3))"
         mt="sm"
+        ta="center"
       >
-        {meaning_ch}
+        {data.meaning_ch}
       </Text>
     </Card>
   )

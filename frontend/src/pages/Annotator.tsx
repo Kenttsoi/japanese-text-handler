@@ -1,32 +1,21 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Container, Title, Stack, Badge, Textarea, Paper, Group, Text, Button, SegmentedControl, Chip, Select } from '@mantine/core';
+import { Container, Title, Stack, Badge, Textarea, Paper, Group, Text, Button, SegmentedControl, Chip, Select, Center, Loader } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { convertJapaneseText, annotateTextSimple, annotateText, annotateSample } from '../services/api';
+import { convertJapaneseText } from '../services/api';
 import { RubyText } from '../components/RubyText';
 import classes from './Annotator.module.css';
 import AnimatedConvertButton from '../components/annotator/AnimatedConvertButton';
 import { useTranslation } from 'react-i18next';
+import { showErrorToast, showWarningToast } from '../utils/notification';
+import { ApiResponse, KanjiAnnotatedDictItem } from '@/types';
 
 type displayMode = 'original' | 'furigana' | 'hiragana' | 'katakana' | 'romaji' | 'pitch_accent';
 
-
-interface WordDict {
-  original: string;
-  hiragana: string;
-  katakana: string;
-  kanji_breakdown: string[];
-  word_type: string;
-}
-
-interface AnnotatedText {
-  result: WordDict[],
-  success: boolean
-}
-
 const Annotator: React.FC = () => {
   const [text, setText] = React.useState<string>('');
-  const [result, setResult] = React.useState<WordDict[]>([]);
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const [result, setResult] = React.useState<KanjiAnnotatedDictItem[]>([]);
   const [displayMode, setDisplayMode] = React.useState<displayMode>('furigana');
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { t } = useTranslation();
@@ -40,25 +29,51 @@ const Annotator: React.FC = () => {
     { value: 'pitch_accent', label: t('annotator.displayMode.pitchAccent'), disabled: true },
   ]
 
-  const handleAnnotate = async () => {
-    console.log(text)
-    try {
-      const apiResult: AnnotatedText = await annotateTextSimple(text);
-      console.log('[FUNCTION: handleAnnotate]', apiResult);
-      setResult(apiResult['result']);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
   const handleConvert = async () => {
     console.log('handleConvert', text);
+
+    if (!text.trim()) {
+      showWarningToast(t('others.notification.errorMessage.INVALID_INPUT'));
+      return;
+    }
+
+    setLoading(true);
     try {
-      const apiResult: AnnotatedText = await convertJapaneseText(text);
-      console.log('[FUNCTION: handleConvert]', apiResult);
-      setResult(apiResult['result']);
+      const apiRes: ApiResponse<KanjiAnnotatedDictItem[]> = await convertJapaneseText(text);
+      console.log('[FUNCTION: handleConvert]', apiRes);
+
+      if (apiRes.success && apiRes.result) {
+        setResult(apiRes.result);
+        return;
+      }
+
+      setResult([]);
+
+      switch (apiRes.code) {
+        case "MISSING_TEXT":
+        case "INVALID_INPUT":
+          showWarningToast(t('others.notification.errorMessage.INVALID_INPUT'));
+          break;
+        case 'PAYLOAD_TOO_LARGE':
+          showErrorToast(t('others.notification.errorMessage.PAYLOAD_TOO_LARGE'));
+          break;
+        case 'UNSAFE_CONTENT_DETECTED':
+          showErrorToast(t('others.notification.errorMessage.UNSAFE_CONTENT_DETECTED'));
+          break;
+        case 'NETWORK_ERROR':
+          showErrorToast(t('others.notification.errorMessage.NETWORK_ERROR'));
+          break;
+        default:
+          showErrorToast(apiRes.message || t('others.notification.errorMessage.default'));
+          break;
+      }
+
     } catch (err) {
       console.error(err);
+      setResult([]);
+      showErrorToast(t('others.notification.errorMessage.catchedError'));
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -99,7 +114,6 @@ const Annotator: React.FC = () => {
               <Chip value="ひらがな" color="yellow" variant="light" onChange={() => setText("ひらがな")}>ひらがな</Chip>
               <Chip value="カタカナ" color="yellow" variant="light" onChange={() => setText("カタカナ")}>カタカナ</Chip>
               <Chip value="ローマ字" color="yellow" variant="light" onChange={() => setText("ローマ字")}>ローマ字</Chip>
-              {/* <Chip value="令和、誕生日、天上天下、お風呂に入る" color="yellow" variant="light" onChange={() => setText("令和、誕生日、天上天下、お風呂に入る")}>令和、誕生日、天上天下、お風呂に入る</Chip> */}
             </Group>
           </Chip.Group>
         </Container>
@@ -113,7 +127,6 @@ const Annotator: React.FC = () => {
               className={classes.textareaInput}
               value={text}
               onChange={(e) => {
-                console.log(e.currentTarget.value);
                 setText(e.currentTarget.value);
               }}
             />
@@ -122,7 +135,7 @@ const Annotator: React.FC = () => {
         <br />
         <Container className="mainContentWidth">
           <Group align="center" justify="center">
-            <AnimatedConvertButton onClick={handleConvert} />
+            <AnimatedConvertButton onClick={handleConvert} loading={loading}/>
           </Group>
         </Container>
         <Container className="mainContentWidth">
@@ -153,9 +166,12 @@ const Annotator: React.FC = () => {
               </Group>
             </Group>
             <Paper shadow="xs" radius="md" p="xl" className={classes.displayPaper}>
-              {result.length > 0 ?
+              {loading ? (
+                <Center h="100%">
+                  <Loader size="md" />
+                </Center>
+              ) : (result.length > 0 ?
                 result.map((item, index) => {
-                  console.log('20260404', item)
                   if (item.original === '\\n') {
                     return (
                       <React.Fragment key={index}>
@@ -170,24 +186,35 @@ const Annotator: React.FC = () => {
                         <span key={index}>{result[index]['original']}</span>
                       );
                     case 'furigana':
-                      console.log(item.kanji_breakdown)
-                      if (item.kanji_breakdown.length > 0 && item.word_type === 'kanji') {
-                        return item.kanji_breakdown.map((element, index) => (
-                          <RubyText
-                            key={index}
-                            text={item.original[index]}
-                            rubyText={element === item.original[index] ? '' : element}
-                          />
-                        ))
-                      } else {
-                        return (
-                          <RubyText
-                            key={index}
-                            text={result[index]['original'] ? result[index]['original'] : ''}
-                            rubyText={''}
-                          />
-                        )
+                      if (item.word_type === 'kanji' && item.kanji_breakdown.length > 0) {
+                        const isOneToOne = item.kanji_breakdown.length === item.original.length;
+                        const isBlockRuby = item.kanji_breakdown.length === 1 && item.original.length > 1;
+                        if (isOneToOne) {
+                          return item.kanji_breakdown.map((kanji_reading, kanji_index) => (
+                            <RubyText
+                              key={`${index}-${kanji_index}`}
+                              text={item.original[kanji_index]}
+                              rubyText={kanji_reading === item.original[kanji_index] ? '' : kanji_reading}
+                            />
+                          ))
+                        }
+                        if (isBlockRuby) {
+                          return (
+                            <RubyText
+                              key={index}
+                              text={item.original}
+                              rubyText={item.kanji_breakdown[0]}
+                            />
+                          )
+                        }
                       }
+                      return (
+                        <RubyText
+                          key={index}
+                          text={result[index]['original'] ? result[index]['original'] : ''}
+                          rubyText={''}
+                        />
+                      )
                     case 'hiragana':
                       return (
                         <span key={index}>{result[index]['hiragana']}</span>
@@ -197,7 +224,7 @@ const Annotator: React.FC = () => {
                         <span key={index}>{result[index]['katakana']}</span>
                       );
                   }
-                }) : <></>}
+                }) : <></>)}
             </Paper>
             <Group align="center" justify="flex-end" className={classes.outputToolsBottom}>
               <Button

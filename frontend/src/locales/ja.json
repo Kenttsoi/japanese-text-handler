@@ -18,7 +18,10 @@
   },
   "features": {
     "cardList": [
-      { "title": "振假名（ふりがな）自動生成", "description": "構文解析技術により、漢字に読みを自動付与。平仮名、片仮名、ローマ字の表示切り替えにも対応。" }
+      {
+        "title": "振假名（ふりがな）自動生成",
+        "description": "構文解析技術により、漢字に読みを自動付与。平仮名、片仮名、ローマ字の表示切り替えにも対応。"
+      }
     ]
   },
   "annotator": {
@@ -37,5 +40,61 @@
       "romaji": "ローマ字",
       "pitchAccent": "アクセント"
     }
+  },
+  "studyPage": {
+    "searchBarLabel": "検索",
+    "dataCards": {
+      "totalVocab": "単語総数",
+      "favorites": "お気に入り"
+    },
+    "hiraganaLabel": "平仮名",
+    "katakanaLabel": "片仮名",
+    "vocabSection": {
+      "vocabLabel": "単語"
+    },
+    "kanjiSection": {
+      "kanjiLabel": "漢字"
+    },
+    "general": {
+      "noResultFoundLabel": "検索結果が見つかりません",
+      "showMoreButton": "もっと見る",
+      "showAllButton": {
+        "part1": "全",
+        "part2": "件の結果を表示"
+      },
+      "modal": {
+        "modalTitle": {
+          "part1": "すべての検索結果（全",
+          "part2": "件)"
+        }
+      }
+    }
+  },
+  "others": {
+    "notification": {
+      "errorTitle": "失敗",
+      "successTtile": "成功",
+      "warningTitle": "警告",
+      "errorMessage": {
+        "catchedError": "予期せぬエラーが発生しました。ページを再読み込みしてください。",
+        "INVALID_INPUT": "有効な内容を入力してください。",
+        "PAYLOAD_TOO_LARGE": "文字数が上限を超えています。短くしてから再度お試しください。",
+        "UNSAFE_CONTENT_DETECTED": "不適切なコンテンツが検出されました。",
+        "NETWORK_ERROR": "ネットワーク接続に失敗しました。ネットワーク設定を確認してください。",
+        "default": "処理に失敗しました。しばらく時間をおいてから再度お試しください。"
+      },
+      "study": {
+        "star": {
+          "removeStarSuccessTitle": "お気に入り解除",
+          "removeStarSuccessMsg": "お気に入りリストから削除しました。",
+          "addStarSuccessTitle": "お気に入り追加！",
+          "addStarSuccessMsg": "お気に入りリストに追加しました。"
+        }
+      }
+    },
+    "fetchFailed": "データの取得に失敗しました"
+  },
+  "footer": {
+    "ownerStatement": "デザイン・開発："
   }
 }

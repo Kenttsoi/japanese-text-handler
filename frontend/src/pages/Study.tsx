@@ -1,167 +1,313 @@
 import React from 'react';
-import { Container, Title, Text, Button, Group, Stack, Box, SimpleGrid, Paper, Center, TextInput, Card, Badge } from '@mantine/core';
+import { Container, Skeleton, Text, Button, Group, Stack, Box, SimpleGrid, Paper, Center, TextInput, Card, Alert } from '@mantine/core';
+import { useDebouncedValue, useLocalStorage } from '@mantine/hooks';
 import DynamicKanaSlider from '@/components/study/DynamicKanaSlider';
-import VocabCard from '@/components/study/VocabCard';
-import { KanaItem } from '@/types';
+import { KanaItem, CardType, KanjiItems, VocabAPIResult, SharedModalProps, SharedModalConfig, KanjiAPIResult, ApiResponse, VocabItems } from '@/types';
 import { vocabService } from '@/services/vocabService';
+import { fetchFirstKanji, searchKanji } from '@/services/api';
 import IconSearch from '@tabler/icons-react/dist/esm/icons/IconSearch.mjs';
+import VocabGrid from '@/components/study/VocabGrid';
+import KanjiGrid from '@/components/study/KanjiGrid';
+import { hiraganaData } from '@/data/kanaData';
+import { katakanaData } from '@/data/kanaData';
+import DataCards from '@/components/study/DataCards';
+import { showErrorToast, showSuccessToast } from '@/utils/notification';
+import CardModal from '@/components/study/CardModal';
+import { useTranslation } from 'react-i18next';
 
-interface VocabItems {
-  id: number,
-  word: string,
-  reading: string,
-  meaning_ch: string,
-  jlpt_level_1?: string | null,
-  pos?: string | null
+const splitRomaji = (input: string): string[] => {
+  const regex = /[bcdfghjklmnpqrstvwxyz]*[aeiou]|n(?![aeiou])/gi;
+  return input.match(regex) || [];
+};
+
+const generateSearchTokens = (query: string): string[] => {
+  const cleanQuery = query.trim().toLowerCase();
+
+  if (!cleanQuery) return [];
+  const hasNonEnglish = /[^\x00-\x7F]/.test(cleanQuery);
+  if (hasNonEnglish) {
+    return Array.from(cleanQuery);
+  } else {
+    return splitRomaji(cleanQuery);
+  }
 }
 
-const hiraganaData: KanaItem[] = [
-  { kana: 'あ', romaji: 'a' }, { kana: 'い', romaji: 'i' }, { kana: 'う', romaji: 'u' }, { kana: 'え', romaji: 'e' }, { kana: 'お', romaji: 'o' },
-  { kana: 'か', romaji: 'ka' }, { kana: 'き', romaji: 'ki' }, { kana: 'く', romaji: 'ku' }, { kana: 'け', romaji: 'ke' }, { kana: 'こ', romaji: 'ko' },
-  { kana: 'さ', romaji: 'sa' }, { kana: 'し', romaji: 'shi' }, { kana: 'す', romaji: 'su' }, { kana: 'せ', romaji: 'se' }, { kana: 'そ', romaji: 'so' },
-  { kana: 'た', romaji: 'ta' }, { kana: 'ち', romaji: 'chi' }, { kana: 'つ', romaji: 'tsu' }, { kana: 'て', romaji: 'te' }, { kana: 'と', romaji: 'to' },
-  { kana: 'な', romaji: 'na' }, { kana: 'に', romaji: 'ni' }, { kana: 'ぬ', romaji: 'nu' }, { kana: 'ね', romaji: 'ne' }, { kana: 'の', romaji: 'no' },
-  { kana: 'は', romaji: 'ha' }, { kana: 'ひ', romaji: 'hi' }, { kana: 'ふ', romaji: 'fu' }, { kana: 'へ', romaji: 'he' }, { kana: 'ほ', romaji: 'ho' },
-  { kana: 'ま', romaji: 'ma' }, { kana: 'み', romaji: 'mi' }, { kana: 'む', romaji: 'mu' }, { kana: 'め', romaji: 'me' }, { kana: 'も', romaji: 'mo' },
-  { kana: 'や', romaji: 'ya' }, { kana: '', romaji: '' }, { kana: 'ゆ', romaji: 'yu' }, { kana: '', romaji: '' }, { kana: 'よ', romaji: 'yo' },
-  { kana: 'ら', romaji: 'ra' }, { kana: 'り', romaji: 'ri' }, { kana: 'る', romaji: 'ru' }, { kana: 'れ', romaji: 're' }, { kana: 'ろ', romaji: 'ro' },
-  { kana: 'わ', romaji: 'wa' }, { kana: '', romaji: '' }, { kana: '', romaji: '' }, { kana: '', romaji: '' }, { kana: 'を', romaji: 'wo' },
-  { kana: 'ん', romaji: 'n' },
-];
+const filteredKana = (kanaData: KanaItem[], searchQuery: string): KanaItem[] => {
+  if (!searchQuery.trim()) return kanaData;
 
-const katakanaData: KanaItem[] = [
-  { kana: 'ア', romaji: 'a' }, { kana: 'イ', romaji: 'i' }, { kana: 'ウ', romaji: 'u' }, { kana: 'エ', romaji: 'e' }, { kana: 'オ', romaji: 'o' },
-  { kana: 'カ', romaji: 'ka' }, { kana: 'キ', romaji: 'ki' }, { kana: 'ク', romaji: 'ku' }, { kana: 'ケ', romaji: 'ke' }, { kana: 'コ', romaji: 'ko' },
-  { kana: 'サ', romaji: 'sa' }, { kana: 'シ', romaji: 'shi' }, { kana: 'ス', romaji: 'su' }, { kana: 'セ', romaji: 'se' }, { kana: 'ソ', romaji: 'so' },
-  { kana: 'タ', romaji: 'ta' }, { kana: 'チ', romaji: 'chi' }, { kana: 'ツ', romaji: 'tsu' }, { kana: 'テ', romaji: 'te' }, { kana: 'ト', romaji: 'to' },
-  { kana: 'ナ', romaji: 'na' }, { kana: 'ニ', romaji: 'ni' }, { kana: 'ヌ', romaji: 'nu' }, { kana: 'ネ', romaji: 'ne' }, { kana: 'ノ', romaji: 'no' },
-  { kana: 'ハ', romaji: 'ha' }, { kana: 'ヒ', romaji: 'hi' }, { kana: 'フ', romaji: 'fu' }, { kana: 'ヘ', romaji: 'he' }, { kana: 'ホ', romaji: 'ho' },
-  { kana: 'マ', romaji: 'ma' }, { kana: 'ミ', romaji: 'mi' }, { kana: 'ム', romaji: 'mu' }, { kana: 'メ', romaji: 'me' }, { kana: 'モ', romaji: 'mo' },
-  { kana: 'ヤ', romaji: 'ya' }, { kana: '', romaji: '' }, { kana: 'ユ', romaji: 'yu' }, { kana: '', romaji: '' }, { kana: 'ヨ', romaji: 'yo' },
-  { kana: 'ラ', romaji: 'ra' }, { kana: 'リ', romaji: 'ri' }, { kana: 'ル', romaji: 'ru' }, { kana: 'レ', romaji: 're' }, { kana: 'ロ', romaji: 'ro' },
-  { kana: 'ワ', romaji: 'wa' }, { kana: '', romaji: '' }, { kana: '', romaji: '' }, { kana: '', romaji: '' }, { kana: 'ヲ', romaji: 'wo' },
-  { kana: 'ン', romaji: 'n' },
-];
+  const tokens = generateSearchTokens(searchQuery);
 
-const mockVocab: VocabItems[] = [
-  { id: 1, word: '日本語', reading: 'にほんご', meaning_ch: '日語', jlpt_level: 'N5', pos: '名詞' },
-  { id: 2, word: '美味しい', reading: 'おいしい', meaning_ch: '好吃的、美味的', pos: '形容詞' },
-];
+  if (tokens.length === 0) return [];
+
+  return kanaData.filter(item => {
+    const itemKana = item.kana;
+    const itemRomaji = item.romaji.toLowerCase();
+
+    return tokens.some(token =>
+      itemKana === token || itemRomaji === token
+    );
+  })
+}
 
 export default function Study() {
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [vocabResult, setVocabResult] = React.useState<VocabItems[]>([]);
+  // 1. Higher Priority for search bar render
+  const [searchQuery, setSearchQuery] = React.useState<string>('');
+  // 2. Lower Priority for display
+  const [displayQuery, setDisplayQuery] = React.useState<string>('');
+  // 3. For the sending request in useEffect
+  const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 1000);
+  const [isPending, startTransition] = React.useTransition();
+  /* const [hiraganaResult, setHiraganaResult] = React.useState<KanaItem[]>([]);
+  const [katakanaResult, setKatakaanaResult] = React.useState<KanaItem[]>([]); */
+  const [vocabResult, setVocabResult] = React.useState<VocabAPIResult>({ data: [], total: 0 });
+  const [kanjiResult, setKanjiResult] = React.useState<KanjiAPIResult>({ data: [], total: 0 });
+  const [totalVocabCount, setTotalVocabCount] = React.useState<number>(0);
+  const [isVocabCardLoading, setIsVocabCardLoading] = React.useState<boolean>(false);
+  const [isKanjiCardLoading, setIsKanjiCardLoading] = React.useState<boolean>(false);
+  const [vocabDisplayCount, setVocabDisplayCount] = React.useState(6);
+  const [kanjiDisplayCount, setKanjiDisplayCount] = React.useState(6);
+  const [starredIds, setStarredIds] = useLocalStorage<number[]>({
+    key: 'starred-vocabs',
+    defaultValue: [],
+  });
+  const [vocabModalOpen, setVocabModalOpen] = React.useState(false);
+  const [modalConfig, setModalConfig] = React.useState<SharedModalConfig | null>(null);
+  const { t } = useTranslation();
 
   React.useEffect(() => {
+    const controller = new AbortController();
     async function fetchFirstVocab() {
-      const result = await vocabService.getAllVocab();
-      if (result) {
-        setVocabResult(result);
+      try {
+        setIsVocabCardLoading(true);
+
+        const response: ApiResponse<VocabAPIResult> = await vocabService.getAllVocab();
+        const { success, result: vocabCardList } = response
+        if (success && vocabCardList && vocabCardList.data.length > 0) {
+          setVocabResult({ data: vocabCardList.data, total: vocabCardList.data.length });
+          setTotalVocabCount(vocabCardList.total);
+          setVocabDisplayCount(6);
+        } else {
+          setVocabResult({ data: [], total: 0 });
+        }
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+          console.error("Failed to fetch vocab:", err);
+          showErrorToast(t('others.notification.errorMessage.catchedError'));
+        }
+      } finally {
+        setIsVocabCardLoading(false);
       }
     }
     fetchFirstVocab();
+
+    return () => {
+      controller.abort();
+    }
   }, [])
+
+  React.useEffect(() => {
+    const controller = new AbortController();
+    async function getFirstKanji() {
+      try {
+        setIsKanjiCardLoading(true);
+
+        const response: ApiResponse<KanjiItems[]> = await fetchFirstKanji(controller.signal);
+
+        const { result: kanjiCardList, success } = response;
+        if (success && kanjiCardList && kanjiCardList.length > 0) {
+          setKanjiResult({ data: kanjiCardList, total: 6 });
+          setKanjiDisplayCount(6);
+          return;
+        }
+        setKanjiResult({ data: [], total: 0 });
+      } catch (err: any) {
+        if (err.name === 'AbortError' || controller.signal.aborted) {
+          // This request has been cancelled.
+          return;
+        }
+        showErrorToast(t('others.notification.errorMessage.catchedError'));
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsKanjiCardLoading(false);
+        }
+      }
+    }
+    getFirstKanji();
+
+    return () => {
+      controller.abort();
+    }
+  }, [])
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.currentTarget.value;
+
+    setSearchQuery(value);
+
+    startTransition(() => {
+      setDisplayQuery(value);
+    });
+  }
+
+  const handleToggleStar = (id: number) => {
+    const isCurrentlyStarred = starredIds.includes(id);
+    setStarredIds((current) =>
+      current.includes(id)
+        ? current.filter((itemId) => itemId !== id)
+        : [...current, id]
+    );
+    if (isCurrentlyStarred) {
+      showSuccessToast(t('others.notification.study.star.removeStarSuccessMsg'), t('others.notification.study.star.removeStarSuccessTitle'), 1500);
+    } else {
+      showSuccessToast(t('others.notification.study.star.addStarSuccessMsg'), t('others.notification.study.star.addStarSuccessTitle'), 1500);
+    }
+  };
+
+  const filteredHiragana = React.useMemo(() =>
+    filteredKana(hiraganaData, displayQuery),
+    [displayQuery, hiraganaData]
+  );
+
+  const filteredKatakana = React.useMemo(() =>
+    filteredKana(katakanaData, displayQuery),
+    [displayQuery, katakanaData]
+  );
+
+  React.useEffect(() => {
+    if (!debouncedSearchQuery.trim()) {
+      setVocabResult({ data: [], total: 0 });
+      setKanjiResult({ data: [], total: 0 });
+      return;
+    }
+
+    const controller = new AbortController();
+
+    const fetchAllData = async () => {
+      setIsVocabCardLoading(true);
+      setIsKanjiCardLoading(true);
+      try {
+        const [vocabRes, kanjiRes] = await Promise.allSettled([
+          vocabService.searchVocab(debouncedSearchQuery.trim(), controller.signal),
+          searchKanji(debouncedSearchQuery.trim(), controller.signal)
+        ]);
+
+        if (vocabRes.status === 'fulfilled' && vocabRes.value.success && vocabRes.value.result) {
+          setVocabResult(vocabRes.value.result);
+          setVocabDisplayCount(6);
+        }
+
+        if (kanjiRes.status === 'fulfilled' && kanjiRes.value.success && kanjiRes.value.result) {
+          setKanjiResult(kanjiRes.value.result);
+          setKanjiDisplayCount(6);
+        }
+
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+          console.error("[PARALLEL SEARCH ERROR] ", err);
+          showErrorToast(t('others.notification.errorMessage.catchedError'));
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsVocabCardLoading(false);
+          setIsKanjiCardLoading(false);
+        }
+
+      }
+    }
+    fetchAllData();
+    return () => {
+      controller.abort();
+    };
+  }, [debouncedSearchQuery])
+
+  const handleOpenModal = (type: CardType, query: string, total: number) => {
+    let preModalConfig: SharedModalConfig = {
+      type: type,
+      query,
+      total,
+    }
+    if (type === 'vocab') {
+      preModalConfig['onToggleStar'] = handleToggleStar;
+    }
+    setModalConfig(preModalConfig);
+    setVocabModalOpen(true);
+  }
+
+  const vocabItems = vocabResult.data;
+  const vocabTotal = vocabResult.total;
+  const kanjiItems = kanjiResult.data;
+  const kanjiTotal = kanjiResult.total;
+  const visibleVocabItems = vocabItems.slice(0, vocabDisplayCount)
+  const visibleKanjiItems = kanjiItems.slice(0, kanjiDisplayCount)
 
   return (
     <Container size="md" py="xl" my="md">
       <TextInput
-        placeholder="Search"
+        placeholder={t('studyPage.searchBarLabel')}
         size="lg"
         radius="xl"
-        value={""}
+        value={searchQuery}
         leftSection={<IconSearch size={18} stroke={1.5} />}
         mb="xl"
-        onChange={(event) => setSearchQuery(event.currentTarget.value)}
+        onChange={handleSearchChange}
         styles={(theme) => ({
           input: {
             '&:focus': { borderColor: theme.colors.orange[4] }
           }
         })}
       />
+      <DataCards totalWords={totalVocabCount} favorites={starredIds.length} />
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ color: '#FF87B2' }}>✨</span> Hiragana
+        <span style={{ color: '#FF87B2' }}>✨</span> {t('studyPage.hiraganaLabel')}
       </Text>
       <DynamicKanaSlider
-        kanaList={hiraganaData}
+        kanaList={filteredHiragana} isLoading={isPending}
       />
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ color: '#FF87B2' }}>✨</span> Katakana
+        <span style={{ color: '#FF87B2' }}>✨</span> {t('studyPage.katakanaLabel')}
       </Text>
       <DynamicKanaSlider
-        kanaList={katakanaData}
+        kanaList={filteredKatakana} isLoading={isPending}
       />
-
-      {/* <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ color: '#FF87B2' }}>✨</span> Hiragana
-      </Text>
-      <Paper shadow="xs" p="lg" radius="lg" bg="white" withBorder>
-        <SimpleGrid
-          cols={5}
-          spacing="xs"
-          verticalSpacing="md"
-        >
-          {hiraganaData.map((item) => (
-            <Paper
-              p="sm"
-              radius="md"
-              bg="#FFF0F0"
-              key={item.kana}
-            >
-              <Stack align="center" gap={4}>
-                <Text size="32px" fw={500} c="#4A4A4A">
-                  {item.kana}
-                </Text>
-                <Text size="sm" c="dimmed">
-                  {item.romaji}
-                </Text>
-              </Stack>
-            </Paper>
-          ))}
-        </SimpleGrid>
-      </Paper>
       <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ color: '#FF87B2' }}>✨</span> Katakana
+        <span style={{ color: '#FF87B2' }}>✨</span> {t('studyPage.vocabSection.vocabLabel')}
       </Text>
-      <Paper shadow="xs" p="lg" radius="lg" bg="white" withBorder>
-        <SimpleGrid
-          cols={5}
-          spacing="xs"
-          verticalSpacing="md"
-        >
-          {katakanaData.map((item) => (
-            <Paper
-              p="sm"
-              radius="md"
-              bg="#FFF0F0"
-              key={item.kana}
-            >
-              <Stack align="center" gap={4}>
-                <Text size="32px" fw={500} c="#4A4A4A">
-                  {item.kana}
-                </Text>
-                <Text size="sm" c="dimmed">
-                  {item.romaji}
-                </Text>
-              </Stack>
-            </Paper>
-          ))}
-        </SimpleGrid>
-      </Paper> */}
+      <VocabGrid isLoading={isVocabCardLoading} data={visibleVocabItems} starredIds={starredIds} onToggleStar={handleToggleStar} />
+      {vocabTotal > 6 && (
+        <Group justify='right' mt='md'>
+          {vocabDisplayCount === 6 ? (
+            <Button variant="light" onClick={() => setVocabDisplayCount(12)}>
+              {t('studyPage.general.showMoreButton')}
+            </Button>
+          ) : vocabDisplayCount === 12 && vocabTotal > 12 ? (
+            /* setVocabModalOpen(true) */
+            <Button variant="outline" onClick={() => handleOpenModal('vocab', debouncedSearchQuery.trim(), vocabTotal)}>
 
-      <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ color: '#FF87B2' }}>✨</span> Vocabulary
-      </Text>
-      <Box>
-        <Group gap="md" grow justify="space-between">
-          {vocabResult.map((item, index) => (
-            <VocabCard
-              key={item.id ? item.id : item.word}
-              {...item}
-            />
-          ))}
+              {t('studyPage.general.showAllButton.part1')}{vocabTotal}{t('studyPage.general.showAllButton.part2')}
+            </Button>
+          ) : null}
         </Group>
-      </Box>
+      )}
+      {/* <CardModal type='vocab' opened={vocabModalOpen} onClose={() => setVocabModalOpen(false)} query={debouncedSearchQuery.trim()} total={vocabTotal} starredIds={starredIds} onToggleStar={handleToggleStar} /> */}
 
+      <Text size="xl" fw={700} my="lg" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ color: '#FF87B2' }}>✨</span> {t('studyPage.kanjiSection.kanjiLabel')}
+      </Text>
+      <KanjiGrid isLoading={isKanjiCardLoading} data={visibleKanjiItems} />
+      {kanjiTotal > 6 && (
+        <Group justify='right' mt='md'>
+          {kanjiDisplayCount === 6 ? (
+            <Button variant="light" onClick={() => setKanjiDisplayCount(12)}>
+              {t('studyPage.general.showMoreButton')}
+            </Button>
+          ) : kanjiDisplayCount === 12 && kanjiTotal > 12 ? (
+            <Button variant="outline" onClick={() => handleOpenModal('kanji', debouncedSearchQuery.trim(), kanjiTotal)}>
+              {t('studyPage.general.showAllButton.part1')}{kanjiTotal}{t('studyPage.general.showAllButton.part2')}
+            </Button>
+          ) : null}
+        </Group>
+      )}
+      <CardModal {...modalConfig as SharedModalProps} starredIds={starredIds} opened={vocabModalOpen} onClose={() => setVocabModalOpen(false)} />
     </Container>
   )
 }
