@@ -25,7 +25,7 @@ export default function Home() {
           <Button size="lg" radius="xl" color="dark" onClick={() => navigate(`/${lang}/annotate`)}>
             {t('homePage.button1')}
           </Button>
-          <Button variant="outline" size="lg" radius="xl">
+          <Button variant="outline" size="lg" radius="xl" onClick={() => navigate(`/${lang}/study`)}>
               {t('homePage.button2')}
           </Button>
         </Group>

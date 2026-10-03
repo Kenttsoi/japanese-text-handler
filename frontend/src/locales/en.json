@@ -21,6 +21,10 @@
       {
         "title": "Auto Furigana Annotation",
         "description": "Automatically generate Furigana for complex Kanji and toggle entire passages between Hiragana, Katakana, and Romaji."
+      },
+      {
+        "title": "Japanese Study",
+        "description": "Comprehensive learning tools including interactive flashcards for Kana, Kanji, and Vocabulary, alongside a quick dictionary search function."
       }
     ]
   },
