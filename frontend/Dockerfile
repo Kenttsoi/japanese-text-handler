@@ -1,4 +1,4 @@
-FROM node:20-slim
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
@@ -7,8 +7,12 @@ RUN npm install
 
 COPY . .
 
-# Vite default on 5173
-EXPOSE 5173
+RUN npm run build
+
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+EXPOSE 80
 
 # Start
-CMD ["npm", "run", "dev", "--", "--host"]
+CMD ["nginx", "-g", "daemon off;"]
