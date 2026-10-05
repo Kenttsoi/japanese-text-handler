@@ -28,11 +28,13 @@ services:
     restart: always
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+        - VITE_SUPABASE_PUBLISHABLE_KEY=${VITE_SUPABASE_PUBLISHABLE_KEY}
     container_name: japanese-text-handler-frontend
-    args:
-      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
-      - VITE_SUPABASE_PUBLISHABLE_KEY=${VITE_SUPABASE_PUBLISHABLE_KEY}
     env_file:
       - ./frontend/.env
     networks:
