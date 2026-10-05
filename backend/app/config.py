@@ -4,10 +4,17 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
+    """ Database Setting """
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         'DATABASE_URL'
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_size': 2,
+        'max_overflow': 3,
+        'pool_recycle': 280,
+        'pool_pre_ping': True,
+    }
 
     """Basic Setting"""
     SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')
