@@ -33,6 +33,8 @@ services:
     args:
       - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
       - VITE_SUPABASE_PUBLISHABLE_KEY=${VITE_SUPABASE_PUBLISHABLE_KEY}
+    env_file:
+      - ./frontend/.env
     networks:
       - japanese-text-handler-network
     restart: always
