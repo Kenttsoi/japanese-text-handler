@@ -30,9 +30,9 @@ export default function Home() {
           </Button>
         </Group>
 
-        <Box className={classes.dropzone}>
+        {/* <Box className={classes.dropzone}>
           <Text c="dimmed">{t('homePage.dragAndDrop')}</Text>
-        </Box>
+        </Box> */}
         
         <FeaturesGrid />
       </Stack>
