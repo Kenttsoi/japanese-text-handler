@@ -32,6 +32,9 @@ export default defineConfig(({ mode }) => {
         '@mantine/core',
       ],
       exclude: ['@tabler/icons-react']
+    },
+    esbuild: {
+      drop: ['console', 'debugger'],
     }
   };
 });

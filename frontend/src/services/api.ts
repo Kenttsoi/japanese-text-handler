@@ -66,7 +66,6 @@ export const fetchPronunciation = async (word: string): Promise<Blob> => {
     const response = await fetch(`${API_URL}/pronounce?text=${encodeURIComponent(word)}`);
 
     if (!response.ok) {
-        console.log(response)
         throw new Error(`Failed to fetch pronunciation: ${response.statusText}`);
     }
 

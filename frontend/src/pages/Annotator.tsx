@@ -30,7 +30,6 @@ const Annotator: React.FC = () => {
   ]
 
   const handleConvert = async () => {
-    console.log('handleConvert', text);
 
     if (!text.trim()) {
       showWarningToast(t('others.notification.errorMessage.INVALID_INPUT'));
@@ -40,7 +39,6 @@ const Annotator: React.FC = () => {
     setLoading(true);
     try {
       const apiRes: ApiResponse<KanjiAnnotatedDictItem[]> = await convertJapaneseText(text);
-      console.log('[FUNCTION: handleConvert]', apiRes);
 
       if (apiRes.success && apiRes.result) {
         setResult(apiRes.result);
